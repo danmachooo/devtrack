@@ -438,7 +438,7 @@ State ownership:
 Current implementation note:
 
 - the repo is still configured with `useMockApi: true`, so the completed auth and organization flows are verified through the shared API layer in mock mode as well as through typecheck and production build validation
-- the internal workspace shell now includes a top header that surfaces active organization context, the signed-in user's role and account menu, and a theme toggle backed by the shared token system
+- the internal workspace shell now includes a sticky sidebar with Lucide-based navigation, a top header that surfaces active organization context and the signed-in user's account menu, an icon-led theme toggle backed by the shared token system, and a minimal custom scrollbar treatment that stays aligned with the token palette in light and dark mode
 - the internal dashboard route now acts as a real overview surface that loads project data through the shared projects API layer, summarizes total/setup-needed/stale-or-unsynced/ready-to-share project counts, surfaces role-aware next-step guidance, and links users back into the right project or workspace flow without duplicating dense project-detail interactions
 - the internal tickets route now acts as a project-first workspace that loads available projects through the shared projects API layer, persists the selected project in the URL, reuses the existing ticket review and assignment flows for the active project, preserves read-only visibility for non-edit roles, and links users back to the selected project command center
 - internal scaffold pages use a shared permission helper so role-limited page actions are omitted from the DOM when the current role is not authorized
