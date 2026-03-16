@@ -438,6 +438,9 @@ State ownership:
 Current implementation note:
 
 - the repo is still configured with `useMockApi: true`, so the completed auth and organization flows are verified through the shared API layer in mock mode as well as through typecheck and production build validation
+- the internal workspace shell now includes a top header that surfaces active organization context, the signed-in user's role and account menu, and a theme toggle backed by the shared token system
+- internal scaffold pages use a shared permission helper so role-limited page actions are omitted from the DOM when the current role is not authorized
+- the project list now loads through the shared projects API module, supports team-leader-only project creation, shows sync freshness and `lastSyncedAt`, and uses a zero-project empty state that respects RBAC visibility
 
 ---
 

@@ -54,19 +54,19 @@ Assumption:
 ## Phase 4 - Internal App Shell
 
 - [x] Build sidebar navigation for dashboard, projects, tickets, and organization
-- [ ] Build the top header with organization context and user menu
-- [ ] Add role-aware page actions
-- [ ] Add dark mode support through the token system
-- [ ] Ensure unauthorized actions are hidden in the UI
+- [x] Build the top header with organization context and user menu
+- [x] Add role-aware page actions
+- [x] Add dark mode support through the token system
+- [x] Ensure unauthorized actions are hidden in the UI
 
 ## Phase 5 - Project List
 
-- [ ] Build `/projects`
-- [ ] Show project name, client name, progress, and `lastSyncedAt`
-- [ ] Add sync freshness treatment
-- [ ] Add a clear empty state for zero projects
-- [ ] Add a team-leader-only create-project CTA
-- [ ] Wire project list and project creation to real APIs
+- [x] Build `/projects`
+- [x] Show project name, client name, progress, and `lastSyncedAt`
+- [x] Add sync freshness treatment
+- [x] Add a clear empty state for zero projects
+- [x] Add a team-leader-only create-project CTA
+- [x] Wire project list and project creation to real APIs
 
 ## Phase 6 - Project Detail Command Center
 
@@ -159,4 +159,4 @@ Assumption:
 - [ ] Review accessibility basics such as labels, focus rings, and keyboard access
 - [ ] Review responsive behavior for auth and client pages
 - [ ] Review visual consistency against your chosen color palette and design tokens
-- [ ] Do a final pass against `AGENTS..md`, `PROJECT-FLOW.md`, `UI-UX-STORY.md`, `CONTEXT.md`, and `SKILL.md`
+- [ ] Do a final pass against `AGENTS.md`, `PROJECT-FLOW.md`, `UI-UX-STORY.md`, `CONTEXT.md`, and `SKILL.md`

@@ -116,3 +116,47 @@ export type MembersData = {
   members: OrganizationMember[];
   total: number;
 };
+
+export type DevtrackStatus = "NOT_STARTED" | "IN_DEV" | "APPROVED" | "RELEASED";
+
+export type ClientAccess = {
+  id: string;
+  projectId: string;
+  lastViewedAt: string | null;
+  createdAt: string;
+};
+
+export type ProjectFeature = {
+  id: string;
+  name: string;
+  order: number;
+  projectId: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type Project = {
+  id: string;
+  name: string;
+  clientName: string;
+  clientEmail: string;
+  notionDatabaseId: string | null;
+  statusMapping: Record<string, DevtrackStatus> | null;
+  syncInterval: number | null;
+  lastSyncedAt: string | null;
+  organizationId: string;
+  createdById: string;
+  createdAt: string;
+  updatedAt: string;
+  clientAccess: ClientAccess;
+  features: ProjectFeature[];
+  _count: {
+    tickets: number;
+  };
+};
+
+export type CreateProjectPayload = {
+  name: string;
+  clientName: string;
+  clientEmail: string;
+};

@@ -12,6 +12,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { useSession } from "@/hooks/use-session";
+import { formatRoleLabel } from "@/lib/auth/permissions";
 import {
   acceptInvitation,
   cancelInvitation,
@@ -205,6 +206,13 @@ export default function OrganizationPage() {
           activeOrganizationId
             ? "Manage the internal team workspace, invitations, and organization membership."
             : "Create a workspace or accept an invitation to activate the internal experience."
+        }
+        actions={
+          activeOrganizationId ? (
+            <div className="rounded-full border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm font-medium text-[var(--foreground-muted)]">
+              Current role: {user?.role ? formatRoleLabel(user.role) : "Loading"}
+            </div>
+          ) : null
         }
       />
 
@@ -637,11 +645,7 @@ function MemberRow({
 }
 
 function formatRole(role: UserRole) {
-  return role
-    .toLowerCase()
-    .split("_")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
+  return formatRoleLabel(role);
 }
 
 function formatStatus(status: OrganizationInvitation["status"]) {
