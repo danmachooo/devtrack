@@ -6,11 +6,11 @@ It grounds implementation decisions in the underlying model rather than in UI as
 
 Read it alongside:
 
-- `AGENTS..md`
+- `AGENTS.md`
 - `PROJECT-FLOW.md`
 - `UI-UX-STORY.md`
 - `SKILL.md`
-- `endpoints.md`
+- `ENDPOINTS.md`
 
 When contract rules or scoping rules conflict with UI assumptions, the contract and scoping rules win.
 
@@ -74,7 +74,7 @@ Returned shape:
 {
   session: {
     expiresAt: string;
-    activeOrganizationId: string;
+    activeOrganizationId: string | null;
   } | null;
   user: {
     id: string;
@@ -91,6 +91,8 @@ Important consequences:
 - `user` may be `null`
 - a user may be signed in without belonging to an active organization
 - almost all internal data depends on `activeOrganizationId`
+- the frontend currently redirects no-session users away from internal routes and into `/sign-in`
+- signed-in users without an active organization are intentionally treated as onboarding users and guided into `/organization`
 
 ### Organization
 
@@ -107,6 +109,12 @@ Everything below is organization-scoped:
 
 Cross-organization access must fail.
 
+Current frontend organization behavior:
+
+- `/organization` is both the onboarding destination and the active organization management screen
+- team leaders can create the first organization directly from the frontend
+- successful organization creation activates the organization in the current session
+
 ### OrganizationInvitation
 
 Invitations are used to join an organization by email.
@@ -116,6 +124,8 @@ Important behavior:
 - the invited email must match the authenticated user email
 - accepting an invitation activates that organization in the current session
 - invitation IDs are non-UUID strings where documented
+- the frontend supports personal invitation listing plus accept and reject actions
+- outgoing invitation management is shown only for `TEAM_LEADER`
 
 ### OrganizationMember
 
@@ -127,6 +137,12 @@ Role enum:
 - `BUSINESS_ANALYST`
 - `QUALITY_ASSURANCE`
 - `DEVELOPER`
+
+Current frontend member management:
+
+- the organization route includes a members view
+- team leaders can update member roles and remove members
+- non-team-leader users can view membership but do not see management controls
 
 ### Project
 
@@ -274,6 +290,8 @@ Internal UI auth:
 - session-based
 - restored with `GET /api/auth/session`
 - users sign up, sign in, and sign out through custom `/api/auth/*` routes
+- sign-in and sign-up forms are implemented with React Hook Form and Zod
+- sign-out is available from the internal shell header
 
 Client dashboard access:
 
@@ -416,6 +434,10 @@ State ownership:
 - React Query for server state
 - Zustand for global UI state only
 - local component state for temporary interactions
+
+Current implementation note:
+
+- the repo is still configured with `useMockApi: true`, so the completed auth and organization flows are verified through the shared API layer in mock mode as well as through typecheck and production build validation
 
 ---
 
