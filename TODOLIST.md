@@ -160,3 +160,8 @@ Assumption:
 - [x] Review responsive behavior for auth and client pages
 - [x] Review visual consistency against your chosen color palette and design tokens
 - [x] Do a final pass against `AGENTS.md`, `PROJECT-FLOW.md`, `UI-UX-STORY.md`, `CONTEXT.md`, and `SKILL.md`
+
+## Phase 16 - Internal Route Follow-Up
+
+- [x] Upgrade `/dashboard` from scaffold to a real internal overview page with project metrics, role-aware next steps, and project health links
+- [x] Upgrade `/tickets` from scaffold to a project-first ticket mapping workspace
