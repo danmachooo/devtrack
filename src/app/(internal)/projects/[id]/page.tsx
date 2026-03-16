@@ -14,7 +14,9 @@ import { RoleAwarePageActions } from "@/components/layout/role-aware-page-action
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { FeatureManagementPanel } from "@/features/features-management/feature-management-panel";
 import { NotionIntegrationPanel } from "@/features/notion/notion-integration-panel";
+import { SyncPanel } from "@/features/sync/sync-panel";
 import { useSession } from "@/hooks/use-session";
 import { canPerformAction } from "@/lib/auth/permissions";
 import { getProject, updateProject } from "@/lib/api/projects.api";
@@ -251,6 +253,8 @@ export default function ProjectDetailPage() {
       </div>
 
       <NotionIntegrationPanel project={project} />
+      <SyncPanel project={project} />
+      <FeatureManagementPanel project={project} />
 
       <Card className="space-y-6 p-6">
         <div className="space-y-1">

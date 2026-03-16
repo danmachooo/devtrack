@@ -135,6 +135,12 @@ export type ProjectFeature = {
   updatedAt: string;
 };
 
+export type ProjectFeatureSummary = ProjectFeature & {
+  _count: {
+    tickets: number;
+  };
+};
+
 export type Project = {
   id: string;
   name: string;
@@ -188,4 +194,20 @@ export type NotionConnectionPayload = {
 
 export type SaveStatusMappingPayload = {
   statusMapping: Record<string, DevtrackStatus>;
+};
+
+export type SyncProjectData = {
+  projectId: string;
+  alreadyQueued: boolean;
+  jobId: string;
+};
+
+export type CreateFeaturePayload = {
+  name: string;
+  order?: number;
+};
+
+export type UpdateFeaturePayload = {
+  name?: string;
+  order?: number;
 };

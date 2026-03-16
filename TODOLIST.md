@@ -89,21 +89,21 @@ Assumption:
 
 ## Phase 8 - Sync Experience
 
-- [ ] Build the sync panel on project detail
-- [ ] Handle idle, queued, syncing, already queued, and completed states
-- [ ] Respect role access for `TEAM_LEADER` and `BUSINESS_ANALYST`
-- [ ] Invalidate relevant queries after successful sync activity
-- [ ] Surface `lastSyncedAt` prominently for trust
+- [x] Build the sync panel on project detail
+- [x] Handle idle, queued, syncing, already queued, and completed states
+- [x] Respect role access for `TEAM_LEADER` and `BUSINESS_ANALYST`
+- [x] Invalidate relevant queries after successful sync activity
+- [x] Surface `lastSyncedAt` prominently for trust
 
 ## Phase 9 - Feature Management
 
-- [ ] Build the project feature list
-- [ ] Build add-feature flow
-- [ ] Build rename-feature flow
-- [ ] Build reorder-feature flow
-- [ ] Build delete-feature flow
-- [ ] Show progress and ticket counts per feature
-- [ ] Add an empty state with a clear CTA when no features exist
+- [x] Build the project feature list
+- [x] Build add-feature flow
+- [x] Build rename-feature flow
+- [x] Build reorder-feature flow
+- [x] Build delete-feature flow
+- [x] Show progress and ticket counts per feature
+- [x] Add an empty state with a clear CTA when no features exist
 
 ## Phase 10 - Tickets
 

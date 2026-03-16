@@ -443,6 +443,8 @@ Current implementation note:
 - the project list now loads through the shared projects API module, supports team-leader-only project creation, shows sync freshness and `lastSyncedAt`, and uses a zero-project empty state that respects RBAC visibility
 - the project detail route now loads through the shared projects API module, supports a team-leader-only metadata editor, surfaces readiness and `lastSyncedAt`, and keeps the six-step setup checklist plus next-step guidance visible so the command center stays intentional before later phases land
 - the project command center now includes a Notion integration panel that lets team leaders test and save a connection, review connected database details, define status mappings through the shared API layer, and keeps those setup actions hidden from non-team-leader roles
+- the project command center now includes a sync panel that supports the documented queued and already-queued responses, shows distinct idle/queued/syncing/completed UI states, keeps `lastSyncedAt` prominent, and restricts manual sync actions to team leaders and business analysts
+- the project command center now includes a feature management panel that lists project features through the shared API layer, supports add/rename/reorder/delete flows for team leaders and business analysts, and shows ticket counts plus placeholder progress until ticket assignment is built
 
 ---
 
