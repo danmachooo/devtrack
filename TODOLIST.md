@@ -70,22 +70,22 @@ Assumption:
 
 ## Phase 6 - Project Detail Command Center
 
-- [ ] Build `/projects/[id]`
-- [ ] Add project header with metadata and edit action
-- [ ] Add the six-step setup checklist
-- [ ] Add project progress summary and `lastSyncedAt`
-- [ ] Add contextual empty states so the page never feels blank
-- [ ] Adapt the page based on the next incomplete setup step
+- [x] Build `/projects/[id]`
+- [x] Add project header with metadata and edit action
+- [x] Add the six-step setup checklist
+- [x] Add project progress summary and `lastSyncedAt`
+- [x] Add contextual empty states so the page never feels blank
+- [x] Adapt the page based on the next incomplete setup step
 
 ## Phase 7 - Notion Integration
 
-- [ ] Build the Notion connection panel
-- [ ] Add test-before-save flow with `/api/projects/:id/notion/test`
-- [ ] Add save-connection flow with `/api/projects/:id/notion/connect`
-- [ ] Build database display with `/api/projects/:id/notion/databases`
-- [ ] Build the status mapping editor with `/api/projects/:id/notion/mapping`
-- [ ] Explain completion logic clearly in the mapping UI
-- [ ] Restrict Notion setup actions to `TEAM_LEADER`
+- [x] Build the Notion connection panel
+- [x] Add test-before-save flow with `/api/projects/:id/notion/test`
+- [x] Add save-connection flow with `/api/projects/:id/notion/connect`
+- [x] Build database display with `/api/projects/:id/notion/databases`
+- [x] Build the status mapping editor with `/api/projects/:id/notion/mapping`
+- [x] Explain completion logic clearly in the mapping UI
+- [x] Restrict Notion setup actions to `TEAM_LEADER`
 
 ## Phase 8 - Sync Experience
 

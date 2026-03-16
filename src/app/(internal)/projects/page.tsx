@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -12,13 +13,19 @@ import { RoleAwarePageActions } from "@/components/layout/role-aware-page-action
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { useSession } from "@/hooks/use-session";
-import { canPerformAction } from "@/lib/auth/permissions";
-import { createProject, getProjects } from "@/lib/api/projects.api";
+import {
+  formatDateTime,
+  getNextProjectStep,
+  getProjectProgress,
+  getSyncFreshness,
+} from "@/features/projects/project-utils";
 import {
   createProjectSchema,
   type CreateProjectFormValues,
 } from "@/features/projects/projects.schemas";
+import { useSession } from "@/hooks/use-session";
+import { createProject, getProjects } from "@/lib/api/projects.api";
+import { canPerformAction } from "@/lib/auth/permissions";
 import type { Project } from "@/types/api";
 
 export default function ProjectsPage() {
@@ -158,11 +165,7 @@ export default function ProjectsPage() {
                     ? "Creating project..."
                     : "Create project"}
                 </Button>
-                <Button
-                  onClick={() => setIsCreateOpen(false)}
-                  type="button"
-                  variant="secondary"
-                >
+                <Button onClick={() => setIsCreateOpen(false)} type="button" variant="secondary">
                   Cancel
                 </Button>
               </div>
@@ -212,6 +215,7 @@ export default function ProjectsPage() {
 function ProjectCard({ project }: { project: Project }) {
   const progress = getProjectProgress(project);
   const freshness = getSyncFreshness(project.lastSyncedAt);
+  const nextStep = getNextProjectStep(project);
 
   return (
     <Card className="p-6">
@@ -225,7 +229,11 @@ function ProjectCard({ project }: { project: Project }) {
               <FreshnessPill tone={freshness.tone} label={freshness.label} />
             </div>
             <div>
-              <h2 className="text-2xl font-semibold">{project.name}</h2>
+              <h2 className="text-2xl font-semibold">
+                <Link className="transition hover:text-[var(--primary)]" href={`/projects/${project.id}`}>
+                  {project.name}
+                </Link>
+              </h2>
               <p className="text-sm text-[var(--foreground-muted)]">
                 {project.clientName} • {project.clientEmail}
               </p>
@@ -260,10 +268,7 @@ function ProjectCard({ project }: { project: Project }) {
             label="Ticket count"
             value={`${project._count.tickets} synced ticket${project._count.tickets === 1 ? "" : "s"}`}
           />
-          <ProjectMetric
-            label="Next step"
-            value={getNextStep(project)}
-          />
+          <ProjectMetric label="Next step" value={nextStep.title} />
         </div>
       </div>
     </Card>
@@ -273,7 +278,9 @@ function ProjectCard({ project }: { project: Project }) {
 function ProjectMetric({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--background)] p-4">
-      <div className="text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">{label}</div>
+      <div className="text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
+        {label}
+      </div>
       <div className="mt-2 text-sm font-medium">{value}</div>
     </div>
   );
@@ -322,64 +329,4 @@ function FreshnessPill({
       {label}
     </span>
   );
-}
-
-function getProjectProgress(project: Project) {
-  if (!project.features.length || !project._count.tickets) {
-    return 0;
-  }
-
-  return 0;
-}
-
-function getNextStep(project: Project) {
-  if (!project.notionDatabaseId) {
-    return "Connect Notion";
-  }
-
-  if (!project.statusMapping) {
-    return "Save status mapping";
-  }
-
-  if (!project.lastSyncedAt) {
-    return "Run first sync";
-  }
-
-  if (!project.features.length) {
-    return "Create feature groups";
-  }
-
-  if (!project._count.tickets) {
-    return "Review imported tickets";
-  }
-
-  return "Review command center";
-}
-
-function getSyncFreshness(lastSyncedAt: string | null) {
-  if (!lastSyncedAt) {
-    return { tone: "neutral" as const, label: "Not synced" };
-  }
-
-  const elapsedHours = (Date.now() - new Date(lastSyncedAt).getTime()) / (1000 * 60 * 60);
-
-  if (elapsedHours <= 24) {
-    return { tone: "success" as const, label: "Fresh sync" };
-  }
-
-  if (elapsedHours <= 72) {
-    return { tone: "warning" as const, label: "Aging sync" };
-  }
-
-  return { tone: "danger" as const, label: "Stale sync" };
-}
-
-function formatDateTime(value: string) {
-  return new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  }).format(new Date(value));
 }

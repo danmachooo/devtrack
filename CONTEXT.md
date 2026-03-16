@@ -441,6 +441,8 @@ Current implementation note:
 - the internal workspace shell now includes a top header that surfaces active organization context, the signed-in user's role and account menu, and a theme toggle backed by the shared token system
 - internal scaffold pages use a shared permission helper so role-limited page actions are omitted from the DOM when the current role is not authorized
 - the project list now loads through the shared projects API module, supports team-leader-only project creation, shows sync freshness and `lastSyncedAt`, and uses a zero-project empty state that respects RBAC visibility
+- the project detail route now loads through the shared projects API module, supports a team-leader-only metadata editor, surfaces readiness and `lastSyncedAt`, and keeps the six-step setup checklist plus next-step guidance visible so the command center stays intentional before later phases land
+- the project command center now includes a Notion integration panel that lets team leaders test and save a connection, review connected database details, define status mappings through the shared API layer, and keeps those setup actions hidden from non-team-leader roles
 
 ---
 

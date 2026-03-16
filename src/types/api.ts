@@ -160,3 +160,32 @@ export type CreateProjectPayload = {
   clientName: string;
   clientEmail: string;
 };
+
+export type UpdateProjectPayload = {
+  name?: string;
+  clientName?: string;
+  clientEmail?: string;
+  syncInterval?: number;
+};
+
+export type NotionDataSource = {
+  id: string;
+  name: string;
+};
+
+export type NotionConnectionDetails = {
+  projectId: string;
+  notionDatabaseId: string;
+  databaseTitle: string;
+  databaseUrl: string;
+  dataSources: NotionDataSource[];
+};
+
+export type NotionConnectionPayload = {
+  notionToken: string;
+  databaseId: string;
+};
+
+export type SaveStatusMappingPayload = {
+  statusMapping: Record<string, DevtrackStatus>;
+};

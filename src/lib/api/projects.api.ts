@@ -1,6 +1,13 @@
 import api from "@/lib/axios";
 import { appConfig } from "@/lib/config/app";
-import type { ApiResponse, CreateProjectPayload, Project, SessionData, SessionUser } from "@/types/api";
+import type {
+  ApiResponse,
+  CreateProjectPayload,
+  Project,
+  SessionData,
+  SessionUser,
+  UpdateProjectPayload,
+} from "@/types/api";
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -73,6 +80,18 @@ function ensureTeamLeader(user: SessionUser) {
   if (user.role !== "TEAM_LEADER") {
     throw new Error("Only team leaders can create projects.");
   }
+}
+
+function getScopedProjectOrThrow(store: MockProjectStore, projectId: string, organizationId: string) {
+  const project = store.projects.find(
+    (item) => item.id === projectId && item.organizationId === organizationId,
+  );
+
+  if (!project) {
+    throw new Error("Project not found.");
+  }
+
+  return project;
 }
 
 export async function getProjects(): Promise<ApiResponse<Project[]>> {
@@ -153,5 +172,65 @@ export async function createProject(
   }
 
   const response = await api.post<ApiResponse<Project>>("/projects", payload);
+  return response.data;
+}
+
+export async function getProject(id: string): Promise<ApiResponse<Project>> {
+  if (appConfig.useMockApi) {
+    await delay(220);
+
+    const sessionData = getCurrentSessionOrThrow();
+
+    if (!sessionData.session.activeOrganizationId) {
+      throw new Error("No active organization selected.");
+    }
+
+    const store = readMockStore();
+    const project = getScopedProjectOrThrow(store, id, sessionData.session.activeOrganizationId);
+
+    return {
+      statusCode: 200,
+      message: `Project #${id} has been found.`,
+      data: project,
+    };
+  }
+
+  const response = await api.get<ApiResponse<Project>>(`/projects/${id}`);
+  return response.data;
+}
+
+export async function updateProject(
+  id: string,
+  payload: UpdateProjectPayload,
+): Promise<ApiResponse<Project>> {
+  if (appConfig.useMockApi) {
+    await delay(260);
+
+    const sessionData = getCurrentSessionOrThrow();
+    ensureTeamLeader(sessionData.user);
+
+    if (!sessionData.session.activeOrganizationId) {
+      throw new Error("No active organization selected.");
+    }
+
+    const store = readMockStore();
+    const project = getScopedProjectOrThrow(store, id, sessionData.session.activeOrganizationId);
+
+    project.name = payload.name ?? project.name;
+    project.clientName = payload.clientName ?? project.clientName;
+    project.clientEmail = payload.clientEmail ?? project.clientEmail;
+    project.syncInterval = payload.syncInterval ?? project.syncInterval;
+    project.updatedAt = new Date().toISOString();
+
+    writeMockStore(store);
+
+    return {
+      statusCode: 200,
+      message: "Project has been updated.",
+      data: project,
+    };
+  }
+
+  const response = await api.patch<ApiResponse<Project>>(`/projects/${id}`, payload);
   return response.data;
 }
