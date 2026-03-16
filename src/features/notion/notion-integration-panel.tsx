@@ -1,7 +1,6 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { type UseFormRegisterReturn, useForm } from "react-hook-form";
 
@@ -12,17 +11,16 @@ import { Input } from "@/components/ui/input";
 import { useSession } from "@/hooks/use-session";
 import { canPerformAction } from "@/lib/auth/permissions";
 import {
-  connectNotion,
-  getNotionDatabases,
-  saveNotionStatusMapping,
-  testNotionConnection,
-} from "@/lib/api/notion.api";
-import {
   notionConnectionSchema,
   notionStatusMappingSchema,
   type NotionConnectionFormValues,
   type NotionStatusMappingFormValues,
 } from "@/features/notion/notion.schemas";
+import {
+  deriveMappingFormValues,
+  formatTargetLabel,
+} from "@/features/notion/notion.utils";
+import { useNotionIntegration } from "@/features/notion/use-notion-integration";
 import type { DevtrackStatus, Project } from "@/types/api";
 
 type NotionIntegrationPanelProps = {
@@ -30,16 +28,9 @@ type NotionIntegrationPanelProps = {
 };
 
 export function NotionIntegrationPanel({ project }: NotionIntegrationPanelProps) {
-  const queryClient = useQueryClient();
   const { data: sessionResponse } = useSession();
   const role = sessionResponse?.data.user?.role;
   const canManageNotion = canPerformAction(role, "manageNotion");
-
-  const databasesQuery = useQuery({
-    queryKey: ["project", project.id, "notion-databases"],
-    queryFn: () => getNotionDatabases(project.id),
-    enabled: canManageNotion && Boolean(project.notionDatabaseId),
-  });
 
   const {
     register: registerConnection,
@@ -72,40 +63,22 @@ export function NotionIntegrationPanel({ project }: NotionIntegrationPanelProps)
     resetMappingForm(deriveMappingFormValues(project));
   }, [project, resetConnectionForm, resetMappingForm]);
 
-  const testMutation = useMutation({
-    mutationFn: (values: NotionConnectionFormValues) => testNotionConnection(project.id, values),
-  });
-
-  const connectMutation = useMutation({
-    mutationFn: (values: NotionConnectionFormValues) => connectNotion(project.id, values),
-    onSuccess: async () => {
-      resetConnectionForm((current) => ({
+  const {
+    connectMutation,
+    databasesQuery,
+    saveMappingMutation,
+    savedDatabase,
+    testMutation,
+    testResult,
+  } = useNotionIntegration(project.id, {
+    canManageNotion,
+    hasConnectedDatabase: Boolean(project.notionDatabaseId),
+    resetConnectionForm: (databaseId) =>
+      resetConnectionForm({
         notionToken: "",
-        databaseId: current.databaseId,
-      }));
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["project", project.id] }),
-        queryClient.invalidateQueries({ queryKey: ["projects"] }),
-        queryClient.invalidateQueries({ queryKey: ["project", project.id, "notion-databases"] }),
-      ]);
-    },
-  });
-
-  const saveMappingMutation = useMutation({
-    mutationFn: (values: NotionStatusMappingFormValues) =>
-      saveNotionStatusMapping(project.id, {
-        statusMapping: buildStatusMappingPayload(values),
+        databaseId,
       }),
-    onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["project", project.id] }),
-        queryClient.invalidateQueries({ queryKey: ["projects"] }),
-      ]);
-    },
   });
-
-  const savedDatabase = databasesQuery.data?.data[0] ?? null;
-  const testResult = testMutation.data?.data ?? null;
 
   const onTestConnection = handleConnectionSubmit((values) => {
     testMutation.mutate(values);
@@ -445,64 +418,4 @@ function MappingField({
       )}
     </div>
   );
-}
-
-function deriveMappingFormValues(project: Project): NotionStatusMappingFormValues {
-  const entries = Object.entries(project.statusMapping ?? {});
-  const values: NotionStatusMappingFormValues = {
-    notStarted: "",
-    inDev: "",
-    approved: "",
-    released: "",
-  };
-
-  for (const [source, target] of entries) {
-    if (target === "NOT_STARTED") {
-      values.notStarted = source;
-    }
-
-    if (target === "IN_DEV") {
-      values.inDev = source;
-    }
-
-    if (target === "APPROVED") {
-      values.approved = source;
-    }
-
-    if (target === "RELEASED") {
-      values.released = source;
-    }
-  }
-
-  return values;
-}
-
-function buildStatusMappingPayload(values: NotionStatusMappingFormValues) {
-  const mapping: Record<string, DevtrackStatus> = {};
-
-  if (values.notStarted) {
-    mapping[values.notStarted] = "NOT_STARTED";
-  }
-
-  if (values.inDev) {
-    mapping[values.inDev] = "IN_DEV";
-  }
-
-  if (values.approved) {
-    mapping[values.approved] = "APPROVED";
-  }
-
-  if (values.released) {
-    mapping[values.released] = "RELEASED";
-  }
-
-  return mapping;
-}
-
-function formatTargetLabel(target: string) {
-  return target
-    .toLowerCase()
-    .split("_")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
 }

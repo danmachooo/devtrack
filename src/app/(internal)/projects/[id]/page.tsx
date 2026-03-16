@@ -14,9 +14,12 @@ import { RoleAwarePageActions } from "@/components/layout/role-aware-page-action
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { ClientAccessPanel } from "@/features/client-access/client-access-panel";
 import { FeatureManagementPanel } from "@/features/features-management/feature-management-panel";
 import { NotionIntegrationPanel } from "@/features/notion/notion-integration-panel";
+import { ProgressAndSyncLogsPanel } from "@/features/progress/progress-and-sync-logs-panel";
 import { SyncPanel } from "@/features/sync/sync-panel";
+import { TicketReviewPanel } from "@/features/tickets/ticket-review-panel";
 import { useSession } from "@/hooks/use-session";
 import { canPerformAction } from "@/lib/auth/permissions";
 import { getProject, updateProject } from "@/lib/api/projects.api";
@@ -255,6 +258,9 @@ export default function ProjectDetailPage() {
       <NotionIntegrationPanel project={project} />
       <SyncPanel project={project} />
       <FeatureManagementPanel project={project} />
+      <TicketReviewPanel project={project} />
+      <ProgressAndSyncLogsPanel project={project} />
+      <ClientAccessPanel project={project} />
 
       <Card className="space-y-6 p-6">
         <div className="space-y-1">
@@ -263,8 +269,8 @@ export default function ProjectDetailPage() {
           </p>
           <h2 className="text-2xl font-semibold">Make the workflow obvious</h2>
           <p className="text-sm text-[var(--foreground-muted)]">
-            The command center keeps the documented project sequence visible, even while later
-            feature phases are still being built.
+            The command center keeps the documented project sequence visible so setup, assignment,
+            progress review, and sharing all stay legible in one place.
           </p>
         </div>
 
@@ -297,8 +303,8 @@ export default function ProjectDetailPage() {
         ) : (
           <div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--background)] p-4 text-sm text-[var(--foreground-muted)]">
             The project now has enough structure to move from setup into active organization and
-            client storytelling. As later phases land, this page will absorb feature, sync, and
-            sharing controls directly.
+            client storytelling. Tickets, progress, sync diagnostics, and client sharing all now
+            live inside this command center.
           </div>
         )}
       </Card>
@@ -481,8 +487,8 @@ function ContextualGuidance({ project }: { project: Project }) {
 
   return (
     <div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--background)] p-4 text-sm text-[var(--foreground-muted)]">
-      Tickets and feature groups are both present. The next iteration of this command center can
-      now focus on assignment, sync controls, and client-sharing readiness.
+      Tickets and feature groups are both present. This command center can now support assignment,
+      progress review, sync diagnostics, and client-sharing readiness in one workflow.
     </div>
   );
 }

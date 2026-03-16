@@ -107,30 +107,30 @@ Assumption:
 
 ## Phase 10 - Tickets
 
-- [ ] Build the project ticket view
-- [ ] Show title, mapped status, source status, feature assignment, assignee, missing state, and synced time
-- [ ] Add filters for feature, status, unassigned, and missing tickets
-- [ ] Prevent invalid `featureId + unassigned=true` combinations in the UI
-- [ ] Build inline assign and unassign interactions
-- [ ] Restrict assignment actions to `TEAM_LEADER` and `BUSINESS_ANALYST`
+- [x] Build the project ticket view
+- [x] Show title, mapped status, source status, feature assignment, assignee, missing state, and synced time
+- [x] Add filters for feature, status, unassigned, and missing tickets
+- [x] Prevent invalid `featureId + unassigned=true` combinations in the UI
+- [x] Build inline assign and unassign interactions
+- [x] Restrict assignment actions to `TEAM_LEADER` and `BUSINESS_ANALYST`
 
 ## Phase 11 - Progress And Sync Logs
 
-- [ ] Build project progress cards and progress bars
-- [ ] Show aggregate project progress
-- [ ] Show per-feature progress and status chips
-- [ ] Build the sync log list with `/api/projects/:id/sync/logs`
-- [ ] Show `SUCCESS`, `FAILED`, and `RATE_LIMITED` outcomes clearly
-- [ ] Add an empty state for projects with no sync history
+- [x] Build project progress cards and progress bars
+- [x] Show aggregate project progress
+- [x] Show per-feature progress and status chips
+- [x] Build the sync log list with `/api/projects/:id/sync/logs`
+- [x] Show `SUCCESS`, `FAILED`, and `RATE_LIMITED` outcomes clearly
+- [x] Add an empty state for projects with no sync history
 
 ## Phase 12 - Client Access
 
-- [ ] Build the client access panel inside project detail
-- [ ] Wire `/api/projects/:id/client-access`
-- [ ] Show `clientAccessLink` and `lastViewedAt`
-- [ ] Add copy-link interaction
-- [ ] Restrict visibility to `TEAM_LEADER` and `BUSINESS_ANALYST`
-- [ ] Never expose raw token values
+- [x] Build the client access panel inside project detail
+- [x] Wire `/api/projects/:id/client-access`
+- [x] Show `clientAccessLink` and `lastViewedAt`
+- [x] Add copy-link interaction
+- [x] Restrict visibility to `TEAM_LEADER` and `BUSINESS_ANALYST`
+- [x] Never expose raw token values
 
 ## Phase 13 - Client Dashboard
 

@@ -1,119 +1,21 @@
 import api from "@/lib/axios";
+import {
+  getCurrentSessionOrThrow,
+  getScopedProjectOrThrow,
+  readSyncStore,
+  readTicketStore,
+  writeProjectStore,
+  writeSyncStore,
+  writeTicketStore,
+} from "@/lib/api/mock-store";
 import { appConfig } from "@/lib/config/app";
-import type { ApiResponse, Project, SessionData, SessionUser, SyncProjectData } from "@/types/api";
+import type { ApiResponse, DevtrackStatus, SyncLog, SyncProjectData, Ticket } from "@/types/api";
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
-const mockSessionStorageKey = "devtrack.mock.session";
-const mockProjectStorageKey = "devtrack.mock.projects.store";
-const mockSyncStorageKey = "devtrack.mock.sync.store";
-
-type MockProjectStore = {
-  projects: Project[];
-};
-
-type MockSyncStore = {
-  activeJobs: Record<
-    string,
-    {
-      jobId: string;
-      queuedAt: string;
-      expiresAt: number;
-    }
-  >;
-};
-
-type ActiveMockSession = {
-  session: NonNullable<SessionData["session"]>;
-  user: SessionUser;
-};
-
-function getEmptyProjectStore(): MockProjectStore {
-  return { projects: [] };
-}
-
-function getEmptySyncStore(): MockSyncStore {
-  return { activeJobs: {} };
-}
-
-function readMockSession(): SessionData {
-  if (typeof window === "undefined") {
-    return { session: null, user: null };
-  }
-
-  const storedSession = window.localStorage.getItem(mockSessionStorageKey);
-  const storedUser = window.localStorage.getItem(mockSessionStorageKey.replace("session", "user"));
-
-  return {
-    session: storedSession ? JSON.parse(storedSession) : null,
-    user: storedUser ? (JSON.parse(storedUser) as SessionUser) : null,
-  };
-}
-
-function readProjectStore(): MockProjectStore {
-  if (typeof window === "undefined") {
-    return getEmptyProjectStore();
-  }
-
-  const raw = window.localStorage.getItem(mockProjectStorageKey);
-  return raw ? (JSON.parse(raw) as MockProjectStore) : getEmptyProjectStore();
-}
-
-function writeProjectStore(store: MockProjectStore) {
-  if (typeof window === "undefined") {
-    return;
-  }
-
-  window.localStorage.setItem(mockProjectStorageKey, JSON.stringify(store));
-}
-
-function readSyncStore(): MockSyncStore {
-  if (typeof window === "undefined") {
-    return getEmptySyncStore();
-  }
-
-  const raw = window.localStorage.getItem(mockSyncStorageKey);
-  return raw ? (JSON.parse(raw) as MockSyncStore) : getEmptySyncStore();
-}
-
-function writeSyncStore(store: MockSyncStore) {
-  if (typeof window === "undefined") {
-    return;
-  }
-
-  window.localStorage.setItem(mockSyncStorageKey, JSON.stringify(store));
-}
-
-function getCurrentSessionOrThrow(): ActiveMockSession {
-  const sessionData = readMockSession();
-
-  if (!sessionData.session || !sessionData.user) {
-    throw new Error("Not authenticated.");
-  }
-
-  return {
-    session: sessionData.session,
-    user: sessionData.user,
-  };
-}
-
-function ensureSyncRole(user: SessionUser) {
+function ensureSyncRole(user: { role: string }) {
   if (!["TEAM_LEADER", "BUSINESS_ANALYST"].includes(user.role)) {
     throw new Error("Only team leaders and business analysts can trigger a sync.");
   }
-}
-
-function getScopedProjectOrThrow(projectId: string, organizationId: string) {
-  const store = readProjectStore();
-  const project = store.projects.find(
-    (item) => item.id === projectId && item.organizationId === organizationId,
-  );
-
-  if (!project) {
-    throw new Error("Project not found.");
-  }
-
-  return { project, store };
 }
 
 export async function triggerProjectSync(projectId: string): Promise<ApiResponse<SyncProjectData>> {
@@ -138,6 +40,7 @@ export async function triggerProjectSync(projectId: string): Promise<ApiResponse
     }
 
     const syncStore = readSyncStore();
+    const ticketStore = readTicketStore();
     const now = Date.now();
     const existingJob = syncStore.activeJobs[projectId];
 
@@ -162,10 +65,19 @@ export async function triggerProjectSync(projectId: string): Promise<ApiResponse
 
     project.lastSyncedAt = new Date(now).toISOString();
     project.updatedAt = new Date(now).toISOString();
-    project._count.tickets = Math.max(project._count.tickets, 12);
-
-    writeSyncStore(syncStore);
+    const syncCounts = seedOrRefreshTickets(
+      ticketStore.tickets,
+      projectId,
+      project.lastSyncedAt,
+      project.statusMapping,
+    );
+    syncStore.logsByProject[projectId] = [
+      createSyncLog(syncCounts, project.lastSyncedAt),
+      ...(syncStore.logsByProject[projectId] ?? []),
+    ].slice(0, 20);
     writeProjectStore(store);
+    writeTicketStore(ticketStore);
+    writeSyncStore(syncStore);
 
     return {
       statusCode: 202,
@@ -180,4 +92,120 @@ export async function triggerProjectSync(projectId: string): Promise<ApiResponse
 
   const response = await api.post<ApiResponse<SyncProjectData>>(`/projects/${projectId}/notion/sync`);
   return response.data;
+}
+
+export async function getProjectSyncLogs(
+  projectId: string,
+  limit = 10,
+): Promise<ApiResponse<SyncLog[]>> {
+  if (appConfig.useMockApi) {
+    await delay(160);
+
+    const sessionData = getCurrentSessionOrThrow();
+
+    if (!sessionData.session.activeOrganizationId) {
+      throw new Error("No active organization selected.");
+    }
+
+    getScopedProjectOrThrow(projectId, sessionData.session.activeOrganizationId);
+    const syncStore = readSyncStore();
+
+    return {
+      statusCode: 200,
+      message: "Sync logs have been found.",
+      data: (syncStore.logsByProject[projectId] ?? []).slice(0, Math.min(Math.max(limit, 1), 50)),
+    };
+  }
+
+  const response = await api.get<ApiResponse<SyncLog[]>>(`/projects/${projectId}/sync/logs`, {
+    params: { limit },
+  });
+  return response.data;
+}
+
+function seedOrRefreshTickets(
+  tickets: Ticket[],
+  projectId: string,
+  syncedAt: string,
+  statusMapping: Record<string, DevtrackStatus>,
+) {
+  const projectTickets = tickets.filter((ticket) => ticket.projectId === projectId);
+
+  if (projectTickets.length) {
+    for (const ticket of projectTickets) {
+      ticket.syncedAt = syncedAt;
+      ticket.updatedAt = syncedAt;
+    }
+
+    return {
+      ticketsAdded: 0,
+      ticketsUpdated: projectTickets.length,
+    };
+  }
+
+  const mappingEntries = Object.entries(statusMapping);
+  const fallbackStatuses: Array<[string, DevtrackStatus]> = [
+    ["Backlog", "NOT_STARTED"],
+    ["In Progress", "IN_DEV"],
+    ["In QA", "APPROVED"],
+    ["Done", "RELEASED"],
+  ];
+  const statusPairs = mappingEntries.length ? mappingEntries : fallbackStatuses;
+  const assignees = ["Jane Doe", "Alex Cruz", "Priya Singh", "Miguel Santos", null];
+  const titles = [
+    "Build client dashboard shell",
+    "Connect ticket sync diagnostics",
+    "Refine onboarding flow",
+    "Ship feature progress bars",
+    "Add project command center summary",
+    "Polish client-safe activity feed",
+    "Create stakeholder-ready feature grouping",
+    "Improve status mapping prompts",
+    "Add manual sync trust state",
+    "Review mobile dashboard spacing",
+    "Tighten ticket assignment UX",
+    "Confirm release checklist messaging",
+  ];
+
+  titles.forEach((title, index) => {
+    const [notionStatus, devtrackStatus] = statusPairs[index % statusPairs.length];
+    const createdAt = new Date(new Date(syncedAt).getTime() - (titles.length - index) * 60_000).toISOString();
+    const isMissingFromSource = index === titles.length - 1;
+
+    tickets.push({
+      id: crypto.randomUUID(),
+      projectId,
+      featureId: null,
+      notionPageId: crypto.randomUUID(),
+      title,
+      notionStatus,
+      devtrackStatus,
+      assigneeName: assignees[index % assignees.length],
+      isMissingFromSource,
+      missingFromSourceAt: isMissingFromSource ? syncedAt : null,
+      syncedAt,
+      createdAt,
+      updatedAt: syncedAt,
+      feature: null,
+    });
+  });
+
+  return {
+    ticketsAdded: titles.length,
+    ticketsUpdated: 0,
+  };
+}
+
+function createSyncLog(
+  counts: { ticketsAdded: number; ticketsUpdated: number },
+  createdAt: string,
+): SyncLog {
+  return {
+    id: crypto.randomUUID(),
+    status: "SUCCESS",
+    ticketsAdded: counts.ticketsAdded,
+    ticketsUpdated: counts.ticketsUpdated,
+    errorMessage: null,
+    createdAt,
+  };
 }

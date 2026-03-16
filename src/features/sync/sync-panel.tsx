@@ -1,77 +1,29 @@
 "use client";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useRef, useState } from "react";
-
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useSession } from "@/hooks/use-session";
 import { canPerformAction } from "@/lib/auth/permissions";
-import { triggerProjectSync } from "@/lib/api/sync.api";
 import { formatDateTime, getSyncFreshness } from "@/features/projects/project-utils";
+import { useSyncPanel } from "@/features/sync/use-sync-panel";
+import type { SyncUiState } from "@/features/sync/sync.utils";
 import type { Project } from "@/types/api";
 
 type SyncPanelProps = {
   project: Project;
 };
 
-type SyncUiState = "idle" | "queued" | "syncing" | "alreadyQueued" | "completed";
-
 export function SyncPanel({ project }: SyncPanelProps) {
-  const queryClient = useQueryClient();
   const { data: sessionResponse } = useSession();
   const role = sessionResponse?.data.user?.role;
   const canTriggerSync = canPerformAction(role, "triggerManualSync");
-  const [syncState, setSyncState] = useState<SyncUiState>("idle");
-  const timeoutsRef = useRef<number[]>([]);
-
-  const syncMutation = useMutation({
-    mutationFn: () => triggerProjectSync(project.id),
-  });
-
-  useEffect(() => {
-    return () => {
-      for (const timeout of timeoutsRef.current) {
-        window.clearTimeout(timeout);
-      }
-    };
-  }, []);
+  const { syncCopy, syncMutation, syncState, triggerSync } = useSyncPanel(
+    project.id,
+    project.lastSyncedAt,
+  );
 
   const freshness = getSyncFreshness(project.lastSyncedAt);
   const isBlocked = !project.notionDatabaseId || !project.statusMapping;
-
-  const handleTriggerSync = async () => {
-    const response = await syncMutation.mutateAsync();
-
-    await Promise.all([
-      queryClient.invalidateQueries({ queryKey: ["project", project.id] }),
-      queryClient.invalidateQueries({ queryKey: ["projects"] }),
-      queryClient.invalidateQueries({ queryKey: ["project", project.id, "tickets"] }),
-      queryClient.invalidateQueries({ queryKey: ["project", project.id, "sync-logs"] }),
-    ]);
-
-    if (response.data.alreadyQueued) {
-      setSyncState("alreadyQueued");
-      const timeout = window.setTimeout(() => setSyncState("idle"), 2_000);
-      timeoutsRef.current.push(timeout);
-      return;
-    }
-
-    setSyncState("queued");
-    const queuedTimeout = window.setTimeout(() => setSyncState("syncing"), 900);
-    const completeTimeout = window.setTimeout(async () => {
-      setSyncState("completed");
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["project", project.id] }),
-        queryClient.invalidateQueries({ queryKey: ["projects"] }),
-      ]);
-    }, 2_400);
-    const resetTimeout = window.setTimeout(() => setSyncState("idle"), 4_600);
-
-    timeoutsRef.current.push(queuedTimeout, completeTimeout, resetTimeout);
-  };
-
-  const syncCopy = getSyncCopy(syncState, project.lastSyncedAt);
 
   return (
     <Card className="space-y-6 p-6">
@@ -109,7 +61,7 @@ export function SyncPanel({ project }: SyncPanelProps) {
               {!isBlocked ? (
                 <Button
                   disabled={syncMutation.isPending || syncState === "queued" || syncState === "syncing"}
-                  onClick={handleTriggerSync}
+                  onClick={triggerSync}
                   type="button"
                 >
                   {syncMutation.isPending
@@ -213,36 +165,4 @@ function SyncBadge({ state }: { state: SyncUiState }) {
       {labels[state]}
     </span>
   );
-}
-
-function getSyncCopy(state: SyncUiState, lastSyncedAt: string | null) {
-  switch (state) {
-    case "queued":
-      return {
-        title: "Sync queued successfully",
-        description: "The job is waiting to start. DevTrack keeps this state distinct so users know the request landed.",
-      };
-    case "syncing":
-      return {
-        title: "Sync in progress",
-        description: "The project is actively refreshing source data. Hold here for a moment while the ticket snapshot catches up.",
-      };
-    case "alreadyQueued":
-      return {
-        title: "A sync is already queued",
-        description: "The backend said this project already has a pending manual sync, so DevTrack avoids double-scheduling it.",
-      };
-    case "completed":
-      return {
-        title: "Sync completed",
-        description: "Fresh project data has been recorded and the relevant project queries were invalidated.",
-      };
-    default:
-      return {
-        title: lastSyncedAt ? "Manual sync is available" : "First sync is still waiting",
-        description: lastSyncedAt
-          ? "Trigger a manual sync whenever the team needs a fresher snapshot from Notion."
-          : "Once Notion is connected and statuses are mapped, the first sync brings the project to life.",
-      };
-  }
 }

@@ -1,8 +1,6 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { startTransition, useState } from "react";
 import { useForm } from "react-hook-form";
 
 import { EmptyState } from "@/components/feedback/empty-state";
@@ -12,17 +10,12 @@ import { Input } from "@/components/ui/input";
 import { useSession } from "@/hooks/use-session";
 import { canPerformAction } from "@/lib/auth/permissions";
 import {
-  createFeature,
-  deleteFeature,
-  getProjectFeatures,
-  updateFeature,
-} from "@/lib/api/features.api";
-import {
   createFeatureSchema,
   updateFeatureSchema,
   type CreateFeatureFormValues,
   type UpdateFeatureFormValues,
 } from "@/features/features-management/feature.schemas";
+import { useFeatureManagement } from "@/features/features-management/use-feature-management";
 import type { Project, ProjectFeatureSummary } from "@/types/api";
 
 type FeatureManagementPanelProps = {
@@ -30,16 +23,9 @@ type FeatureManagementPanelProps = {
 };
 
 export function FeatureManagementPanel({ project }: FeatureManagementPanelProps) {
-  const queryClient = useQueryClient();
   const { data: sessionResponse } = useSession();
   const role = sessionResponse?.data.user?.role;
   const canManageFeatures = canPerformAction(role, "manageFeatures");
-  const [editingFeatureId, setEditingFeatureId] = useState<string | null>(null);
-
-  const featuresQuery = useQuery({
-    queryKey: ["project", project.id, "features"],
-    queryFn: () => getProjectFeatures(project.id),
-  });
 
   const {
     register,
@@ -53,34 +39,18 @@ export function FeatureManagementPanel({ project }: FeatureManagementPanelProps)
     },
   });
 
-  const createFeatureMutation = useMutation({
-    mutationFn: (values: CreateFeatureFormValues) => createFeature(project.id, values),
-    onSuccess: async () => {
-      reset();
-      await invalidateFeatureState(queryClient, project.id);
-    },
-  });
-
-  const updateFeatureMutation = useMutation({
-    mutationFn: ({ id, payload }: { id: string; payload: { name?: string; order?: number } }) =>
-      updateFeature(id, payload),
-    onSuccess: async () => {
-      startTransition(() => setEditingFeatureId(null));
-      await invalidateFeatureState(queryClient, project.id);
-    },
-  });
-
-  const deleteFeatureMutation = useMutation({
-    mutationFn: deleteFeature,
-    onSuccess: async () => {
-      await invalidateFeatureState(queryClient, project.id);
-    },
-  });
-
-  const features = featuresQuery.data?.data ?? [];
+  const {
+    actions,
+    createFeatureMutation,
+    deleteFeatureMutation,
+    editingFeatureId,
+    features,
+    featuresQuery,
+    updateFeatureMutation,
+  } = useFeatureManagement(project.id, () => reset());
 
   const onSubmit = handleSubmit((values) => {
-    createFeatureMutation.mutate(values);
+    actions.createFeature(values);
   });
 
   return (
@@ -139,28 +109,15 @@ export function FeatureManagementPanel({ project }: FeatureManagementPanelProps)
               isDeleting={deleteFeatureMutation.isPending && deleteFeatureMutation.variables === feature.id}
               isEditing={editingFeatureId === feature.id}
               isSaving={updateFeatureMutation.isPending && updateFeatureMutation.variables?.id === feature.id}
-              onDelete={() => deleteFeatureMutation.mutate(feature.id)}
-              onEditToggle={() =>
-                setEditingFeatureId((current) => (current === feature.id ? null : feature.id))
-              }
+              onDelete={() => actions.deleteFeature(feature.id)}
+              onEditToggle={() => actions.toggleEditingFeature(feature.id)}
               onMoveDown={() =>
-                updateFeatureMutation.mutate({
-                  id: feature.id,
-                  payload: { order: Math.min(index + 1, features.length - 1) },
-                })
+                actions.moveFeature(feature.id, Math.min(index + 1, features.length - 1))
               }
               onMoveUp={() =>
-                updateFeatureMutation.mutate({
-                  id: feature.id,
-                  payload: { order: Math.max(index - 1, 0) },
-                })
+                actions.moveFeature(feature.id, Math.max(index - 1, 0))
               }
-              onSaveName={(name) =>
-                updateFeatureMutation.mutate({
-                  id: feature.id,
-                  payload: { name },
-                })
-              }
+              onSaveName={(name) => actions.renameFeature(feature.id, name)}
               total={features.length}
             />
           ))}
@@ -306,12 +263,4 @@ function FeatureListSkeleton() {
       ))}
     </div>
   );
-}
-
-async function invalidateFeatureState(queryClient: ReturnType<typeof useQueryClient>, projectId: string) {
-  await Promise.all([
-    queryClient.invalidateQueries({ queryKey: ["project", projectId, "features"] }),
-    queryClient.invalidateQueries({ queryKey: ["project", projectId] }),
-    queryClient.invalidateQueries({ queryKey: ["projects"] }),
-  ]);
 }

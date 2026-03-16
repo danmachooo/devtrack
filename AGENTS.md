@@ -52,6 +52,8 @@ After completing a phase, agents must update:
 - keep code modular and reasonably small; split long files before they become difficult to scan or maintain
 - prefer simple, clear abstractions over clever or overly dense implementations
 - follow current best practices for accessibility, maintainability, and readability
+- keep separation of concerns explicit: shared API modules handle requests, feature hooks own React Query orchestration, utility files hold pure derivations/formatting, and component files focus on rendering and local interaction only
+- when TanStack Query is needed for a feature, prefer a dedicated feature-local hook instead of placing `useQuery`, `useMutation`, invalidation rules, and async orchestration directly inside large panel or page components
 
 Correct data flow:
 
@@ -186,6 +188,8 @@ Agents must:
 - verify work before calling it complete
 - be confident that a completed phase is actually functional, not just scaffolded
 - use proper types throughout and keep code maintainable
+- split mixed-responsibility files once they start combining query orchestration, domain derivation, and multiple UI subcomponents in one place
+- keep panel files compositional: they should usually consume feature hooks and presentational helpers rather than define most server-state orchestration inline
 - keep the repo docs aligned with completed phases instead of letting code and docs drift apart
 
 ## Verification Rules

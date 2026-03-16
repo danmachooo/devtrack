@@ -1,94 +1,29 @@
 import api from "@/lib/axios";
+import {
+  getCurrentSessionOrThrow,
+  getFeatureById,
+  getProjectTickets,
+  getScopedProjectOrThrow,
+  readProjectStore,
+  readTicketStore,
+  writeProjectStore,
+  writeTicketStore,
+} from "@/lib/api/mock-store";
 import { appConfig } from "@/lib/config/app";
 import type {
   ApiResponse,
   CreateFeaturePayload,
-  Project,
   ProjectFeature,
   ProjectFeatureSummary,
-  SessionData,
-  SessionUser,
   UpdateFeaturePayload,
 } from "@/types/api";
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const mockSessionStorageKey = "devtrack.mock.session";
-const mockProjectStorageKey = "devtrack.mock.projects.store";
-
-type MockProjectStore = {
-  projects: Project[];
-};
-
-type ActiveMockSession = {
-  session: NonNullable<SessionData["session"]>;
-  user: SessionUser;
-};
-
-function getEmptyStore(): MockProjectStore {
-  return { projects: [] };
-}
-
-function readMockStore(): MockProjectStore {
-  if (typeof window === "undefined") {
-    return getEmptyStore();
-  }
-
-  const raw = window.localStorage.getItem(mockProjectStorageKey);
-  return raw ? (JSON.parse(raw) as MockProjectStore) : getEmptyStore();
-}
-
-function writeMockStore(store: MockProjectStore) {
-  if (typeof window === "undefined") {
-    return;
-  }
-
-  window.localStorage.setItem(mockProjectStorageKey, JSON.stringify(store));
-}
-
-function readMockSession(): SessionData {
-  if (typeof window === "undefined") {
-    return { session: null, user: null };
-  }
-
-  const storedSession = window.localStorage.getItem(mockSessionStorageKey);
-  const storedUser = window.localStorage.getItem(mockSessionStorageKey.replace("session", "user"));
-
-  return {
-    session: storedSession ? JSON.parse(storedSession) : null,
-    user: storedUser ? (JSON.parse(storedUser) as SessionUser) : null,
-  };
-}
-
-function getCurrentSessionOrThrow(): ActiveMockSession {
-  const sessionData = readMockSession();
-
-  if (!sessionData.session || !sessionData.user) {
-    throw new Error("Not authenticated.");
-  }
-
-  return {
-    session: sessionData.session,
-    user: sessionData.user,
-  };
-}
-
-function ensureFeatureManager(user: SessionUser) {
+function ensureFeatureManager(user: { role: string }) {
   if (!["TEAM_LEADER", "BUSINESS_ANALYST"].includes(user.role)) {
     throw new Error("Only team leaders and business analysts can manage features.");
   }
-}
-
-function getScopedProjectOrThrow(store: MockProjectStore, projectId: string, organizationId: string) {
-  const project = store.projects.find(
-    (item) => item.id === projectId && item.organizationId === organizationId,
-  );
-
-  if (!project) {
-    throw new Error("Project not found.");
-  }
-
-  return project;
 }
 
 function normalizeFeatureOrder(features: ProjectFeature[]) {
@@ -109,6 +44,17 @@ function toSummary(feature: ProjectFeature): ProjectFeatureSummary {
   };
 }
 
+function toSummaryWithTicketCount(projectId: string, feature: ProjectFeature): ProjectFeatureSummary {
+  const tickets = getProjectTickets(projectId).filter((ticket) => ticket.featureId === feature.id);
+
+  return {
+    ...toSummary(feature),
+    _count: {
+      tickets: tickets.length,
+    },
+  };
+}
+
 export async function getProjectFeatures(
   projectId: string,
 ): Promise<ApiResponse<ProjectFeatureSummary[]>> {
@@ -121,13 +67,14 @@ export async function getProjectFeatures(
       throw new Error("No active organization selected.");
     }
 
-    const store = readMockStore();
-    const project = getScopedProjectOrThrow(store, projectId, sessionData.session.activeOrganizationId);
+    const { project } = getScopedProjectOrThrow(projectId, sessionData.session.activeOrganizationId);
 
     return {
       statusCode: 200,
       message: "Features have been found.",
-      data: normalizeFeatureOrder(project.features).map(toSummary),
+      data: normalizeFeatureOrder(project.features).map((feature) =>
+        toSummaryWithTicketCount(projectId, feature),
+      ),
     };
   }
 
@@ -149,8 +96,7 @@ export async function createFeature(
       throw new Error("No active organization selected.");
     }
 
-    const store = readMockStore();
-    const project = getScopedProjectOrThrow(store, projectId, sessionData.session.activeOrganizationId);
+    const { project, store } = getScopedProjectOrThrow(projectId, sessionData.session.activeOrganizationId);
     const now = new Date().toISOString();
     const nextOrder =
       payload.order ?? (project.features.length ? Math.max(...project.features.map((item) => item.order)) + 1 : 0);
@@ -167,14 +113,14 @@ export async function createFeature(
     project.features = normalizeFeatureOrder([...project.features, feature]);
     project.updatedAt = now;
 
-    writeMockStore(store);
+    writeProjectStore(store);
 
     const saved = project.features.find((item) => item.id === feature.id) ?? feature;
 
     return {
       statusCode: 201,
       message: "Feature has been created.",
-      data: toSummary(saved),
+      data: toSummaryWithTicketCount(projectId, saved),
     };
   }
 
@@ -196,7 +142,7 @@ export async function updateFeature(
       throw new Error("No active organization selected.");
     }
 
-    const store = readMockStore();
+    const store = readProjectStore();
     const project = store.projects.find(
       (item) =>
         item.organizationId === sessionData.session.activeOrganizationId &&
@@ -219,14 +165,14 @@ export async function updateFeature(
     project.features = normalizeFeatureOrder(project.features);
     project.updatedAt = feature.updatedAt;
 
-    writeMockStore(store);
+    writeProjectStore(store);
 
     const saved = project.features.find((item) => item.id === featureId) ?? feature;
 
     return {
       statusCode: 200,
       message: "Feature has been updated.",
-      data: toSummary(saved),
+      data: toSummaryWithTicketCount(project.id, saved),
     };
   }
 
@@ -245,7 +191,8 @@ export async function deleteFeature(featureId: string): Promise<ApiResponse<null
       throw new Error("No active organization selected.");
     }
 
-    const store = readMockStore();
+    const store = readProjectStore();
+    const ticketStore = readTicketStore();
     const project = store.projects.find(
       (item) =>
         item.organizationId === sessionData.session.activeOrganizationId &&
@@ -258,8 +205,19 @@ export async function deleteFeature(featureId: string): Promise<ApiResponse<null
 
     project.features = normalizeFeatureOrder(project.features.filter((item) => item.id !== featureId));
     project.updatedAt = new Date().toISOString();
+    ticketStore.tickets = ticketStore.tickets.map((ticket) =>
+      ticket.featureId === featureId
+        ? {
+            ...ticket,
+            featureId: null,
+            feature: null,
+            updatedAt: project.updatedAt,
+          }
+        : ticket,
+    );
 
-    writeMockStore(store);
+    writeProjectStore(store);
+    writeTicketStore(ticketStore);
 
     return {
       statusCode: 200,

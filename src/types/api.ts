@@ -119,6 +119,12 @@ export type MembersData = {
 
 export type DevtrackStatus = "NOT_STARTED" | "IN_DEV" | "APPROVED" | "RELEASED";
 
+export type FeatureProgressStatus =
+  | "NO_WORK_LOGGED"
+  | "NOT_STARTED"
+  | "IN_PROGRESS"
+  | "COMPLETED";
+
 export type ClientAccess = {
   id: string;
   projectId: string;
@@ -139,6 +145,91 @@ export type ProjectFeatureSummary = ProjectFeature & {
   _count: {
     tickets: number;
   };
+};
+
+export type TicketFeatureReference = {
+  id: string;
+  name: string;
+  order: number;
+};
+
+export type Ticket = {
+  id: string;
+  projectId: string;
+  featureId: string | null;
+  notionPageId: string;
+  title: string;
+  notionStatus: string;
+  devtrackStatus: DevtrackStatus;
+  assigneeName: string | null;
+  isMissingFromSource: boolean;
+  missingFromSourceAt: string | null;
+  syncedAt: string;
+  createdAt: string;
+  updatedAt: string;
+  feature: TicketFeatureReference | null;
+};
+
+export type GetProjectTicketsQuery = {
+  featureId?: string;
+  status?: DevtrackStatus;
+  unassigned?: boolean;
+  showMissing?: boolean;
+};
+
+export type UpdateTicketFeaturePayload = {
+  featureId: string | null;
+};
+
+export type FeatureProgressSummary = {
+  featureId: string;
+  featureName: string;
+  order: number;
+  progress: number;
+  status: FeatureProgressStatus;
+  totalTickets: number;
+  completedTickets: number;
+};
+
+export type SyncLogStatus = "SUCCESS" | "FAILED" | "RATE_LIMITED";
+
+export type SyncLog = {
+  id: string;
+  status: SyncLogStatus;
+  ticketsAdded: number;
+  ticketsUpdated: number;
+  errorMessage: string | null;
+  createdAt: string;
+};
+
+export type ProjectClientAccessData = {
+  projectId: string;
+  clientAccessLink: string;
+  lastViewedAt: string | null;
+};
+
+export type ClientDashboardActivity = {
+  status: SyncLogStatus;
+  message: string;
+  ticketsAdded: number;
+  ticketsUpdated: number;
+  happenedAt: string;
+};
+
+export type ClientDashboardFeature = {
+  name: string;
+  progress: number;
+  status: FeatureProgressStatus;
+  totalTickets: number;
+  completedTickets: number;
+};
+
+export type ClientDashboardData = {
+  projectName: string;
+  overallProgress: number;
+  lastSyncedAt: string | null;
+  features: ClientDashboardFeature[];
+  recentActivity: ClientDashboardActivity[];
 };
 
 export type Project = {
