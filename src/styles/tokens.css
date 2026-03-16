@@ -11,6 +11,9 @@
   --warning: #c58a2b;
   --danger: #b5523b;
   --neutral: #7a8580;
+  --scrollbar-track: transparent;
+  --scrollbar-thumb: color-mix(in srgb, var(--primary) 28%, var(--foreground-muted));
+  --scrollbar-thumb-hover: color-mix(in srgb, var(--primary) 42%, var(--foreground-muted));
   --radius-sm: 0.5rem;
   --radius-md: 0.875rem;
   --radius-lg: 1.25rem;
@@ -31,6 +34,9 @@
   --warning: #d6a54b;
   --danger: #d27763;
   --neutral: #99a39d;
+  --scrollbar-track: transparent;
+  --scrollbar-thumb: color-mix(in srgb, var(--primary) 34%, var(--foreground-muted));
+  --scrollbar-thumb-hover: color-mix(in srgb, var(--primary) 52%, var(--foreground-muted));
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.22);
   --shadow-md: 0 18px 40px rgba(0, 0, 0, 0.32);
 }

@@ -7,6 +7,7 @@ import { type UseFormRegisterReturn, useForm } from "react-hook-form";
 import { EmptyState } from "@/components/feedback/empty-state";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { InfoPopover } from "@/components/ui/info-popover";
 import { Input } from "@/components/ui/input";
 import { useSession } from "@/hooks/use-session";
 import { canPerformAction } from "@/lib/auth/permissions";
@@ -98,11 +99,20 @@ export function NotionIntegrationPanel({ project }: NotionIntegrationPanelProps)
         <p className="text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
           Notion integration
         </p>
-        <h2 className="text-2xl font-semibold">Connect the source of truth carefully</h2>
-        <p className="text-sm text-[var(--foreground-muted)]">
-          Test the connection before saving it, review the connected database, and define how
-          DevTrack should interpret source statuses for progress.
-        </p>
+        <div className="flex items-start justify-between gap-3">
+          <div className="space-y-1">
+            <h2 className="text-2xl font-semibold">Connect the source of truth</h2>
+            <p className="text-sm text-[var(--foreground-muted)]">
+              Test the connection, save it, then map statuses for progress.
+            </p>
+          </div>
+          <InfoPopover label="More about Notion integration">
+            <p>
+              DevTrack only calculates trustworthy progress after the project is connected to the
+              right database and the source statuses are mapped correctly.
+            </p>
+          </InfoPopover>
+        </div>
       </div>
 
       {!canManageNotion ? (
@@ -112,11 +122,20 @@ export function NotionIntegrationPanel({ project }: NotionIntegrationPanelProps)
           <div className="grid gap-6 xl:grid-cols-[1fr_1fr]">
             <div className="space-y-4">
               <div className="space-y-2">
-                <h3 className="text-lg font-semibold">Test and save connection</h3>
-                <p className="text-sm text-[var(--foreground-muted)]">
-                  The token is never shown again after this form. Test first to make sure the
-                  database is reachable before saving the connection.
-                </p>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="space-y-1">
+                    <h3 className="text-lg font-semibold">Test and save connection</h3>
+                    <p className="text-sm text-[var(--foreground-muted)]">
+                      Verify the database before saving.
+                    </p>
+                  </div>
+                  <InfoPopover label="More about connection testing" align="left">
+                    <p>
+                      The token is not shown again after this form. Testing first helps confirm the
+                      database is reachable before the project is locked onto it.
+                    </p>
+                  </InfoPopover>
+                </div>
               </div>
 
               <form className="space-y-4">
@@ -215,10 +234,20 @@ export function NotionIntegrationPanel({ project }: NotionIntegrationPanelProps)
           <div className="grid gap-6 xl:grid-cols-[1fr_1fr]">
             <div className="space-y-4">
               <div className="space-y-2">
-                <h3 className="text-lg font-semibold">Status mapping editor</h3>
-                <p className="text-sm text-[var(--foreground-muted)]">
-                  Enter the source statuses used in Notion for each DevTrack meaning below.
-                </p>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="space-y-1">
+                    <h3 className="text-lg font-semibold">Status mapping editor</h3>
+                    <p className="text-sm text-[var(--foreground-muted)]">
+                      Match each DevTrack status to the source label used in Notion.
+                    </p>
+                  </div>
+                  <InfoPopover label="More about status mapping" align="left">
+                    <p>
+                      This step teaches DevTrack how to interpret your workflow. If the mapping is
+                      wrong, project progress will be wrong too.
+                    </p>
+                  </InfoPopover>
+                </div>
               </div>
 
               <form className="space-y-4" onSubmit={onSaveMapping}>
@@ -266,7 +295,16 @@ export function NotionIntegrationPanel({ project }: NotionIntegrationPanelProps)
             </div>
 
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Completion logic</h3>
+              <div className="flex items-start justify-between gap-3">
+                <h3 className="text-lg font-semibold">Completion logic</h3>
+                <InfoPopover label="More about completion logic" align="left">
+                  <p>Only assigned, non-missing tickets contribute to progress.</p>
+                  <p className="mt-2">
+                    Approved and Released count as complete work. Not Started and In Development do
+                    not.
+                  </p>
+                </InfoPopover>
+              </div>
               <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--background)] p-5">
                 <div className="space-y-3 text-sm text-[var(--foreground-muted)]">
                   <p>
@@ -407,15 +445,16 @@ function MappingField({
 }) {
   return (
     <div className="space-y-2">
-      <label className="text-sm font-medium" htmlFor={id}>
-        {label}
-      </label>
+      <div className="flex items-start justify-between gap-3">
+        <label className="text-sm font-medium" htmlFor={id}>
+          {label}
+        </label>
+        <InfoPopover label={`More about ${label}`} align="left" className="shrink-0">
+          <p>{description}</p>
+        </InfoPopover>
+      </div>
       <Input id={id} placeholder="Enter the Notion status label" {...register} />
-      {error ? (
-        <p className="text-sm text-[var(--danger)]">{error}</p>
-      ) : (
-        <p className="text-sm text-[var(--foreground-muted)]">{description}</p>
-      )}
+      {error ? <p className="text-sm text-[var(--danger)]">{error}</p> : null}
     </div>
   );
 }

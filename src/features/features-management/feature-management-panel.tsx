@@ -1,12 +1,14 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
 import { EmptyState } from "@/components/feedback/empty-state";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Modal } from "@/components/ui/modal";
 import { useSession } from "@/hooks/use-session";
 import { canPerformAction } from "@/lib/auth/permissions";
 import {
@@ -26,6 +28,7 @@ export function FeatureManagementPanel({ project }: FeatureManagementPanelProps)
   const { data: sessionResponse } = useSession();
   const role = sessionResponse?.data.user?.role;
   const canManageFeatures = canPerformAction(role, "manageFeatures");
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const {
     register,
@@ -47,7 +50,10 @@ export function FeatureManagementPanel({ project }: FeatureManagementPanelProps)
     features,
     featuresQuery,
     updateFeatureMutation,
-  } = useFeatureManagement(project.id, () => reset());
+  } = useFeatureManagement(project.id, () => {
+    reset();
+    setIsCreateModalOpen(false);
+  });
 
   const onSubmit = handleSubmit((values) => {
     actions.createFeature(values);
@@ -66,26 +72,11 @@ export function FeatureManagementPanel({ project }: FeatureManagementPanelProps)
       </div>
 
       {canManageFeatures ? (
-        <form className="flex flex-col gap-3 md:flex-row md:items-start" onSubmit={onSubmit}>
-          <div className="flex-1 space-y-2">
-            <label className="text-sm font-medium" htmlFor="feature-name">
-              Add feature
-            </label>
-            <Input id="feature-name" placeholder="Client portal" {...register("name")} />
-            {errors.name ? (
-              <p className="text-sm text-[var(--danger)]">{errors.name.message}</p>
-            ) : (
-              <p className="text-sm text-[var(--foreground-muted)]">
-                Feature names should read well in front of a client.
-              </p>
-            )}
-          </div>
-          <div className="pt-0 md:pt-7">
-            <Button disabled={isSubmitting || createFeatureMutation.isPending} type="submit">
-              {isSubmitting || createFeatureMutation.isPending ? "Adding..." : "Add feature"}
-            </Button>
-          </div>
-        </form>
+        <div className="flex justify-start">
+          <Button onClick={() => setIsCreateModalOpen(true)} type="button">
+            Add feature
+          </Button>
+        </div>
       ) : null}
 
       {createFeatureMutation.isError ? (
@@ -132,6 +123,34 @@ export function FeatureManagementPanel({ project }: FeatureManagementPanelProps)
           }
         />
       )}
+
+      <Modal
+        description="Feature names should read well in front of a client."
+        onClose={() => setIsCreateModalOpen(false)}
+        open={canManageFeatures && isCreateModalOpen}
+        title="Add feature"
+      >
+        <form className="space-y-4" onSubmit={onSubmit}>
+          <div className="space-y-2">
+            <label className="text-sm font-medium" htmlFor="feature-name">
+              Feature name
+            </label>
+            <Input id="feature-name" placeholder="Client portal" {...register("name")} />
+            {errors.name ? (
+              <p className="text-sm text-[var(--danger)]">{errors.name.message}</p>
+            ) : null}
+          </div>
+
+          <div className="flex flex-wrap justify-end gap-3">
+            <Button disabled={isSubmitting || createFeatureMutation.isPending} type="submit">
+              {isSubmitting || createFeatureMutation.isPending ? "Adding..." : "Add feature"}
+            </Button>
+            <Button onClick={() => setIsCreateModalOpen(false)} type="button" variant="secondary">
+              Cancel
+            </Button>
+          </div>
+        </form>
+      </Modal>
     </Card>
   );
 }
@@ -166,6 +185,7 @@ function FeatureRow({
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<UpdateFeatureFormValues>({
     resolver: zodResolver(updateFeatureSchema),
@@ -177,6 +197,10 @@ function FeatureRow({
   const onSubmit = handleSubmit((values) => {
     onSaveName(values.name);
   });
+
+  useEffect(() => {
+    reset({ name: feature.name });
+  }, [feature.name, reset]);
 
   const progress = feature._count.tickets > 0 ? 0 : 0;
 
@@ -193,40 +217,21 @@ function FeatureRow({
             </span>
           </div>
 
-          {isEditing ? (
-            <form className="space-y-3" onSubmit={onSubmit}>
-              <Input {...register("name")} />
-              {errors.name ? (
-                <p className="text-sm text-[var(--danger)]">{errors.name.message}</p>
-              ) : null}
-              <div className="flex flex-wrap gap-3">
-                <Button disabled={isSaving} type="submit">
-                  {isSaving ? "Saving..." : "Save name"}
-                </Button>
-                <Button onClick={onEditToggle} type="button" variant="secondary">
-                  Cancel
-                </Button>
-              </div>
-            </form>
-          ) : (
-            <>
-              <div>
-                <h3 className="text-xl font-semibold">{feature.name}</h3>
-                <p className="text-sm text-[var(--foreground-muted)]">
-                  Progress stays at 0% until ticket assignment lands and gives this feature real contributing work.
-                </p>
-              </div>
-              <div className="space-y-2">
-                <div className="h-3 overflow-hidden rounded-full bg-[var(--surface-muted)]">
-                  <div className="h-full rounded-full bg-[var(--primary)]" style={{ width: `${progress}%` }} />
-                </div>
-                <div className="text-sm text-[var(--foreground-muted)]">{progress}% progress</div>
-              </div>
-            </>
-          )}
+          <div>
+            <h3 className="text-xl font-semibold">{feature.name}</h3>
+            <p className="text-sm text-[var(--foreground-muted)]">
+              Progress stays at 0% until ticket assignment lands and gives this feature real contributing work.
+            </p>
+          </div>
+          <div className="space-y-2">
+            <div className="h-3 overflow-hidden rounded-full bg-[var(--surface-muted)]">
+              <div className="h-full rounded-full bg-[var(--primary)]" style={{ width: `${progress}%` }} />
+            </div>
+            <div className="text-sm text-[var(--foreground-muted)]">{progress}% progress</div>
+          </div>
         </div>
 
-        {canManage && !isEditing ? (
+        {canManage ? (
           <div className="flex flex-wrap gap-2">
             <Button disabled={index === 0 || isSaving || isDeleting} onClick={onMoveUp} type="button" variant="secondary">
               Move up
@@ -248,6 +253,31 @@ function FeatureRow({
           </div>
         ) : null}
       </div>
+
+      <Modal
+        description="Use a name that reads clearly in the client-facing progress story."
+        onClose={onEditToggle}
+        open={canManage && isEditing}
+        title="Rename feature"
+      >
+        <form className="space-y-4" onSubmit={onSubmit}>
+          <div className="space-y-2">
+            <label className="text-sm font-medium" htmlFor={`feature-name-${feature.id}`}>
+              Feature name
+            </label>
+            <Input id={`feature-name-${feature.id}`} {...register("name")} />
+            {errors.name ? <p className="text-sm text-[var(--danger)]">{errors.name.message}</p> : null}
+          </div>
+          <div className="flex flex-wrap justify-end gap-3">
+            <Button disabled={isSaving} type="submit">
+              {isSaving ? "Saving..." : "Save name"}
+            </Button>
+            <Button onClick={onEditToggle} type="button" variant="secondary">
+              Cancel
+            </Button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

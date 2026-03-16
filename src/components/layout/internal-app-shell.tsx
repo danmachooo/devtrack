@@ -1,5 +1,15 @@
 "use client";
 
+import {
+  Building2,
+  FolderKanban,
+  LayoutDashboard,
+  MoonStar,
+  PanelLeftClose,
+  PanelLeftOpen,
+  SunMedium,
+  Ticket,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { PropsWithChildren } from "react";
@@ -14,10 +24,10 @@ import { useUiStore } from "@/store/ui-store";
 import { appConfig } from "@/lib/config/app";
 
 const navigation = [
-  { href: "/dashboard", label: "Dashboard" },
-  { href: "/projects", label: "Projects" },
-  { href: "/tickets", label: "Tickets" },
-  { href: "/organization", label: "Organization" },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/projects", label: "Projects", icon: FolderKanban },
+  { href: "/tickets", label: "Tickets", icon: Ticket },
+  { href: "/organization", label: "Organization", icon: Building2 },
 ];
 
 export function InternalAppShell({ children }: PropsWithChildren) {
@@ -52,35 +62,45 @@ export function InternalAppShell({ children }: PropsWithChildren) {
     <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <div className="grid min-h-screen grid-cols-1 md:grid-cols-[auto_1fr]">
         <aside
-          className={`border-r border-[var(--border)] bg-[var(--surface)] px-4 py-6 transition-all ${
+          className={`sticky top-0 h-screen self-start border-r border-[var(--border)] bg-[var(--surface)] px-4 py-6 transition-all ${
             isSidebarOpen ? "w-64" : "w-20"
           }`}
         >
           <div className="mb-10 flex items-center justify-between gap-3">
-            <div className={`${isSidebarOpen ? "block" : "hidden"} text-lg font-semibold`}>
-              DevTrack
+            <div className="flex items-center gap-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-[var(--radius-md)] bg-[color:color-mix(in_srgb,var(--primary)_18%,var(--surface))] text-[var(--primary)] shadow-[var(--shadow-sm)]">
+                <LayoutDashboard className="h-5 w-5" strokeWidth={2.1} />
+              </div>
+              <div className={isSidebarOpen ? "block" : "hidden"}>
+                <div className="text-lg font-semibold">DevTrack</div>
+                <div className="text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
+                  Internal workspace
+                </div>
+              </div>
             </div>
             <button
-              className="rounded-[var(--radius-sm)] border border-[var(--border)] px-2 py-1 text-sm"
+              aria-label={isSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground-muted)] transition hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]"
               onClick={toggleSidebar}
               type="button"
             >
-              {isSidebarOpen ? "Hide" : "Menu"}
+              {isSidebarOpen ? (
+                <PanelLeftClose className="h-4 w-4" strokeWidth={2} />
+              ) : (
+                <PanelLeftOpen className="h-4 w-4" strokeWidth={2} />
+              )}
             </button>
           </div>
           <nav className="space-y-2">
             {navigation.map((item) => (
-              <Link
+              <SidebarNavLink
                 key={item.href}
                 href={item.href}
-                className={`flex rounded-[var(--radius-md)] px-3 py-2 text-sm font-medium transition ${
-                  pathname === item.href
-                    ? "bg-[color:color-mix(in_srgb,var(--primary)_16%,var(--surface))] text-[var(--foreground)]"
-                    : "text-[var(--foreground-muted)] hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)]"
-                }`}
-              >
-                {isSidebarOpen ? item.label : item.label.slice(0, 1)}
-              </Link>
+                icon={item.icon}
+                isActive={pathname === item.href}
+                isSidebarOpen={isSidebarOpen}
+                label={item.label}
+              />
             ))}
           </nav>
         </aside>
@@ -110,7 +130,14 @@ export function InternalAppShell({ children }: PropsWithChildren) {
               </div>
               <div className="flex flex-wrap items-center justify-end gap-3">
                 <Button onClick={toggleThemeMode} type="button" variant="secondary">
-                  {themeMode === "dark" ? "Use light mode" : "Use dark mode"}
+                  <span className="mr-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-[var(--surface-muted)]">
+                    {themeMode === "dark" ? (
+                      <SunMedium className="h-3.5 w-3.5" strokeWidth={2.2} />
+                    ) : (
+                      <MoonStar className="h-3.5 w-3.5" strokeWidth={2.2} />
+                    )}
+                  </span>
+                  <span>{themeMode === "dark" ? "Light mode" : "Dark mode"}</span>
                 </Button>
                 <details className="group relative">
                   <summary className="flex cursor-pointer list-none items-center justify-center rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 text-sm font-semibold text-[var(--foreground)] transition hover:bg-[var(--surface-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]">
@@ -142,5 +169,35 @@ export function InternalAppShell({ children }: PropsWithChildren) {
         </div>
       </div>
     </div>
+  );
+}
+
+function SidebarNavLink({
+  href,
+  icon: Icon,
+  isActive,
+  isSidebarOpen,
+  label,
+}: {
+  href: string;
+  icon: typeof LayoutDashboard;
+  isActive: boolean;
+  isSidebarOpen: boolean;
+  label: string;
+}) {
+  return (
+    <Link
+      aria-label={label}
+      href={href}
+      title={isSidebarOpen ? undefined : label}
+      className={`flex items-center rounded-[var(--radius-md)] px-3 py-3 text-sm font-medium transition ${
+        isActive
+          ? "bg-[color:color-mix(in_srgb,var(--primary)_16%,var(--surface))] text-[var(--foreground)] shadow-[var(--shadow-sm)]"
+          : "text-[var(--foreground-muted)] hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)]"
+      } ${isSidebarOpen ? "gap-3" : "justify-center"}`}
+    >
+      <Icon className="h-4.5 w-4.5 shrink-0" strokeWidth={2} />
+      {isSidebarOpen ? <span>{label}</span> : null}
+    </Link>
   );
 }

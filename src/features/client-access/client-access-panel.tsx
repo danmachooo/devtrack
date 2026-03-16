@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { InfoPopover } from "@/components/ui/info-popover";
 import { useSession } from "@/hooks/use-session";
 import { canPerformAction } from "@/lib/auth/permissions";
 import { formatDateTime } from "@/features/projects/project-utils";
@@ -30,10 +31,20 @@ export function ClientAccessPanel({ project }: ClientAccessPanelProps) {
         <p className="text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
           Client access
         </p>
-        <h2 className="text-2xl font-semibold">Publish the safe dashboard link deliberately</h2>
-        <p className="text-sm text-[var(--foreground-muted)]">
-          Only the shareable link is surfaced here. Raw token values remain hidden from the UI.
-        </p>
+        <div className="flex items-start justify-between gap-3">
+          <div className="space-y-1">
+            <h2 className="text-2xl font-semibold">Share the client dashboard link</h2>
+            <p className="text-sm text-[var(--foreground-muted)]">
+              Copy the safe link without exposing raw token values.
+            </p>
+          </div>
+          <InfoPopover label="More about client access">
+            <p>
+              Only the shareable client link is safe to show here. Raw client token values stay out
+              of the UI.
+            </p>
+          </InfoPopover>
+        </div>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">

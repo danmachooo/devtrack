@@ -165,3 +165,9 @@ Assumption:
 
 - [x] Upgrade `/dashboard` from scaffold to a real internal overview page with project metrics, role-aware next steps, and project health links
 - [x] Upgrade `/tickets` from scaffold to a project-first ticket mapping workspace
+
+## Phase 17 - Shell Polish
+
+- [x] Upgrade the internal sidebar with sticky positioning and Lucide icons
+- [x] Replace the plain theme toggle label with an icon-led toggle treatment
+- [x] Add a minimal custom scrollbar that follows the shared token system

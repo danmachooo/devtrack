@@ -13,7 +13,9 @@ import { PageHeader } from "@/components/layout/page-header";
 import { RoleAwarePageActions } from "@/components/layout/role-aware-page-actions";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { InfoPopover } from "@/components/ui/info-popover";
 import { Input } from "@/components/ui/input";
+import { Modal } from "@/components/ui/modal";
 import { ClientAccessPanel } from "@/features/client-access/client-access-panel";
 import { FeatureManagementPanel } from "@/features/features-management/feature-management-panel";
 import { NotionIntegrationPanel } from "@/features/notion/notion-integration-panel";
@@ -137,15 +139,15 @@ export default function ProjectDetailPage() {
     <div className="space-y-8">
       <PageHeader
         title={project.name}
-        description="This command center keeps setup steps, trust signals, and the next operational move visible in one place."
+        description="Keep setup, trust signals, and next steps in one place."
         actions={
           <RoleAwarePageActions
             items={[
               { label: "Back to projects", href: "/projects", variant: "ghost" },
               canEditProject
                 ? {
-                    label: isEditing ? "Close editor" : "Edit project",
-                    onClick: () => setIsEditing((current) => !current),
+                    label: "Edit project",
+                    onClick: () => setIsEditing(true),
                   }
                 : { label: "Open organization", href: "/organization", variant: "secondary" },
             ]}
@@ -212,16 +214,6 @@ export default function ProjectDetailPage() {
             </div>
           </div>
 
-          {canEditProject && isEditing ? <ProjectEditCard
-            register={register}
-            errors={errors}
-            isSubmitting={isSubmitting}
-            isPending={updateProjectMutation.isPending}
-            isError={updateProjectMutation.isError}
-            error={updateProjectMutation.error}
-            onCancel={() => setIsEditing(false)}
-            onSubmit={handleUpdateProject}
-          /> : null}
         </Card>
 
         <div className="space-y-6">
@@ -230,8 +222,18 @@ export default function ProjectDetailPage() {
               <p className="text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
                 Next incomplete step
               </p>
-              <h2 className="text-2xl font-semibold">{nextStep?.title}</h2>
-              <p className="text-sm text-[var(--foreground-muted)]">{nextStep?.description}</p>
+              <div className="flex items-start justify-between gap-3">
+                <div className="space-y-1">
+                  <h2 className="text-2xl font-semibold">{nextStep?.title}</h2>
+                  <p className="text-sm text-[var(--foreground-muted)]">{nextStep?.description}</p>
+                </div>
+                <InfoPopover label="More about the project command center" align="left">
+                  <p>
+                    This page is the command center for one project. It keeps the setup sequence,
+                    sync trust signals, ticket organization, and client-sharing readiness together.
+                  </p>
+                </InfoPopover>
+              </div>
             </div>
 
             <ContextualGuidance project={project} />
@@ -267,11 +269,20 @@ export default function ProjectDetailPage() {
           <p className="text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
             Six-step setup checklist
           </p>
-          <h2 className="text-2xl font-semibold">Make the workflow obvious</h2>
-          <p className="text-sm text-[var(--foreground-muted)]">
-            The command center keeps the documented project sequence visible so setup, assignment,
-            progress review, and sharing all stay legible in one place.
-          </p>
+          <div className="flex items-start justify-between gap-3">
+            <div className="space-y-1">
+              <h2 className="text-2xl font-semibold">Make the workflow obvious</h2>
+              <p className="text-sm text-[var(--foreground-muted)]">
+                The documented setup sequence stays visible here.
+              </p>
+            </div>
+            <InfoPopover label="More about the setup checklist" align="left">
+              <p>
+                The checklist mirrors the intended product flow: connect Notion, map statuses,
+                sync, create features, assign tickets, and share the client link.
+              </p>
+            </InfoPopover>
+          </div>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -292,7 +303,15 @@ export default function ProjectDetailPage() {
           <p className="text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
             Why this page exists
           </p>
-          <h2 className="text-xl font-semibold">Keep the screen intentional even when data is sparse</h2>
+          <div className="flex items-start justify-between gap-3">
+            <h2 className="text-xl font-semibold">Keep the screen intentional even when data is sparse</h2>
+            <InfoPopover label="More about this screen" align="left">
+              <p>
+                Early in setup, this page should still feel directional instead of blank. Later it
+                becomes the place where progress, sync diagnostics, and sharing work come together.
+              </p>
+            </InfoPopover>
+          </div>
         </div>
 
         {project._count.tickets === 0 && project.features.length === 0 ? (
@@ -314,6 +333,24 @@ export default function ProjectDetailPage() {
           Back to all projects
         </Link>
       </div>
+
+      <Modal
+        description="Keep the client-facing basics accurate here. Sync interval stays within the documented 5-60 minute window."
+        onClose={() => setIsEditing(false)}
+        open={canEditProject && isEditing}
+        title="Edit project metadata"
+      >
+        <ProjectEditCard
+          error={updateProjectMutation.error}
+          errors={errors}
+          isError={updateProjectMutation.isError}
+          isPending={updateProjectMutation.isPending}
+          isSubmitting={isSubmitting}
+          onCancel={() => setIsEditing(false)}
+          onSubmit={handleUpdateProject}
+          register={register}
+        />
+      </Modal>
     </div>
   );
 }
@@ -340,84 +377,67 @@ function ProjectEditCard({
   onSubmit,
 }: ProjectEditCardProps) {
   return (
-    <Card className="border-[color:color-mix(in_srgb,var(--primary)_26%,var(--border))] p-6">
-      <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
-        <div className="space-y-2">
-          <p className="text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
-            Team leader tools
-          </p>
-          <h3 className="text-xl font-semibold">Edit project metadata</h3>
-          <p className="text-sm text-[var(--foreground-muted)]">
-            Keep the client-facing basics accurate here. Sync interval stays within the documented
-            `5-60` minute window.
-          </p>
-        </div>
-
-        <form className="space-y-4" onSubmit={onSubmit}>
-          <div className="space-y-2">
-            <label className="text-sm font-medium" htmlFor="detail-project-name">
-              Project name
-            </label>
-            <Input id="detail-project-name" {...register("name")} />
-            {errors.name ? <p className="text-sm text-[var(--danger)]">{errors.name.message}</p> : null}
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium" htmlFor="detail-client-name">
-              Client name
-            </label>
-            <Input id="detail-client-name" {...register("clientName")} />
-            {errors.clientName ? (
-              <p className="text-sm text-[var(--danger)]">{errors.clientName.message}</p>
-            ) : null}
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium" htmlFor="detail-client-email">
-              Client email
-            </label>
-            <Input id="detail-client-email" type="email" {...register("clientEmail")} />
-            {errors.clientEmail ? (
-              <p className="text-sm text-[var(--danger)]">{errors.clientEmail.message}</p>
-            ) : null}
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium" htmlFor="detail-sync-interval">
-              Sync interval
-            </label>
-            <Input
-              id="detail-sync-interval"
-              inputMode="numeric"
-              placeholder="15"
-              {...register("syncInterval")}
-            />
-            {errors.syncInterval ? (
-              <p className="text-sm text-[var(--danger)]">{errors.syncInterval.message?.toString()}</p>
-            ) : (
-              <p className="text-sm text-[var(--foreground-muted)]">
-                Optional. Enter a value from 5 to 60 minutes.
-              </p>
-            )}
-          </div>
-
-          {isError ? (
-            <p className="text-sm text-[var(--danger)]">
-              {error instanceof Error ? error.message : "Project update failed. Try again."}
-            </p>
-          ) : null}
-
-          <div className="flex flex-wrap gap-3">
-            <Button disabled={isSubmitting || isPending} type="submit">
-              {isSubmitting || isPending ? "Saving..." : "Save changes"}
-            </Button>
-            <Button onClick={onCancel} type="button" variant="secondary">
-              Cancel
-            </Button>
-          </div>
-        </form>
+    <form className="space-y-4" onSubmit={onSubmit}>
+      <div className="space-y-2">
+        <label className="text-sm font-medium" htmlFor="detail-project-name">
+          Project name
+        </label>
+        <Input id="detail-project-name" {...register("name")} />
+        {errors.name ? <p className="text-sm text-[var(--danger)]">{errors.name.message}</p> : null}
       </div>
-    </Card>
+
+      <div className="space-y-2">
+        <label className="text-sm font-medium" htmlFor="detail-client-name">
+          Client name
+        </label>
+        <Input id="detail-client-name" {...register("clientName")} />
+        {errors.clientName ? <p className="text-sm text-[var(--danger)]">{errors.clientName.message}</p> : null}
+      </div>
+
+      <div className="space-y-2">
+        <label className="text-sm font-medium" htmlFor="detail-client-email">
+          Client email
+        </label>
+        <Input id="detail-client-email" type="email" {...register("clientEmail")} />
+        {errors.clientEmail ? (
+          <p className="text-sm text-[var(--danger)]">{errors.clientEmail.message}</p>
+        ) : null}
+      </div>
+
+      <div className="space-y-2">
+        <label className="text-sm font-medium" htmlFor="detail-sync-interval">
+          Sync interval
+        </label>
+        <Input
+          id="detail-sync-interval"
+          inputMode="numeric"
+          placeholder="15"
+          {...register("syncInterval")}
+        />
+        {errors.syncInterval ? (
+          <p className="text-sm text-[var(--danger)]">{errors.syncInterval.message?.toString()}</p>
+        ) : (
+          <p className="text-sm text-[var(--foreground-muted)]">
+            Optional. Enter a value from 5 to 60 minutes.
+          </p>
+        )}
+      </div>
+
+      {isError ? (
+        <p className="text-sm text-[var(--danger)]">
+          {error instanceof Error ? error.message : "Project update failed. Try again."}
+        </p>
+      ) : null}
+
+      <div className="flex flex-wrap justify-end gap-3">
+        <Button disabled={isSubmitting || isPending} type="submit">
+          {isSubmitting || isPending ? "Saving..." : "Save changes"}
+        </Button>
+        <Button onClick={onCancel} type="button" variant="secondary">
+          Cancel
+        </Button>
+      </div>
+    </form>
   );
 }
 

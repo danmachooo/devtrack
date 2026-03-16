@@ -2,6 +2,7 @@
 
 import { EmptyState } from "@/components/feedback/empty-state";
 import { Card } from "@/components/ui/card";
+import { InfoPopover } from "@/components/ui/info-popover";
 import { formatDateTime } from "@/features/projects/project-utils";
 import { FeatureStatusPill } from "@/features/progress/components/feature-status-pill";
 import { ProgressCardSkeleton } from "@/features/progress/components/progress-card-skeleton";
@@ -26,10 +27,21 @@ export function ProgressAndSyncLogsPanel({ project }: ProgressAndSyncLogsPanelPr
         <p className="text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
           Progress and sync logs
         </p>
-        <h2 className="text-2xl font-semibold">Make delivery progress feel visible and trustworthy</h2>
-        <p className="text-sm text-[var(--foreground-muted)]">
-          Progress reflects assigned, non-missing tickets only. Sync logs stay nearby so freshness and failure signals remain easy to inspect.
-        </p>
+        <div className="flex items-start justify-between gap-3">
+          <div className="space-y-1">
+            <h2 className="text-2xl font-semibold">Track progress and sync health</h2>
+            <p className="text-sm text-[var(--foreground-muted)]">
+              Progress and recent sync outcomes stay visible together.
+            </p>
+          </div>
+          <InfoPopover label="More about progress and sync logs">
+            <p>Progress reflects assigned, non-missing tickets only.</p>
+            <p className="mt-2">
+              Keeping sync history nearby makes freshness problems and failed imports easier to
+              inspect.
+            </p>
+          </InfoPopover>
+        </div>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-[0.8fr_1.2fr]">
@@ -94,7 +106,15 @@ export function ProgressAndSyncLogsPanel({ project }: ProgressAndSyncLogsPanelPr
           <p className="text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
             Recent sync history
           </p>
-          <h3 className="text-xl font-semibold">Diagnostic feedback that stays readable</h3>
+          <div className="flex items-start justify-between gap-3">
+            <h3 className="text-xl font-semibold">Recent sync history</h3>
+            <InfoPopover label="More about sync history" align="left">
+              <p>
+                Sync logs are internal diagnostics. They help the team check whether recent imports
+                succeeded, failed, or were rate limited.
+              </p>
+            </InfoPopover>
+          </div>
         </div>
 
         {syncLogsQuery.isPending ? (
