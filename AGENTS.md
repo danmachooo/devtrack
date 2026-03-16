@@ -31,6 +31,12 @@ Treat these files as authoritative:
 
 If these files conflict with assumptions in code, the docs win.
 
+After completing a phase, agents must update:
+
+- `TODOLIST.md` to reflect checklist progress
+- `CONTEXT.md` to capture the newly stable frontend behavior
+- `AGENTS.md` when agent workflow or guardrails should change because of the completed phase
+
 ---
 
 ## Core Technical Rules
@@ -46,6 +52,9 @@ If these files conflict with assumptions in code, the docs win.
 - keep code modular and reasonably small; split long files before they become difficult to scan or maintain
 - prefer simple, clear abstractions over clever or overly dense implementations
 - follow current best practices for accessibility, maintainability, and readability
+- keep separation of concerns explicit: shared API modules handle requests, feature hooks own React Query orchestration, utility files hold pure derivations/formatting, and component files focus on rendering and local interaction only
+- when TanStack Query is needed for a feature, prefer a dedicated feature-local hook instead of placing `useQuery`, `useMutation`, invalidation rules, and async orchestration directly inside large panel or page components
+- before closing client-facing or RBAC-sensitive work, perform an explicit safety pass that checks client-route imports, rendered fields, role-gated controls, and Zustand usage against the documented exposure rules
 
 Correct data flow:
 
@@ -83,9 +92,20 @@ Rules:
 
 - auth is session-based
 - restore session with `GET /api/auth/session`
+- sign-in and sign-up use React Hook Form with Zod validation
+- sign-out uses `POST /api/auth/sign-out`
+- internal routes redirect unauthenticated users to `/sign-in`
 - handle signed-in but no-active-org state as onboarding, not failure
+- allow `/organization` to render for signed-in users who still need to activate an organization
 - do not allow internal product flows without an active organization
 - do not attempt cross-org requests
+
+Current implemented organization behaviors:
+
+- the organization route handles both onboarding and active organization management
+- team leaders can create organizations, invite teammates, review outgoing invitations, update member roles, and remove members
+- invited users can review personal invitations and accept or reject them from the organization screen
+- organization flows should keep using shared API modules and React Query rather than inline request logic
 
 ---
 
@@ -169,6 +189,9 @@ Agents must:
 - verify work before calling it complete
 - be confident that a completed phase is actually functional, not just scaffolded
 - use proper types throughout and keep code maintainable
+- split mixed-responsibility files once they start combining query orchestration, domain derivation, and multiple UI subcomponents in one place
+- keep panel files compositional: they should usually consume feature hooks and presentational helpers rather than define most server-state orchestration inline
+- keep the repo docs aligned with completed phases instead of letting code and docs drift apart
 
 ## Verification Rules
 

@@ -5,12 +5,14 @@ type ErrorStateProps = {
   title?: string;
   description?: string;
   actionLabel?: string;
+  onAction?: () => void;
 };
 
 export function ErrorState({
   title = "Something went wrong",
   description = "The page could not be loaded right now. Try again in a moment.",
-  actionLabel = "Try Again",
+  actionLabel,
+  onAction,
 }: ErrorStateProps) {
   return (
     <Card className="border-[color:color-mix(in_srgb,var(--danger)_50%,var(--border))] p-6">
@@ -19,7 +21,11 @@ export function ErrorState({
           <h3 className="text-lg font-semibold">{title}</h3>
           <p className="text-sm text-[var(--foreground-muted)]">{description}</p>
         </div>
-        <Button variant="secondary">{actionLabel}</Button>
+        {actionLabel && onAction ? (
+          <Button onClick={onAction} type="button" variant="secondary">
+            {actionLabel}
+          </Button>
+        ) : null}
       </div>
     </Card>
   );

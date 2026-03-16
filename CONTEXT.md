@@ -6,11 +6,11 @@ It grounds implementation decisions in the underlying model rather than in UI as
 
 Read it alongside:
 
-- `AGENTS..md`
+- `AGENTS.md`
 - `PROJECT-FLOW.md`
 - `UI-UX-STORY.md`
 - `SKILL.md`
-- `endpoints.md`
+- `ENDPOINTS.md`
 
 When contract rules or scoping rules conflict with UI assumptions, the contract and scoping rules win.
 
@@ -74,7 +74,7 @@ Returned shape:
 {
   session: {
     expiresAt: string;
-    activeOrganizationId: string;
+    activeOrganizationId: string | null;
   } | null;
   user: {
     id: string;
@@ -91,6 +91,8 @@ Important consequences:
 - `user` may be `null`
 - a user may be signed in without belonging to an active organization
 - almost all internal data depends on `activeOrganizationId`
+- the frontend currently redirects no-session users away from internal routes and into `/sign-in`
+- signed-in users without an active organization are intentionally treated as onboarding users and guided into `/organization`
 
 ### Organization
 
@@ -107,6 +109,12 @@ Everything below is organization-scoped:
 
 Cross-organization access must fail.
 
+Current frontend organization behavior:
+
+- `/organization` is both the onboarding destination and the active organization management screen
+- team leaders can create the first organization directly from the frontend
+- successful organization creation activates the organization in the current session
+
 ### OrganizationInvitation
 
 Invitations are used to join an organization by email.
@@ -116,6 +124,8 @@ Important behavior:
 - the invited email must match the authenticated user email
 - accepting an invitation activates that organization in the current session
 - invitation IDs are non-UUID strings where documented
+- the frontend supports personal invitation listing plus accept and reject actions
+- outgoing invitation management is shown only for `TEAM_LEADER`
 
 ### OrganizationMember
 
@@ -127,6 +137,12 @@ Role enum:
 - `BUSINESS_ANALYST`
 - `QUALITY_ASSURANCE`
 - `DEVELOPER`
+
+Current frontend member management:
+
+- the organization route includes a members view
+- team leaders can update member roles and remove members
+- non-team-leader users can view membership but do not see management controls
 
 ### Project
 
@@ -274,6 +290,8 @@ Internal UI auth:
 - session-based
 - restored with `GET /api/auth/session`
 - users sign up, sign in, and sign out through custom `/api/auth/*` routes
+- sign-in and sign-up forms are implemented with React Hook Form and Zod
+- sign-out is available from the internal shell header
 
 Client dashboard access:
 
@@ -416,6 +434,26 @@ State ownership:
 - React Query for server state
 - Zustand for global UI state only
 - local component state for temporary interactions
+
+Current implementation note:
+
+- the repo is still configured with `useMockApi: true`, so the completed auth and organization flows are verified through the shared API layer in mock mode as well as through typecheck and production build validation
+- the internal workspace shell now includes a top header that surfaces active organization context, the signed-in user's role and account menu, and a theme toggle backed by the shared token system
+- the internal dashboard route now acts as a real overview surface that loads project data through the shared projects API layer, summarizes total/setup-needed/stale-or-unsynced/ready-to-share project counts, surfaces role-aware next-step guidance, and links users back into the right project or workspace flow without duplicating dense project-detail interactions
+- the internal tickets route now acts as a project-first workspace that loads available projects through the shared projects API layer, persists the selected project in the URL, reuses the existing ticket review and assignment flows for the active project, preserves read-only visibility for non-edit roles, and links users back to the selected project command center
+- internal scaffold pages use a shared permission helper so role-limited page actions are omitted from the DOM when the current role is not authorized
+- the project list now loads through the shared projects API module, supports team-leader-only project creation, shows sync freshness and `lastSyncedAt`, and uses a zero-project empty state that respects RBAC visibility
+- the project detail route now loads through the shared projects API module, supports a team-leader-only metadata editor, surfaces readiness and `lastSyncedAt`, and keeps the six-step setup checklist plus next-step guidance visible so the command center stays intentional before later phases land
+- the project command center now includes a Notion integration panel that lets team leaders test and save a connection, review connected database details, define status mappings through the shared API layer, and keeps those setup actions hidden from non-team-leader roles
+- the project command center now includes a sync panel that supports the documented queued and already-queued responses, shows distinct idle/queued/syncing/completed UI states, keeps `lastSyncedAt` prominent, and restricts manual sync actions to team leaders and business analysts
+- the project command center now includes a feature management panel that lists project features through the shared API layer, supports add/rename/reorder/delete flows for team leaders and business analysts, and shows ticket counts plus placeholder progress until ticket assignment is built
+- the project command center now includes a ticket review panel that loads through the shared tickets API module, shows mapped status, source status, assignment, assignee, missing state, and sync time, supports feature/status/unassigned/missing filters, prevents invalid `featureId + unassigned=true` combinations in the UI, and restricts inline assignment to team leaders and business analysts
+- the project command center now includes progress and sync diagnostics that derive aggregate and per-feature progress from assigned non-missing tickets, show status chips and progress bars, and list recent sync log outcomes through the shared sync API layer with explicit `SUCCESS`, `FAILED`, and `RATE_LIMITED` states
+- the project command center now includes a client access panel that loads the safe `clientAccessLink` and `lastViewedAt` fields through the shared client API module, supports copy-link interaction, hides the panel from unauthorized roles, and keeps raw token values out of the UI
+- the tickets, progress, and client-access features now follow a split frontend structure where panel files compose feature-local hooks, pure utility helpers, and small presentational subcomponents instead of mixing React Query setup, formatting helpers, and rendering concerns in a single file
+- the project-detail Notion, sync, feature-management, tickets, progress, and client-access surfaces now consistently keep TanStack Query orchestration in feature-local hooks while panel files focus on composition, form rendering, and role-aware presentation
+- the public client dashboard now loads through the shared client API module on `/client/[token]`, uses the standalone client shell without internal navigation, shows only client-safe project name/progress/feature/activity/freshness fields, provides a mobile-ready loading state, and surfaces invalid-token failures through a dedicated recovery state
+- the latest RBAC and safety audit confirmed that role-limited internal actions stay hidden or gated, client pages do not import internal auth or organization state, client screens do not expose internal IDs or sensitive fields, Notion tokens and raw client tokens stay out of rendered UI, and Zustand remains limited to global UI state
 
 ---
 
