@@ -450,6 +450,8 @@ Current implementation note:
 - the project command center now includes a client access panel that loads the safe `clientAccessLink` and `lastViewedAt` fields through the shared client API module, supports copy-link interaction, hides the panel from unauthorized roles, and keeps raw token values out of the UI
 - the tickets, progress, and client-access features now follow a split frontend structure where panel files compose feature-local hooks, pure utility helpers, and small presentational subcomponents instead of mixing React Query setup, formatting helpers, and rendering concerns in a single file
 - the project-detail Notion, sync, feature-management, tickets, progress, and client-access surfaces now consistently keep TanStack Query orchestration in feature-local hooks while panel files focus on composition, form rendering, and role-aware presentation
+- the public client dashboard now loads through the shared client API module on `/client/[token]`, uses the standalone client shell without internal navigation, shows only client-safe project name/progress/feature/activity/freshness fields, provides a mobile-ready loading state, and surfaces invalid-token failures through a dedicated recovery state
+- the latest RBAC and safety audit confirmed that role-limited internal actions stay hidden or gated, client pages do not import internal auth or organization state, client screens do not expose internal IDs or sensitive fields, Notion tokens and raw client tokens stay out of rendered UI, and Zustand remains limited to global UI state
 
 ---
 

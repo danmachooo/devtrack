@@ -134,29 +134,29 @@ Assumption:
 
 ## Phase 13 - Client Dashboard
 
-- [ ] Build `/client/[token]`
-- [ ] Add a calm standalone layout with no internal navigation
-- [ ] Show project name and overall progress hero
-- [ ] Show feature cards with progress, status, and ticket counts
-- [ ] Show recent activity
-- [ ] Show `lastSyncedAt` in a reassuring way
-- [ ] Build invalid-token error state
-- [ ] Ensure the page works well on mobile and desktop
+- [x] Build `/client/[token]`
+- [x] Add a calm standalone layout with no internal navigation
+- [x] Show project name and overall progress hero
+- [x] Show feature cards with progress, status, and ticket counts
+- [x] Show recent activity
+- [x] Show `lastSyncedAt` in a reassuring way
+- [x] Build invalid-token error state
+- [x] Ensure the page works well on mobile and desktop
 
 ## Phase 14 - RBAC And Safety Audit
 
-- [ ] Verify all role-limited actions are hidden or gated correctly
-- [ ] Verify client pages do not import internal auth or org state
-- [ ] Verify no client screen exposes internal IDs or sensitive data
-- [ ] Verify no component displays Notion tokens or raw client tokens
-- [ ] Verify no server data is stored in Zustand
+- [x] Verify all role-limited actions are hidden or gated correctly
+- [x] Verify client pages do not import internal auth or org state
+- [x] Verify no client screen exposes internal IDs or sensitive data
+- [x] Verify no component displays Notion tokens or raw client tokens
+- [x] Verify no server data is stored in Zustand
 
 ## Phase 15 - Polish And Readiness
 
-- [ ] Review empty states for clear next-step calls to action
-- [ ] Review loading states so important screens never feel blank
-- [ ] Review error states for clarity and recovery
-- [ ] Review accessibility basics such as labels, focus rings, and keyboard access
-- [ ] Review responsive behavior for auth and client pages
-- [ ] Review visual consistency against your chosen color palette and design tokens
-- [ ] Do a final pass against `AGENTS.md`, `PROJECT-FLOW.md`, `UI-UX-STORY.md`, `CONTEXT.md`, and `SKILL.md`
+- [x] Review empty states for clear next-step calls to action
+- [x] Review loading states so important screens never feel blank
+- [x] Review error states for clarity and recovery
+- [x] Review accessibility basics such as labels, focus rings, and keyboard access
+- [x] Review responsive behavior for auth and client pages
+- [x] Review visual consistency against your chosen color palette and design tokens
+- [x] Do a final pass against `AGENTS.md`, `PROJECT-FLOW.md`, `UI-UX-STORY.md`, `CONTEXT.md`, and `SKILL.md`

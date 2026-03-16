@@ -54,6 +54,7 @@ After completing a phase, agents must update:
 - follow current best practices for accessibility, maintainability, and readability
 - keep separation of concerns explicit: shared API modules handle requests, feature hooks own React Query orchestration, utility files hold pure derivations/formatting, and component files focus on rendering and local interaction only
 - when TanStack Query is needed for a feature, prefer a dedicated feature-local hook instead of placing `useQuery`, `useMutation`, invalidation rules, and async orchestration directly inside large panel or page components
+- before closing client-facing or RBAC-sensitive work, perform an explicit safety pass that checks client-route imports, rendered fields, role-gated controls, and Zustand usage against the documented exposure rules
 
 Correct data flow:
 
