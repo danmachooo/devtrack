@@ -50,6 +50,10 @@ export function InternalRouteGuard({ children }: PropsWithChildren) {
   }
 
   if (!session.activeOrganizationId) {
+    if (pathname === "/organization") {
+      return <>{children}</>;
+    }
+
     return (
       <EmptyState
         title="You are signed in, but your workspace is not active yet"

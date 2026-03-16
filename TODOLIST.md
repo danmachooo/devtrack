@@ -40,16 +40,16 @@ Assumption:
 
 ## Phase 3 - Organization Setup
 
-- [ ] Build create-organization screen
-- [ ] Add organization form validation
-- [ ] Wire `POST /api/org` and `GET /api/org`
-- [ ] Build personal invitations view with `GET /api/org/invitations/me`
-- [ ] Add accept invitation flow
-- [ ] Add reject invitation flow
-- [ ] Build organization members view
-- [ ] Build team-leader-only invitation management
-- [ ] Build invite member form
-- [ ] Build role update and member removal actions
+- [x] Build create-organization screen
+- [x] Add organization form validation
+- [x] Wire `POST /api/org` and `GET /api/org`
+- [x] Build personal invitations view with `GET /api/org/invitations/me`
+- [x] Add accept invitation flow
+- [x] Add reject invitation flow
+- [x] Build organization members view
+- [x] Build team-leader-only invitation management
+- [x] Build invite member form
+- [x] Build role update and member removal actions
 
 ## Phase 4 - Internal App Shell
 
