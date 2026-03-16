@@ -30,13 +30,13 @@ Assumption:
 
 ## Phase 2 - Auth And Session
 
-- [ ] Build sign-up with React Hook Form and Zod
-- [ ] Build sign-in with React Hook Form and Zod
-- [ ] Wire auth forms to `/api/auth/sign-up` and `/api/auth/sign-in`
-- [ ] Implement sign-out via `/api/auth/sign-out`
-- [ ] Add internal route protection
-- [ ] Handle no-session state cleanly
-- [ ] Handle no-active-org state as onboarding rather than error
+- [x] Build sign-up with React Hook Form and Zod
+- [x] Build sign-in with React Hook Form and Zod
+- [x] Wire auth forms to `/api/auth/sign-up` and `/api/auth/sign-in`
+- [x] Implement sign-out via `/api/auth/sign-out`
+- [x] Add internal route protection
+- [x] Handle no-session state cleanly
+- [x] Handle no-active-org state as onboarding rather than error
 
 ## Phase 3 - Organization Setup
 

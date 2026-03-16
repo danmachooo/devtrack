@@ -8,9 +8,16 @@ type EmptyStateProps = {
   description: string;
   actionLabel?: string;
   icon?: ReactNode;
+  children?: ReactNode;
 };
 
-export function EmptyState({ title, description, actionLabel, icon }: EmptyStateProps) {
+export function EmptyState({
+  title,
+  description,
+  actionLabel,
+  icon,
+  children,
+}: EmptyStateProps) {
   return (
     <Card className="flex flex-col items-start gap-4 p-6">
       {icon ? <div className="text-[var(--primary)]">{icon}</div> : null}
@@ -19,6 +26,7 @@ export function EmptyState({ title, description, actionLabel, icon }: EmptyState
         <p className="text-sm text-[var(--foreground-muted)]">{description}</p>
       </div>
       {actionLabel ? <Button variant="secondary">{actionLabel}</Button> : null}
+      {children}
     </Card>
   );
 }

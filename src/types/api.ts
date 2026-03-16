@@ -24,7 +24,32 @@ export type SessionUser = {
 export type SessionData = {
   session: {
     expiresAt: string;
-    activeOrganizationId: string;
+    activeOrganizationId: string | null;
   } | null;
   user: SessionUser | null;
+};
+
+export type SignUpPayload = {
+  name: string;
+  email: string;
+  password: string;
+};
+
+export type SignUpData = {
+  user: SessionUser;
+};
+
+export type SignInPayload = {
+  email: string;
+  password: string;
+};
+
+export type SignInData = {
+  user: SessionUser;
+  redirect: boolean;
+  url: string | null;
+};
+
+export type SignOutData = {
+  success: boolean;
 };

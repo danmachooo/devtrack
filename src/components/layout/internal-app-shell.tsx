@@ -1,9 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { PropsWithChildren } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
+import { Button } from "@/components/ui/button";
 import { useSession } from "@/hooks/use-session";
+import { signOut } from "@/lib/api/auth.api";
 import { useUiStore } from "@/store/ui-store";
 
 const navigation = [
@@ -14,8 +18,20 @@ const navigation = [
 ];
 
 export function InternalAppShell({ children }: PropsWithChildren) {
+  const router = useRouter();
+  const queryClient = useQueryClient();
   const { isSidebarOpen, toggleSidebar } = useUiStore();
   const { data } = useSession();
+  const signOutMutation = useMutation({
+    mutationFn: signOut,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["session"] });
+      router.replace("/sign-in");
+    },
+  });
+
+  const activeOrgId = data?.data.session?.activeOrganizationId;
+  const userName = data?.data.user?.name ?? "Loading session";
 
   return (
     <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
@@ -57,10 +73,20 @@ export function InternalAppShell({ children }: PropsWithChildren) {
                   Active Workspace
                 </div>
                 <div className="text-sm font-semibold">
-                  {data?.data.user?.name ?? "Loading session"}
+                  {activeOrgId ? userName : `${userName} - Onboarding`}
                 </div>
               </div>
-              <div className="text-sm text-[var(--foreground-muted)]">Stone + Forest Green</div>
+              <div className="flex items-center gap-3">
+                <div className="text-sm text-[var(--foreground-muted)]">Stone + Forest Green</div>
+                <Button
+                  variant="secondary"
+                  onClick={() => signOutMutation.mutate()}
+                  disabled={signOutMutation.isPending}
+                  type="button"
+                >
+                  {signOutMutation.isPending ? "Signing out..." : "Sign out"}
+                </Button>
+              </div>
             </div>
           </header>
           <main className="flex-1 px-6 py-8">{children}</main>
