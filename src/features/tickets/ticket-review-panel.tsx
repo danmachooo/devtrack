@@ -2,6 +2,7 @@
 
 import { EmptyState } from "@/components/feedback/empty-state";
 import { Card } from "@/components/ui/card";
+import { InfoPopover } from "@/components/ui/info-popover";
 import { Select } from "@/components/ui/select";
 import { useSession } from "@/hooks/use-session";
 import { canPerformAction } from "@/lib/auth/permissions";
@@ -30,10 +31,20 @@ export function TicketReviewPanel({ project }: TicketReviewPanelProps) {
         <p className="text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
           Ticket review
         </p>
-        <h2 className="text-2xl font-semibold">Inspect synced work and map it to features</h2>
-        <p className="text-sm text-[var(--foreground-muted)]">
-          This is the analytical layer between raw Notion work and the client-facing feature story.
-        </p>
+        <div className="flex items-start justify-between gap-3">
+          <div className="space-y-1">
+            <h2 className="text-2xl font-semibold">Review synced tickets</h2>
+            <p className="text-sm text-[var(--foreground-muted)]">
+              Inspect source work and map it into feature groups.
+            </p>
+          </div>
+          <InfoPopover label="More about ticket review">
+            <p>
+              This is the internal analysis layer between raw Notion work and the client-facing
+              feature story.
+            </p>
+          </InfoPopover>
+        </div>
       </div>
 
       <div className="grid gap-4 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--background)] p-4 md:grid-cols-2 xl:grid-cols-4">

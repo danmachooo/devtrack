@@ -13,6 +13,7 @@ import { RoleAwarePageActions } from "@/components/layout/role-aware-page-action
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Modal } from "@/components/ui/modal";
 import {
   formatDateTime,
   getNextProjectStep,
@@ -88,8 +89,8 @@ export default function ProjectsPage() {
             items={[
               canCreateProject
                 ? {
-                    label: isCreateOpen ? "Close project form" : "Create project",
-                    onClick: () => setIsCreateOpen((current) => !current),
+                    label: "Create project",
+                    onClick: () => setIsCreateOpen(true),
                   }
                 : {
                     label: "Open organization",
@@ -101,78 +102,64 @@ export default function ProjectsPage() {
         }
       />
 
-      {canCreateProject && isCreateOpen ? (
-        <Card className="p-6">
-          <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-            <div className="space-y-2">
-              <p className="text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
-                New delivery track
-              </p>
-              <h2 className="text-2xl font-semibold">Create a client project</h2>
-              <p className="text-sm text-[var(--foreground-muted)]">
-                Start with the client relationship details now. Notion setup, sync, feature
-                grouping, and sharing happen next from the project detail flow.
-              </p>
-            </div>
-
-            <form className="space-y-4" onSubmit={handleCreateProject}>
-              <div className="space-y-2">
-                <label className="text-sm font-medium" htmlFor="project-name">
-                  Project name
-                </label>
-                <Input id="project-name" placeholder="Website Revamp" {...register("name")} />
-                {errors.name ? (
-                  <p className="text-sm text-[var(--danger)]">{errors.name.message}</p>
-                ) : null}
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium" htmlFor="client-name">
-                  Client name
-                </label>
-                <Input id="client-name" placeholder="Acme Client" {...register("clientName")} />
-                {errors.clientName ? (
-                  <p className="text-sm text-[var(--danger)]">{errors.clientName.message}</p>
-                ) : null}
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium" htmlFor="client-email">
-                  Client email
-                </label>
-                <Input
-                  id="client-email"
-                  placeholder="client@example.com"
-                  type="email"
-                  {...register("clientEmail")}
-                />
-                {errors.clientEmail ? (
-                  <p className="text-sm text-[var(--danger)]">{errors.clientEmail.message}</p>
-                ) : null}
-              </div>
-
-              {createProjectMutation.isError ? (
-                <p className="text-sm text-[var(--danger)]">
-                  {createProjectMutation.error instanceof Error
-                    ? createProjectMutation.error.message
-                    : "Project creation failed. Try again."}
-                </p>
-              ) : null}
-
-              <div className="flex flex-wrap gap-3">
-                <Button disabled={isSubmitting || createProjectMutation.isPending} type="submit">
-                  {isSubmitting || createProjectMutation.isPending
-                    ? "Creating project..."
-                    : "Create project"}
-                </Button>
-                <Button onClick={() => setIsCreateOpen(false)} type="button" variant="secondary">
-                  Cancel
-                </Button>
-              </div>
-            </form>
+      <Modal
+        description="Start with the client relationship details now. Notion setup, sync, feature grouping, and sharing happen next from the project detail flow."
+        onClose={() => setIsCreateOpen(false)}
+        open={canCreateProject && isCreateOpen}
+        title="Create a client project"
+      >
+        <form className="space-y-4" onSubmit={handleCreateProject}>
+          <div className="space-y-2">
+            <label className="text-sm font-medium" htmlFor="project-name">
+              Project name
+            </label>
+            <Input id="project-name" placeholder="Website Revamp" {...register("name")} />
+            {errors.name ? <p className="text-sm text-[var(--danger)]">{errors.name.message}</p> : null}
           </div>
-        </Card>
-      ) : null}
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium" htmlFor="client-name">
+              Client name
+            </label>
+            <Input id="client-name" placeholder="Acme Client" {...register("clientName")} />
+            {errors.clientName ? (
+              <p className="text-sm text-[var(--danger)]">{errors.clientName.message}</p>
+            ) : null}
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium" htmlFor="client-email">
+              Client email
+            </label>
+            <Input
+              id="client-email"
+              placeholder="client@example.com"
+              type="email"
+              {...register("clientEmail")}
+            />
+            {errors.clientEmail ? (
+              <p className="text-sm text-[var(--danger)]">{errors.clientEmail.message}</p>
+            ) : null}
+          </div>
+
+          {createProjectMutation.isError ? (
+            <p className="text-sm text-[var(--danger)]">
+              {createProjectMutation.error instanceof Error
+                ? createProjectMutation.error.message
+                : "Project creation failed. Try again."}
+            </p>
+          ) : null}
+
+          <div className="flex flex-wrap justify-end gap-3">
+            <Button disabled={isSubmitting || createProjectMutation.isPending} type="submit">
+              {isSubmitting || createProjectMutation.isPending ? "Creating project..." : "Create project"}
+            </Button>
+            <Button onClick={() => setIsCreateOpen(false)} type="button" variant="secondary">
+              Cancel
+            </Button>
+          </div>
+        </form>
+      </Modal>
 
       {projectsQuery.isPending ? (
         <ProjectListSkeleton />

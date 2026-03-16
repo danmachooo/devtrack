@@ -10,6 +10,7 @@ import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Modal } from "@/components/ui/modal";
 import { Select } from "@/components/ui/select";
 import { useSession } from "@/hooks/use-session";
 import { formatRoleLabel } from "@/lib/auth/permissions";
@@ -50,6 +51,7 @@ export default function OrganizationPage() {
   const isTeamLeader = user?.role === "TEAM_LEADER";
 
   const [memberRoleDrafts, setMemberRoleDrafts] = useState<Record<string, UserRole>>({});
+  const [isInviteOpen, setIsInviteOpen] = useState(false);
 
   const organizationQuery = useQuery({
     queryKey: ["organization", activeOrganizationId],
@@ -123,6 +125,7 @@ export default function OrganizationPage() {
     mutationFn: inviteMember,
     onSuccess: async () => {
       resetInviteForm();
+      setIsInviteOpen(false);
       await invalidateOrganizationState();
     },
   });
@@ -353,8 +356,8 @@ export default function OrganizationPage() {
           </div>
 
           {isTeamLeader ? (
-            <div className="grid gap-6 xl:grid-cols-[1fr_1fr]">
-              <Card className="space-y-6 p-6">
+            <div className="items-start grid gap-6 xl:grid-cols-[1fr_1fr]">
+              <Card className="self-start space-y-6 p-6">
                 <div className="space-y-1">
                   <h2 className="text-xl font-semibold">Invite teammates</h2>
                   <p className="text-sm text-[var(--foreground-muted)]">
@@ -362,50 +365,9 @@ export default function OrganizationPage() {
                     access stays reserved for the creator flow right now.
                   </p>
                 </div>
-
-                <form className="space-y-4" onSubmit={handleInviteMember}>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium" htmlFor="invite-email">
-                      Teammate email
-                    </label>
-                    <Input
-                      id="invite-email"
-                      placeholder="teammate@example.com"
-                      {...registerInvite("email")}
-                    />
-                    {inviteErrors.email ? (
-                      <p className="text-sm text-[var(--danger)]">{inviteErrors.email.message}</p>
-                    ) : null}
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium" htmlFor="invite-role">
-                      Role
-                    </label>
-                    <Select id="invite-role" {...registerInvite("role")}>
-                      <option value="BUSINESS_ANALYST">Business Analyst</option>
-                      <option value="QUALITY_ASSURANCE">Quality Assurance</option>
-                      <option value="DEVELOPER">Developer</option>
-                    </Select>
-                    {inviteErrors.role ? (
-                      <p className="text-sm text-[var(--danger)]">{inviteErrors.role.message}</p>
-                    ) : null}
-                  </div>
-
-                  {inviteMemberMutation.isError ? (
-                    <p className="text-sm text-[var(--danger)]">
-                      {inviteMemberMutation.error instanceof Error
-                        ? inviteMemberMutation.error.message
-                        : "Invitation failed. Try again."}
-                    </p>
-                  ) : null}
-
-                  <Button disabled={isInvitingForm || inviteMemberMutation.isPending} type="submit">
-                    {isInvitingForm || inviteMemberMutation.isPending
-                      ? "Sending invitation..."
-                      : "Invite teammate"}
-                  </Button>
-                </form>
+                <Button onClick={() => setIsInviteOpen(true)} type="button">
+                  Invite teammate
+                </Button>
               </Card>
 
               <Card className="space-y-6 p-6">
@@ -420,7 +382,7 @@ export default function OrganizationPage() {
                 {organizationInvitationsQuery.isLoading ? (
                   <p className="text-sm text-[var(--foreground-muted)]">Loading invitations...</p>
                 ) : organizationInvitations.length ? (
-                  <div className="space-y-3">
+                  <div className="max-h-[28rem] space-y-3 overflow-y-auto pr-2">
                     {organizationInvitations.map((invitation) => (
                       <ManageInvitationRow
                         key={invitation.id}
@@ -493,6 +455,60 @@ export default function OrganizationPage() {
           </Card>
         </div>
       )}
+
+      <Modal
+        description="Invite business analysts, QA, and developers into this workspace. Team leader access stays reserved for the creator flow right now."
+        onClose={() => setIsInviteOpen(false)}
+        open={Boolean(isTeamLeader && activeOrganizationId && isInviteOpen)}
+        title="Invite teammate"
+      >
+        <form className="space-y-4" onSubmit={handleInviteMember}>
+          <div className="space-y-2">
+            <label className="text-sm font-medium" htmlFor="invite-email">
+              Teammate email
+            </label>
+            <Input
+              id="invite-email"
+              placeholder="teammate@example.com"
+              {...registerInvite("email")}
+            />
+            {inviteErrors.email ? (
+              <p className="text-sm text-[var(--danger)]">{inviteErrors.email.message}</p>
+            ) : null}
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium" htmlFor="invite-role">
+              Role
+            </label>
+            <Select id="invite-role" {...registerInvite("role")}>
+              <option value="BUSINESS_ANALYST">Business Analyst</option>
+              <option value="QUALITY_ASSURANCE">Quality Assurance</option>
+              <option value="DEVELOPER">Developer</option>
+            </Select>
+            {inviteErrors.role ? (
+              <p className="text-sm text-[var(--danger)]">{inviteErrors.role.message}</p>
+            ) : null}
+          </div>
+
+          {inviteMemberMutation.isError ? (
+            <p className="text-sm text-[var(--danger)]">
+              {inviteMemberMutation.error instanceof Error
+                ? inviteMemberMutation.error.message
+                : "Invitation failed. Try again."}
+            </p>
+          ) : null}
+
+          <div className="flex flex-wrap justify-end gap-3">
+            <Button disabled={isInvitingForm || inviteMemberMutation.isPending} type="submit">
+              {isInvitingForm || inviteMemberMutation.isPending ? "Sending invitation..." : "Invite teammate"}
+            </Button>
+            <Button onClick={() => setIsInviteOpen(false)} type="button" variant="secondary">
+              Cancel
+            </Button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

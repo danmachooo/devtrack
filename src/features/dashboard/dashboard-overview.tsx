@@ -7,6 +7,7 @@ import { ErrorState } from "@/components/feedback/error-state";
 import { PageHeader } from "@/components/layout/page-header";
 import { RoleAwarePageActions } from "@/components/layout/role-aware-page-actions";
 import { Card } from "@/components/ui/card";
+import { InfoPopover } from "@/components/ui/info-popover";
 import { useDashboardOverview } from "@/features/dashboard/use-dashboard-overview";
 import { canPerformAction } from "@/lib/auth/permissions";
 
@@ -86,10 +87,20 @@ export function DashboardOverview() {
                 <p className="text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
                   Next steps
                 </p>
-                <h2 className="text-2xl font-semibold">Keep the delivery loop moving</h2>
-                <p className="text-sm text-[var(--foreground-muted)]">
-                  These priorities follow the product flow so the team can move from setup into trustworthy client progress.
-                </p>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="space-y-1">
+                    <h2 className="text-2xl font-semibold">Keep the delivery loop moving</h2>
+                    <p className="text-sm text-[var(--foreground-muted)]">
+                      Priorities are ordered by the product workflow.
+                    </p>
+                  </div>
+                  <InfoPopover label="More about dashboard priorities" align="left">
+                    <p>
+                      The dashboard stays overview-first. Detailed setup, mapping, and publishing
+                      still happen in the project command center.
+                    </p>
+                  </InfoPopover>
+                </div>
               </div>
 
               <div className="space-y-3">
@@ -122,10 +133,20 @@ export function DashboardOverview() {
                 <p className="text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
                   Project health
                 </p>
-                <h2 className="text-2xl font-semibold">See what needs attention right now</h2>
-                <p className="text-sm text-[var(--foreground-muted)]">
-                  The dashboard stays high-level here so detailed setup, ticket mapping, and publishing still happen in the dedicated project flows.
-                </p>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="space-y-1">
+                    <h2 className="text-2xl font-semibold">See what needs attention right now</h2>
+                    <p className="text-sm text-[var(--foreground-muted)]">
+                      A quick view of freshness, progress, and the next project step.
+                    </p>
+                  </div>
+                  <InfoPopover label="More about project health" align="left">
+                    <p>
+                      This section stays intentionally high level so project detail, ticket mapping,
+                      and publishing still happen in their dedicated flows.
+                    </p>
+                  </InfoPopover>
+                </div>
               </div>
 
               <div className="space-y-4">
