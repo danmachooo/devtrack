@@ -187,6 +187,7 @@ Assumption:
 
 - [x] Make the shared API layer target the live backend by default
 - [x] Add a configurable `NEXT_PUBLIC_API_BASE_URL` runtime override for backend hosts
+- [x] Proxy absolute backend hosts through the app's same-origin `/api` path so session cookies stay deployment-safe across Vercel and Render
 - [x] Keep mock mode available only through an explicit `NEXT_PUBLIC_USE_MOCK_API=true` opt-in
 - [x] Normalize Axios error messages so API feedback remains readable in the existing UI
 - [x] Add `.env.example` for backend wiring discovery
