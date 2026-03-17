@@ -2,6 +2,7 @@
 
 import {
   Building2,
+  ChevronsUpDown,
   FolderKanban,
   LayoutDashboard,
   MoonStar,
@@ -9,6 +10,7 @@ import {
   PanelLeftOpen,
   SunMedium,
   Ticket,
+  UserCircle2,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -29,6 +31,12 @@ const navigation = [
   { href: "/tickets", label: "Tickets", icon: Ticket },
   { href: "/organization", label: "Organization", icon: Building2 },
 ];
+
+const collapsedSidebarUtilityClasses = "mx-auto h-14 w-14 justify-center p-0";
+const sidebarFooterTriggerBaseClasses =
+  "flex items-center rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--background)] text-sm font-medium text-[var(--foreground)] transition hover:bg-[var(--surface-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]";
+const sidebarFooterIconClasses =
+  "inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground-muted)]";
 
 export function InternalAppShell({ children }: PropsWithChildren) {
   const router = useRouter();
@@ -56,17 +64,30 @@ export function InternalAppShell({ children }: PropsWithChildren) {
   const organizationName = organizationQuery.data?.data.name ?? "Workspace onboarding";
   const organizationSlug = organizationQuery.data?.data.slug;
   const userName = user?.name ?? "Loading session";
+  const userEmail = user?.email ?? "Loading session";
   const userRole = user?.role ? formatRoleLabel(user.role) : "Restoring access";
 
   return (
     <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <div className="grid min-h-screen grid-cols-1 md:grid-cols-[auto_1fr]">
         <aside
-          className={`sticky top-0 h-screen self-start border-r border-[var(--border)] bg-[var(--surface)] px-4 py-6 transition-all ${
+          className={`sticky top-0 flex h-screen self-start flex-col overflow-visible border-r border-[var(--border)] bg-[var(--surface)] px-4 py-6 transition-all ${
             isSidebarOpen ? "w-64" : "w-20"
           }`}
         >
-          <div className="mb-10 flex items-center justify-between gap-3">
+          <button
+            aria-label={isSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+            className="absolute top-8 right-0 z-30 inline-flex h-10 w-7 translate-x-1/2 items-center justify-center rounded-full border border-[var(--border)] bg-[color:color-mix(in_srgb,var(--surface)_96%,transparent)] text-[var(--foreground-muted)] shadow-[var(--shadow-sm)] backdrop-blur transition hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]"
+            onClick={toggleSidebar}
+            type="button"
+          >
+            {isSidebarOpen ? (
+              <PanelLeftClose className="h-4 w-4" strokeWidth={2} />
+            ) : (
+              <PanelLeftOpen className="h-4 w-4" strokeWidth={2} />
+            )}
+          </button>
+          <div className="mb-10 flex items-center gap-3">
             <div className="flex items-center gap-3">
               <div className="flex h-11 w-11 items-center justify-center rounded-[var(--radius-md)] bg-[color:color-mix(in_srgb,var(--primary)_18%,var(--surface))] text-[var(--primary)] shadow-[var(--shadow-sm)]">
                 <LayoutDashboard className="h-5 w-5" strokeWidth={2.1} />
@@ -78,18 +99,6 @@ export function InternalAppShell({ children }: PropsWithChildren) {
                 </div>
               </div>
             </div>
-            <button
-              aria-label={isSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground-muted)] transition hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]"
-              onClick={toggleSidebar}
-              type="button"
-            >
-              {isSidebarOpen ? (
-                <PanelLeftClose className="h-4 w-4" strokeWidth={2} />
-              ) : (
-                <PanelLeftOpen className="h-4 w-4" strokeWidth={2} />
-              )}
-            </button>
           </div>
           <nav className="space-y-2">
             {navigation.map((item) => (
@@ -103,9 +112,85 @@ export function InternalAppShell({ children }: PropsWithChildren) {
               />
             ))}
           </nav>
+
+          <div className="mt-auto space-y-3 pt-6">
+            <button
+              aria-label={themeMode === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+              className={`${sidebarFooterTriggerBaseClasses} ${
+                isSidebarOpen
+                  ? "w-full justify-between gap-3 px-3 py-3"
+                  : collapsedSidebarUtilityClasses
+              }`}
+              onClick={toggleThemeMode}
+              type="button"
+              title={themeMode === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+            >
+              <span className={`flex items-center ${isSidebarOpen ? "gap-3" : ""}`}>
+                <span className={sidebarFooterIconClasses}>
+                  {themeMode === "dark" ? (
+                    <SunMedium className="h-4 w-4" strokeWidth={2.1} />
+                  ) : (
+                    <MoonStar className="h-4 w-4" strokeWidth={2.1} />
+                  )}
+                </span>
+                {isSidebarOpen ? <span>{themeMode === "dark" ? "Light mode" : "Dark mode"}</span> : null}
+              </span>
+              {isSidebarOpen ? (
+                <span className="text-xs uppercase tracking-[0.16em] text-[var(--foreground-muted)]">
+                  {themeMode}
+                </span>
+              ) : null}
+            </button>
+
+            <details className="group relative">
+              <summary
+                className={`${sidebarFooterTriggerBaseClasses} cursor-pointer list-none ${
+                  isSidebarOpen
+                    ? "w-full justify-between gap-3 px-3 py-3"
+                    : collapsedSidebarUtilityClasses
+                }`}
+                title={isSidebarOpen ? undefined : "Account"}
+              >
+                <span className={`flex min-w-0 items-center ${isSidebarOpen ? "gap-3" : ""}`}>
+                  <span className={sidebarFooterIconClasses}>
+                    <UserCircle2 className="h-5 w-5" strokeWidth={2} />
+                  </span>
+                  {isSidebarOpen ? (
+                    <span className="min-w-0">
+                      <span className="block truncate text-sm font-semibold">{userName}</span>
+                      <span className="block truncate text-xs text-[var(--foreground-muted)]">{userRole}</span>
+                    </span>
+                  ) : null}
+                </span>
+                {isSidebarOpen ? <ChevronsUpDown className="h-4 w-4 text-[var(--foreground-muted)]" strokeWidth={2} /> : null}
+              </summary>
+              <div
+                className="absolute bottom-0 left-full z-40 ml-3 w-72 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] p-4 shadow-[var(--shadow-md)]"
+              >
+                <div className="space-y-1">
+                  <p className="font-semibold">{userName}</p>
+                  <p className="text-sm text-[var(--foreground-muted)]">{user?.email ?? "Loading email"}</p>
+                  <p className="text-sm text-[var(--foreground-muted)]">{userRole}</p>
+                </div>
+                <div className="mt-4 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--background)] px-3 py-2.5 text-sm text-[var(--foreground-muted)]">
+                  {activeOrgId ? organizationName : "Workspace onboarding"}
+                </div>
+                <div className="mt-4 flex items-center justify-end border-t border-[var(--border)] pt-4">
+                  <Button
+                    variant="secondary"
+                    onClick={() => signOutMutation.mutate()}
+                    disabled={signOutMutation.isPending}
+                    type="button"
+                  >
+                    {signOutMutation.isPending ? "Signing out..." : "Sign out"}
+                  </Button>
+                </div>
+              </div>
+            </details>
+          </div>
         </aside>
         <div className="flex min-h-screen flex-col">
-          <header className="border-b border-[var(--border)] bg-[color:color-mix(in_srgb,var(--surface)_78%,transparent)] px-6 py-4 backdrop-blur">
+          <header className="relative z-0 border-b border-[var(--border)] bg-[color:color-mix(in_srgb,var(--surface)_78%,transparent)] px-6 py-4 md:pl-10 backdrop-blur">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <div className="flex flex-wrap items-center gap-3">
                 <div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface-muted)] px-3 py-2 shadow-[var(--shadow-sm)]">
@@ -124,48 +209,13 @@ export function InternalAppShell({ children }: PropsWithChildren) {
                 <div className="rounded-full border border-[var(--border)] bg-[var(--surface)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
                   {activeOrgId ? userRole : "Onboarding"}
                 </div>
-                <div className="hidden text-sm text-[var(--foreground-muted)] md:block">
-                  {appConfig.useMockApi ? "Mock session mode" : "Live API mode"}
-                </div>
               </div>
-              <div className="flex flex-wrap items-center justify-end gap-3">
-                <Button onClick={toggleThemeMode} type="button" variant="secondary">
-                  <span className="mr-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-[var(--surface-muted)]">
-                    {themeMode === "dark" ? (
-                      <SunMedium className="h-3.5 w-3.5" strokeWidth={2.2} />
-                    ) : (
-                      <MoonStar className="h-3.5 w-3.5" strokeWidth={2.2} />
-                    )}
-                  </span>
-                  <span>{themeMode === "dark" ? "Light mode" : "Dark mode"}</span>
-                </Button>
-                <details className="group relative">
-                  <summary className="flex cursor-pointer list-none items-center justify-center rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 text-sm font-semibold text-[var(--foreground)] transition hover:bg-[var(--surface-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]">
-                    {userName}
-                  </summary>
-                  <div className="absolute right-0 z-10 mt-3 w-72 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] p-4 shadow-[var(--shadow-md)]">
-                    <div className="space-y-1">
-                      <p className="font-semibold">{userName}</p>
-                      <p className="text-sm text-[var(--foreground-muted)]">{user?.email ?? "Loading email"}</p>
-                      <p className="text-sm text-[var(--foreground-muted)]">{userRole}</p>
-                    </div>
-                    <div className="mt-4 flex items-center justify-between gap-3 border-t border-[var(--border)] pt-4">
-                      <span className="text-sm text-[var(--foreground-muted)]">Workspace menu</span>
-                      <Button
-                        variant="secondary"
-                        onClick={() => signOutMutation.mutate()}
-                        disabled={signOutMutation.isPending}
-                        type="button"
-                      >
-                        {signOutMutation.isPending ? "Signing out..." : "Sign out"}
-                      </Button>
-                    </div>
-                  </div>
-                </details>
+              <div className="text-sm text-[var(--foreground-muted)]">
+                {userName} | {userEmail}
               </div>
             </div>
           </header>
-          <main className="flex-1 px-6 py-8">{children}</main>
+          <main className="flex-1 px-6 py-8 md:pl-10">{children}</main>
         </div>
       </div>
     </div>

@@ -171,3 +171,60 @@ Assumption:
 - [x] Upgrade the internal sidebar with sticky positioning and Lucide icons
 - [x] Replace the plain theme toggle label with an icon-led toggle treatment
 - [x] Add a minimal custom scrollbar that follows the shared token system
+
+## Phase 18 - Project Detail Setup Redesign
+
+- [x] Redesign `/projects/[id]` so setup is guided linearly instead of relying on one long command-center scroll
+- [x] Keep the current incomplete setup step prominent with a focused setup launcher and compact setup rail
+- [x] Move first-feature creation into the guided setup path
+- [x] Hand off ticket assignment from `/projects/[id]` into the dedicated `/tickets` workspace
+- [x] Move progress, sync diagnostics, and client sharing into a lower-priority workspace area during setup
+- [x] Stage the Notion setup flow so connection happens before status mapping
+- [x] Replace the large sync trust card with a compact header-level sync signal
+- [x] Verify the redesigned project page with typecheck and production build validation
+
+## Phase 19 - Live Backend Wiring
+
+- [x] Make the shared API layer target the live backend by default
+- [x] Add a configurable `NEXT_PUBLIC_API_BASE_URL` runtime override for backend hosts
+- [x] Keep mock mode available only through an explicit `NEXT_PUBLIC_USE_MOCK_API=true` opt-in
+- [x] Normalize Axios error messages so API feedback remains readable in the existing UI
+- [x] Add `.env.example` for backend wiring discovery
+- [x] Verify the live-backend cutover with typecheck and production build validation
+
+## Phase 20 - UI Polish Alignment
+
+- [x] Refine shared headers, cards, buttons, empty states, popovers, and modal surfaces so alignment and hierarchy feel more deliberate
+- [x] Upgrade shared select treatment with clearer trigger alignment, caret affordance, hover states, and focus states
+- [x] Tighten text wrapping and scanability across prioritized internal routes, especially `/tickets`, `/projects`, `/projects/[id]`, and `/organization`
+- [x] Add purposeful Lucide icon support to page headers, page actions, summary surfaces, and key workspace controls
+- [x] Strengthen active and selected treatments for ticket filters, workspace tabs, checklist cards, and assignment controls without changing RBAC or query logic
+- [x] Replace misleading setup-completion percentages on `/projects`, `/dashboard`, and `/projects/[id]` with the correct progress or clearly scoped setup-readiness messaging
+- [x] Wire feature-management progress bars to real assigned-ticket progress instead of placeholder `0%` values
+- [x] Verify the polish pass with typecheck and production build validation
+
+## Phase 21 - Ticket Scaling
+
+- [x] Upgrade `GET /api/projects/:id/tickets` consumers to the paginated ticket contract
+- [x] Add shared API support for backend-driven ticket search, assignee filtering, sorting, and page sizing
+- [x] Add selection-based bulk feature assignment through `PATCH /api/tickets/feature/bulk`
+- [x] Upgrade `/tickets` with summary metrics, inbox-style work-remaining messaging, and pagination controls
+- [x] Keep row-level assignment for one-off edits while omitting assignment controls for read-only roles
+- [x] Verify the ticket-scaling pass with typecheck and production build validation
+
+## Phase 22 - Feature Management Redesign
+
+- [x] Redesign feature management into a split-pane editor instead of a tall stacked CRUD list
+- [x] Add compact feature browsing with search, filter, selected-state, and stronger ordering context
+- [x] Move rename, ordering, and delete actions into a focused feature detail pane
+- [x] Add stronger client-facing naming guidance and explicit delete-impact confirmation
+- [x] Preserve read-only inspection while omitting management controls for unauthorized roles
+- [x] Verify the feature-management redesign with typecheck and production build validation
+
+## Phase 23 - Feature Drag And Drop
+
+- [x] Explore drag-and-drop ordering for the feature list and validate it against the split-pane editor workflow
+- [x] Decide to prefer explicit reorder controls plus direct position selection instead of keeping drag-and-drop
+- [x] Add direct position-based feature ordering in the detail pane for larger jumps
+- [x] Preserve explicit move controls as the stable ordering path for editable roles
+- [x] Verify the final ordering UX decision with typecheck and production build validation

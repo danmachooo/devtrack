@@ -44,6 +44,7 @@ After completing a phase, agents must update:
 - use Next.js, TypeScript, Tailwind, shadcn/ui, TanStack Query, Zustand, React Hook Form, Zod, and Axios
 - keep API logic in shared API modules
 - do not call APIs directly inside components
+- default shared API modules to the live backend; use mock mode only when explicitly enabled for local fallback or when the backend is truly unavailable
 - use React Query for server state
 - use Zustand only for global UI state
 - do not store server data in Zustand

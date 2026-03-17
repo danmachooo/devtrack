@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { type ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
 import { useSession } from "@/hooks/use-session";
@@ -12,6 +13,7 @@ type PageActionItem = {
   onClick?: () => void;
   action?: PermissionAction;
   variant?: "primary" | "secondary" | "ghost";
+  icon?: ReactNode;
 };
 
 type RoleAwarePageActionsProps = {
@@ -49,6 +51,7 @@ export function RoleAwarePageActions({ items }: RoleAwarePageActionsProps) {
           type="button"
           variant={item.variant ?? "secondary"}
         >
+          {item.icon}
           {item.label}
         </Button>
       ))}

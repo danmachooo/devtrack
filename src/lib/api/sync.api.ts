@@ -145,9 +145,10 @@ function seedOrRefreshTickets(
 
   const mappingEntries = Object.entries(statusMapping);
   const fallbackStatuses: Array<[string, DevtrackStatus]> = [
-    ["Backlog", "NOT_STARTED"],
+    ["Backlog", "TODO"],
     ["In Progress", "IN_DEV"],
-    ["In QA", "APPROVED"],
+    ["In QA", "QA"],
+    ["Approved", "APPROVED"],
     ["Done", "RELEASED"],
   ];
   const statusPairs = mappingEntries.length ? mappingEntries : fallbackStatuses;

@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { ArrowRight, FolderKanban, Gauge, Plus, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -17,13 +18,13 @@ import { Modal } from "@/components/ui/modal";
 import {
   formatDateTime,
   getNextProjectStep,
-  getProjectProgress,
   getSyncFreshness,
 } from "@/features/projects/project-utils";
 import {
   createProjectSchema,
   type CreateProjectFormValues,
 } from "@/features/projects/projects.schemas";
+import { useProjectListProgress } from "@/features/projects/use-project-list-progress";
 import { useSession } from "@/hooks/use-session";
 import { createProject, getProjects } from "@/lib/api/projects.api";
 import { canPerformAction } from "@/lib/auth/permissions";
@@ -78,10 +79,13 @@ export default function ProjectsPage() {
   const handleCreateProject = handleSubmit((values) => {
     createProjectMutation.mutate(values);
   });
+  const { progressByProjectId } = useProjectListProgress(sortedProjects);
 
   return (
     <div className="space-y-8">
       <PageHeader
+        eyebrow="Client delivery"
+        icon={<FolderKanban className="h-5 w-5" strokeWidth={2.1} />}
         title="Projects"
         description="Track client engagements, spot stale syncs quickly, and guide the team into the next delivery setup step."
         actions={
@@ -91,11 +95,13 @@ export default function ProjectsPage() {
                 ? {
                     label: "Create project",
                     onClick: () => setIsCreateOpen(true),
+                    icon: <Plus className="h-4 w-4" strokeWidth={2} />,
                   }
                 : {
                     label: "Open organization",
                     href: "/organization",
                     variant: "ghost",
+                    icon: <ArrowRight className="h-4 w-4" strokeWidth={2} />,
                   },
             ]}
           />
@@ -171,7 +177,11 @@ export default function ProjectsPage() {
       ) : sortedProjects.length ? (
         <div className="grid gap-5 xl:grid-cols-2">
           {sortedProjects.map((project) => (
-            <ProjectCard key={project.id} project={project} />
+            <ProjectCard
+              key={project.id}
+              progress={progressByProjectId.get(project.id) ?? 0}
+              project={project}
+            />
           ))}
         </div>
       ) : (
@@ -182,14 +192,11 @@ export default function ProjectsPage() {
               ? "Create the first client delivery track to start Notion setup, sync work, and prepare a safe dashboard to share."
               : "No projects have been created for this organization yet. A team leader can create the first client delivery track from this screen."
           }
-          icon={
-            <div className="rounded-full bg-[color:color-mix(in_srgb,var(--primary)_14%,transparent)] p-3">
-              <span className="text-sm font-semibold uppercase tracking-[0.16em]">Proj</span>
-            </div>
-          }
+          icon={<FolderKanban className="h-6 w-6" strokeWidth={2.1} />}
         >
           {canCreateProject ? (
             <Button onClick={() => setIsCreateOpen(true)} type="button" variant="secondary">
+              <Plus className="h-4 w-4" strokeWidth={2} />
               Create first project
             </Button>
           ) : null}
@@ -199,8 +206,13 @@ export default function ProjectsPage() {
   );
 }
 
-function ProjectCard({ project }: { project: Project }) {
-  const progress = getProjectProgress(project);
+function ProjectCard({
+  project,
+  progress,
+}: {
+  project: Project;
+  progress: number;
+}) {
   const freshness = getSyncFreshness(project.lastSyncedAt);
   const nextStep = getNextProjectStep(project);
 
@@ -216,18 +228,19 @@ function ProjectCard({ project }: { project: Project }) {
               <FreshnessPill tone={freshness.tone} label={freshness.label} />
             </div>
             <div>
-              <h2 className="text-2xl font-semibold">
+              <h2 className="max-w-xl text-2xl font-semibold text-balance">
                 <Link className="transition hover:text-[var(--primary)]" href={`/projects/${project.id}`}>
                   {project.name}
                 </Link>
               </h2>
-              <p className="text-sm text-[var(--foreground-muted)]">
-                {project.clientName} • {project.clientEmail}
+              <p className="text-sm leading-6 text-[var(--foreground-muted)]">
+                {project.clientName} | {project.clientEmail}
               </p>
             </div>
           </div>
           <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--background)] px-4 py-3 text-right">
-            <div className="text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
+            <div className="flex items-center justify-end gap-2 text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
+              <Gauge className="h-3.5 w-3.5" strokeWidth={2} />
               Progress
             </div>
             <div className="mt-1 text-3xl font-semibold">{progress}%</div>
@@ -265,10 +278,11 @@ function ProjectCard({ project }: { project: Project }) {
 function ProjectMetric({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--background)] p-4">
-      <div className="text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
+      <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
+        <Sparkles className="h-3.5 w-3.5" strokeWidth={2} />
         {label}
       </div>
-      <div className="mt-2 text-sm font-medium">{value}</div>
+      <div className="mt-2 text-sm font-medium leading-6">{value}</div>
     </div>
   );
 }
@@ -311,7 +325,7 @@ function FreshnessPill({
 
   return (
     <span
-      className={`rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] ${toneClasses[tone]}`}
+      className={`inline-flex min-h-7 items-center rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] ${toneClasses[tone]}`}
     >
       {label}
     </span>

@@ -117,7 +117,13 @@ export type MembersData = {
   total: number;
 };
 
-export type DevtrackStatus = "NOT_STARTED" | "IN_DEV" | "APPROVED" | "RELEASED";
+export type DevtrackStatus =
+  | "TODO"
+  | "IN_DEV"
+  | "QA"
+  | "APPROVED"
+  | "RELEASED"
+  | "BLOCKED";
 
 export type FeatureProgressStatus =
   | "NO_WORK_LOGGED"
@@ -170,15 +176,62 @@ export type Ticket = {
   feature: TicketFeatureReference | null;
 };
 
+export type TicketSortBy =
+  | "syncedAt"
+  | "createdAt"
+  | "updatedAt"
+  | "title"
+  | "devtrackStatus";
+
+export type SortOrder = "asc" | "desc";
+
 export type GetProjectTicketsQuery = {
   featureId?: string;
   status?: DevtrackStatus;
   unassigned?: boolean;
   showMissing?: boolean;
+  page?: number;
+  limit?: number;
+  search?: string;
+  assignee?: string;
+  sortBy?: TicketSortBy;
+  sortOrder?: SortOrder;
 };
 
 export type UpdateTicketFeaturePayload = {
   featureId: string | null;
+};
+
+export type BulkUpdateTicketFeaturePayload = {
+  ticketIds: string[];
+  featureId: string | null;
+};
+
+export type PaginatedResultMeta = {
+  page: number;
+  limit: number;
+  totalItems: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+};
+
+export type TicketListData = {
+  items: Ticket[];
+  pagination: PaginatedResultMeta;
+  search: string | null;
+  assignee: string | null;
+  sort: {
+    by: TicketSortBy;
+    order: SortOrder;
+  };
+};
+
+export type BulkUpdateTicketFeatureData = {
+  totalUpdated: number;
+  projectId: string;
+  featureId: string | null;
+  tickets: Ticket[];
 };
 
 export type FeatureProgressSummary = {

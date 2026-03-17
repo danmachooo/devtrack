@@ -16,7 +16,7 @@ export function TicketStatusPill({ label, tone }: TicketStatusPillProps) {
 
   return (
     <span
-      className={`rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] ${toneClasses[tone]}`}
+      className={`inline-flex min-h-7 items-center rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] ${toneClasses[tone]}`}
     >
       {label}
     </span>

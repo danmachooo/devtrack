@@ -1,5 +1,6 @@
 "use client";
 
+import { Building2 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { PropsWithChildren, useEffect } from "react";
 
@@ -59,8 +60,8 @@ export function InternalRouteGuard({ children }: PropsWithChildren) {
         title="You are signed in, but your workspace is not active yet"
         description="Create an organization or accept an invitation to unlock the internal workspace. Until the full org flow lands, this stays a guided onboarding state instead of dropping you into a broken dashboard."
         icon={
-          <div className="rounded-full bg-[color:color-mix(in_srgb,var(--primary)_14%,transparent)] p-3">
-            <span className="text-sm font-semibold uppercase tracking-[0.16em]">Org</span>
+          <div className="rounded-full border border-[color:color-mix(in_srgb,var(--primary)_24%,var(--border))] bg-[color:color-mix(in_srgb,var(--primary)_14%,transparent)] p-3 text-[var(--primary)] shadow-[var(--shadow-sm)]">
+            <Building2 className="h-5 w-5" strokeWidth={2} />
           </div>
         }
       >

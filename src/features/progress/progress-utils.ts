@@ -54,7 +54,7 @@ export function buildFeatureProgressSummaries(
       if (totalTickets > 0) {
         if (completedTickets === totalTickets) {
           status = "COMPLETED";
-        } else if (assignedTickets.every((ticket) => ticket.devtrackStatus === "NOT_STARTED")) {
+        } else if (assignedTickets.every((ticket) => ticket.devtrackStatus === "TODO")) {
           status = "NOT_STARTED";
         } else {
           status = "IN_PROGRESS";

@@ -1,10 +1,10 @@
 :root {
-  --background: #f6f4ef;
-  --surface: #fffcf7;
-  --surface-muted: #eae4d9;
+  --background: #dde8e2;
+  --surface: #eaf2ed;
+  --surface-muted: #c8d9d0;
   --foreground: #1f2930;
-  --foreground-muted: #667074;
-  --border: #d8d1c4;
+  --foreground-muted: #5c7068;
+  --border: #adc4b8;
   --primary: #2f6b57;
   --primary-foreground: #f7fbf9;
   --success: #3f8a57;
@@ -29,7 +29,7 @@
   --foreground-muted: #b8b4ab;
   --border: #374139;
   --primary: #5a9a81;
-  --primary-foreground: #0f1311;
+  --primary-foreground: #f7fbf9;
   --success: #60b07a;
   --warning: #d6a54b;
   --danger: #d27763;

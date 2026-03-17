@@ -25,6 +25,10 @@ function hasReviewableAssignmentState(project: Project) {
   return hasSyncedTickets(project) && hasFeatureGroups(project);
 }
 
+function hasClientViewedDashboard(project: Project) {
+  return Boolean(project.clientAccess.lastViewedAt);
+}
+
 export function getProjectProgress(project: Project) {
   const completedSignals = [
     Boolean(project.notionDatabaseId),
@@ -77,10 +81,18 @@ export function getNextProjectStep(project: Project) {
     };
   }
 
+  if (!hasClientViewedDashboard(project)) {
+    return {
+      title: "Prepare client sharing",
+      description:
+        "The command center is staged. Retrieve the client access link and confirm the client-safe dashboard is ready to open.",
+    };
+  }
+
   return {
-    title: "Prepare client sharing",
+    title: "Client dashboard viewed",
     description:
-      "The command center is staged. Next, review assignments and retrieve the client access link when sharing is ready.",
+      "A client-safe visit has been recorded. Use the workspace below for ongoing sync health, progress review, and future sharing updates.",
   };
 }
 
@@ -92,7 +104,7 @@ export function getProjectChecklist(project: Project): ProjectChecklistStep[] {
     Boolean(project.lastSyncedAt),
     hasFeatureGroups(project),
     hasReviewableAssignmentState(project),
-    false,
+    hasClientViewedDashboard(project),
   ];
 
   let currentAssigned = false;
