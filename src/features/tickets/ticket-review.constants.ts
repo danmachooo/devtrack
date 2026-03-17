@@ -1,8 +1,10 @@
 import type { DevtrackStatus } from "@/types/api";
 
 export const ticketStatusOptions: Array<{ value: DevtrackStatus; label: string }> = [
-  { value: "NOT_STARTED", label: "Not started" },
+  { value: "TODO", label: "Todo" },
   { value: "IN_DEV", label: "In development" },
+  { value: "QA", label: "QA" },
   { value: "APPROVED", label: "Approved" },
   { value: "RELEASED", label: "Released" },
+  { value: "BLOCKED", label: "Blocked" },
 ];

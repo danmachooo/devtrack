@@ -125,7 +125,7 @@ export function InternalAppShell({ children }: PropsWithChildren) {
                   {activeOrgId ? userRole : "Onboarding"}
                 </div>
                 <div className="hidden text-sm text-[var(--foreground-muted)] md:block">
-                  {appConfig.useMockApi ? "Mock session mode" : "Live API mode"}
+                  {appConfig.apiMode === "mock" ? "Mock API mode" : "Live backend mode"}
                 </div>
               </div>
               <div className="flex flex-wrap items-center justify-end gap-3">

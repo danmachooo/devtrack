@@ -171,3 +171,23 @@ Assumption:
 - [x] Upgrade the internal sidebar with sticky positioning and Lucide icons
 - [x] Replace the plain theme toggle label with an icon-led toggle treatment
 - [x] Add a minimal custom scrollbar that follows the shared token system
+
+## Phase 18 - Project Detail Setup Redesign
+
+- [x] Redesign `/projects/[id]` so setup is guided linearly instead of relying on one long command-center scroll
+- [x] Keep the current incomplete setup step prominent with a focused setup launcher and compact setup rail
+- [x] Move first-feature creation into the guided setup path
+- [x] Hand off ticket assignment from `/projects/[id]` into the dedicated `/tickets` workspace
+- [x] Move progress, sync diagnostics, and client sharing into a lower-priority workspace area during setup
+- [x] Stage the Notion setup flow so connection happens before status mapping
+- [x] Replace the large sync trust card with a compact header-level sync signal
+- [x] Verify the redesigned project page with typecheck and production build validation
+
+## Phase 19 - Live Backend Wiring
+
+- [x] Make the shared API layer target the live backend by default
+- [x] Add a configurable `NEXT_PUBLIC_API_BASE_URL` runtime override for backend hosts
+- [x] Keep mock mode available only through an explicit `NEXT_PUBLIC_USE_MOCK_API=true` opt-in
+- [x] Normalize Axios error messages so API feedback remains readable in the existing UI
+- [x] Add `.env.example` for backend wiring discovery
+- [x] Verify the live-backend cutover with typecheck and production build validation

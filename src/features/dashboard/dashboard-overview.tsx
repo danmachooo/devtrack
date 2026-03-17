@@ -61,7 +61,7 @@ export function DashboardOverview() {
           }
           icon={
             <div className="rounded-full bg-[color:color-mix(in_srgb,var(--primary)_14%,transparent)] p-3">
-              <span className="text-sm font-semibold uppercase tracking-[0.16em]">Dash</span>
+              <span className="text-sm font-semibold uppercase tracking-[0.16em]">Dashboard</span>
             </div>
           }
         >

@@ -184,7 +184,7 @@ export default function ProjectsPage() {
           }
           icon={
             <div className="rounded-full bg-[color:color-mix(in_srgb,var(--primary)_14%,transparent)] p-3">
-              <span className="text-sm font-semibold uppercase tracking-[0.16em]">Proj</span>
+              <span className="text-sm font-semibold uppercase tracking-[0.16em]">Projects</span>
             </div>
           }
         >

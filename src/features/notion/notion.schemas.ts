@@ -15,17 +15,19 @@ export type NotionConnectionFormValues = z.infer<typeof notionConnectionSchema>;
 
 export const notionStatusMappingSchema = z
   .object({
-    notStarted: z.string().trim().optional(),
+    todo: z.string().trim().optional(),
     inDev: z.string().trim().optional(),
+    qa: z.string().trim().optional(),
     approved: z.string().trim().optional(),
     released: z.string().trim().optional(),
+    blocked: z.string().trim().optional(),
   })
   .refine(
     (value) =>
-      Boolean(value.notStarted || value.inDev || value.approved || value.released),
+      Boolean(value.todo || value.inDev || value.qa || value.approved || value.released || value.blocked),
     {
       message: "Add at least one status mapping entry before saving.",
-      path: ["notStarted"],
+      path: ["todo"],
     },
   );
 

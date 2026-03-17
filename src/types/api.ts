@@ -117,7 +117,13 @@ export type MembersData = {
   total: number;
 };
 
-export type DevtrackStatus = "NOT_STARTED" | "IN_DEV" | "APPROVED" | "RELEASED";
+export type DevtrackStatus =
+  | "TODO"
+  | "IN_DEV"
+  | "QA"
+  | "APPROVED"
+  | "RELEASED"
+  | "BLOCKED";
 
 export type FeatureProgressStatus =
   | "NO_WORK_LOGGED"

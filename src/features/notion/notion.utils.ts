@@ -4,19 +4,25 @@ import type { NotionStatusMappingFormValues } from "@/features/notion/notion.sch
 export function deriveMappingFormValues(project: Project): NotionStatusMappingFormValues {
   const entries = Object.entries(project.statusMapping ?? {});
   const values: NotionStatusMappingFormValues = {
-    notStarted: "",
+    todo: "",
     inDev: "",
+    qa: "",
     approved: "",
     released: "",
+    blocked: "",
   };
 
   for (const [source, target] of entries) {
-    if (target === "NOT_STARTED") {
-      values.notStarted = source;
+    if (target === "TODO") {
+      values.todo = source;
     }
 
     if (target === "IN_DEV") {
       values.inDev = source;
+    }
+
+    if (target === "QA") {
+      values.qa = source;
     }
 
     if (target === "APPROVED") {
@@ -26,6 +32,10 @@ export function deriveMappingFormValues(project: Project): NotionStatusMappingFo
     if (target === "RELEASED") {
       values.released = source;
     }
+
+    if (target === "BLOCKED") {
+      values.blocked = source;
+    }
   }
 
   return values;
@@ -34,12 +44,16 @@ export function deriveMappingFormValues(project: Project): NotionStatusMappingFo
 export function buildStatusMappingPayload(values: NotionStatusMappingFormValues) {
   const mapping: Record<string, DevtrackStatus> = {};
 
-  if (values.notStarted) {
-    mapping[values.notStarted] = "NOT_STARTED";
+  if (values.todo) {
+    mapping[values.todo] = "TODO";
   }
 
   if (values.inDev) {
     mapping[values.inDev] = "IN_DEV";
+  }
+
+  if (values.qa) {
+    mapping[values.qa] = "QA";
   }
 
   if (values.approved) {
@@ -48,6 +62,10 @@ export function buildStatusMappingPayload(values: NotionStatusMappingFormValues)
 
   if (values.released) {
     mapping[values.released] = "RELEASED";
+  }
+
+  if (values.blocked) {
+    mapping[values.blocked] = "BLOCKED";
   }
 
   return mapping;

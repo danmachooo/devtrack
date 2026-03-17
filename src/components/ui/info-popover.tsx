@@ -1,6 +1,7 @@
 "use client";
 
 import { type ReactNode, useEffect, useId, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { CircleHelp } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -104,20 +105,25 @@ export function InfoPopover({
       >
         <CircleHelp className="h-4 w-4" />
       </button>
-      <div
-        className={cn(
-          "fixed z-20 w-[calc(100vw-2rem)] max-w-72 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] p-4 text-sm leading-6 text-[var(--foreground-muted)] shadow-[var(--shadow-md)] transition duration-150",
-          isOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0",
-          panelClassName,
-        )}
-        id={panelId}
-        ref={panelRef}
-        role="tooltip"
-        style={{ left: `${position.left}px`, top: `${position.top}px` }}
-        tabIndex={-1}
-      >
-        {children}
-      </div>
+      {typeof document !== "undefined"
+        ? createPortal(
+            <div
+              className={cn(
+                "fixed z-[70] w-[calc(100vw-2rem)] max-w-72 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] p-4 text-sm leading-6 text-[var(--foreground-muted)] shadow-[var(--shadow-md)] transition duration-150",
+                isOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0",
+                panelClassName,
+              )}
+              id={panelId}
+              ref={panelRef}
+              role="tooltip"
+              style={{ left: `${position.left}px`, top: `${position.top}px` }}
+              tabIndex={-1}
+            >
+              {children}
+            </div>,
+            document.body,
+          )
+        : null}
     </div>
   );
 }

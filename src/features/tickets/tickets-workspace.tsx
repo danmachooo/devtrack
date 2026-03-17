@@ -52,7 +52,7 @@ export function TicketsWorkspace() {
           description="Create the first client delivery track before the team can start syncing work, reviewing tickets, and mapping them into features."
           icon={
             <div className="rounded-full bg-[color:color-mix(in_srgb,var(--primary)_14%,transparent)] p-3">
-              <span className="text-sm font-semibold uppercase tracking-[0.16em]">Tick</span>
+              <span className="text-sm font-semibold uppercase tracking-[0.16em]">Tickets</span>
             </div>
           }
         >
