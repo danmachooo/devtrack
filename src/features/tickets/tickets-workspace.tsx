@@ -139,7 +139,7 @@ export function TicketsWorkspace() {
             </div>
           </Card>
 
-          <TicketReviewPanel project={selectedProject} />
+          <TicketReviewPanel key={selectedProject.id} project={selectedProject} />
         </>
       ) : (
         <TicketsWorkspaceSkeleton />

@@ -180,9 +180,14 @@ export default function OrganizationPage() {
 
   const invitationStats = useMemo(
     () => ({
-      pending: organizationInvitations.filter((item) => item.status === "PENDING").length,
-      accepted: organizationInvitations.filter((item) => item.status === "ACCEPTED").length,
+      pending: organizationInvitations.filter((item) => normalizeInvitationStatus(item.status) === "PENDING").length,
+      accepted: organizationInvitations.filter((item) => normalizeInvitationStatus(item.status) === "ACCEPTED").length,
     }),
+    [organizationInvitations],
+  );
+
+  const manageableInvitations = useMemo(
+    () => organizationInvitations.filter((item) => normalizeInvitationStatus(item.status) !== "CANCELED"),
     [organizationInvitations],
   );
 
@@ -396,9 +401,9 @@ export default function OrganizationPage() {
 
                 {organizationInvitationsQuery.isLoading ? (
                   <p className="text-sm text-[var(--foreground-muted)]">Loading invitations...</p>
-                ) : organizationInvitations.length ? (
+                ) : manageableInvitations.length ? (
                   <div className="max-h-[28rem] space-y-3 overflow-y-auto pr-2">
-                    {organizationInvitations.map((invitation) => (
+                    {manageableInvitations.map((invitation) => (
                       <ManageInvitationRow
                         key={invitation.id}
                         invitation={invitation}
@@ -594,6 +599,7 @@ function ManageInvitationRow({
   pendingActionId?: string;
 }) {
   const isPendingAction = pendingActionId === invitation.id;
+  const normalizedStatus = normalizeInvitationStatus(invitation.status);
 
   return (
     <div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--background)] p-4 shadow-[var(--shadow-sm)]">
@@ -605,7 +611,7 @@ function ManageInvitationRow({
           </p>
         </div>
         <Button
-          disabled={isPendingAction || invitation.status !== "PENDING"}
+          disabled={isPendingAction || normalizedStatus !== "PENDING"}
           onClick={onCancel}
           type="button"
           variant="secondary"
@@ -694,4 +700,8 @@ function formatRole(role: UserRole) {
 
 function formatStatus(status: OrganizationInvitation["status"]) {
   return status.toLowerCase().charAt(0).toUpperCase() + status.toLowerCase().slice(1);
+}
+
+function normalizeInvitationStatus(status: OrganizationInvitation["status"] | string) {
+  return status.trim().toUpperCase();
 }

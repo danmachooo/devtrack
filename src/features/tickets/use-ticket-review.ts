@@ -44,9 +44,16 @@ export function useTicketReview(projectId: string, options: UseTicketReviewOptio
   const deferredAssignee = useDeferredValue(assigneeInput.trim());
 
   useEffect(() => {
+    setFeatureId("");
+    setStatus("");
     setShowUnassigned(options.canAssignTickets);
+    setShowMissing(false);
     setSelectedTicketIds([]);
     setPage(1);
+    setSearchInput("");
+    setAssigneeInput("");
+    setSortBy("syncedAt");
+    setSortOrder("desc");
   }, [options.canAssignTickets, projectId]);
 
   const ticketFilters: GetProjectTicketsQuery = {
