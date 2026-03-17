@@ -28,7 +28,7 @@ export function useProjectProgress(projectId: string) {
 
   const featureProgress = buildFeatureProgressSummaries(
     featuresQuery.data?.data ?? [],
-    ticketsQuery.data?.data ?? [],
+    ticketsQuery.data?.data.items ?? [],
   );
 
   return {

@@ -202,3 +202,29 @@ Assumption:
 - [x] Replace misleading setup-completion percentages on `/projects`, `/dashboard`, and `/projects/[id]` with the correct progress or clearly scoped setup-readiness messaging
 - [x] Wire feature-management progress bars to real assigned-ticket progress instead of placeholder `0%` values
 - [x] Verify the polish pass with typecheck and production build validation
+
+## Phase 21 - Ticket Scaling
+
+- [x] Upgrade `GET /api/projects/:id/tickets` consumers to the paginated ticket contract
+- [x] Add shared API support for backend-driven ticket search, assignee filtering, sorting, and page sizing
+- [x] Add selection-based bulk feature assignment through `PATCH /api/tickets/feature/bulk`
+- [x] Upgrade `/tickets` with summary metrics, inbox-style work-remaining messaging, and pagination controls
+- [x] Keep row-level assignment for one-off edits while omitting assignment controls for read-only roles
+- [x] Verify the ticket-scaling pass with typecheck and production build validation
+
+## Phase 22 - Feature Management Redesign
+
+- [x] Redesign feature management into a split-pane editor instead of a tall stacked CRUD list
+- [x] Add compact feature browsing with search, filter, selected-state, and stronger ordering context
+- [x] Move rename, ordering, and delete actions into a focused feature detail pane
+- [x] Add stronger client-facing naming guidance and explicit delete-impact confirmation
+- [x] Preserve read-only inspection while omitting management controls for unauthorized roles
+- [x] Verify the feature-management redesign with typecheck and production build validation
+
+## Phase 23 - Feature Drag And Drop
+
+- [x] Explore drag-and-drop ordering for the feature list and validate it against the split-pane editor workflow
+- [x] Decide to prefer explicit reorder controls plus direct position selection instead of keeping drag-and-drop
+- [x] Add direct position-based feature ordering in the detail pane for larger jumps
+- [x] Preserve explicit move controls as the stable ordering path for editable roles
+- [x] Verify the final ordering UX decision with typecheck and production build validation

@@ -2,7 +2,8 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { FolderTree, Plus, Sparkles } from "lucide-react";
+import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 
 import { EmptyState } from "@/components/feedback/empty-state";
@@ -10,18 +11,24 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
-import { buildFeatureProgressSummaries } from "@/features/progress/progress-utils";
-import { useSession } from "@/hooks/use-session";
-import { canPerformAction } from "@/lib/auth/permissions";
-import { getProjectTickets } from "@/lib/api/tickets.api";
+import { FeatureDetailPane } from "@/features/features-management/components/feature-detail-pane";
+import { DeleteFeatureDialog } from "@/features/features-management/components/delete-feature-dialog";
+import { FeatureEmptyEditor } from "@/features/features-management/components/feature-empty-editor";
+import { FeatureListPane } from "@/features/features-management/components/feature-list-pane";
+import {
+  filterFeaturesForWorkspace,
+  type FeatureWorkspaceFilter,
+} from "@/features/features-management/feature-management.utils";
 import {
   createFeatureSchema,
-  updateFeatureSchema,
   type CreateFeatureFormValues,
-  type UpdateFeatureFormValues,
 } from "@/features/features-management/feature.schemas";
 import { useFeatureManagement } from "@/features/features-management/use-feature-management";
-import type { Project, ProjectFeatureSummary } from "@/types/api";
+import { buildFeatureProgressSummaries } from "@/features/progress/progress-utils";
+import { useSession } from "@/hooks/use-session";
+import { getProjectTickets } from "@/lib/api/tickets.api";
+import { canPerformAction } from "@/lib/auth/permissions";
+import type { Project } from "@/types/api";
 
 type FeatureManagementPanelProps = {
   project: Project;
@@ -32,6 +39,9 @@ export function FeatureManagementPanel({ project }: FeatureManagementPanelProps)
   const role = sessionResponse?.data.user?.role;
   const canManageFeatures = canPerformAction(role, "manageFeatures");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [activeFilter, setActiveFilter] = useState<FeatureWorkspaceFilter>("all");
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const {
     register,
@@ -49,9 +59,10 @@ export function FeatureManagementPanel({ project }: FeatureManagementPanelProps)
     actions,
     createFeatureMutation,
     deleteFeatureMutation,
-    editingFeatureId,
     features,
     featuresQuery,
+    selectedFeature,
+    selectedFeatureId,
     updateFeatureMutation,
   } = useFeatureManagement(project.id, () => {
     reset();
@@ -60,36 +71,67 @@ export function FeatureManagementPanel({ project }: FeatureManagementPanelProps)
 
   const ticketsQuery = useQuery({
     queryKey: ["project", project.id, "tickets", { showMissing: true }, "feature-management"],
-    queryFn: () => getProjectTickets(project.id, { showMissing: true }),
+    queryFn: () => getProjectTickets(project.id, { showMissing: true, limit: 100 }),
     enabled: features.length > 0,
   });
 
-  const featureProgress = buildFeatureProgressSummaries(features, ticketsQuery.data?.data ?? []);
-  const featureProgressById = new Map(featureProgress.map((item) => [item.featureId, item]));
+  const featureProgress = buildFeatureProgressSummaries(features, ticketsQuery.data?.data.items ?? []);
+  const featureProgressById = useMemo(
+    () => new Map(featureProgress.map((item) => [item.featureId, item])),
+    [featureProgress],
+  );
+
+  const visibleFeatures = useMemo(
+    () => filterFeaturesForWorkspace(features, searchTerm, activeFilter, featureProgressById),
+    [activeFilter, featureProgressById, features, searchTerm],
+  );
+
+  const effectiveSelectedFeature =
+    visibleFeatures.find((feature) => feature.id === selectedFeatureId) ?? selectedFeature ?? visibleFeatures[0] ?? null;
 
   const onSubmit = handleSubmit((values) => {
     actions.createFeature(values);
   });
 
   return (
-    <Card className="space-y-6 p-6">
-      <div className="space-y-2">
-        <p className="text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
+    <Card className="space-y-6 border-[color:color-mix(in_srgb,var(--primary)_12%,var(--border))] bg-[linear-gradient(180deg,var(--surface)_0%,var(--background)_100%)] p-6">
+      <div className="space-y-3">
+        <p className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
+          <FolderTree className="h-3.5 w-3.5" strokeWidth={2} />
           Feature management
         </p>
-        <h2 className="text-2xl font-semibold">Turn work into a client story</h2>
-        <p className="text-sm text-[var(--foreground-muted)]">
-          Create the feature buckets that will eventually organize tickets into a clearer progress narrative.
-        </p>
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div className="space-y-2">
+            <h2 className="text-2xl font-semibold tracking-tight text-balance">Turn work into a client story</h2>
+            <p className="max-w-2xl text-sm leading-6 text-[var(--foreground-muted)]">
+              Curate client-facing feature groups in a focused editor so naming, ordering, and progress all stay intentional as the project grows.
+            </p>
+          </div>
+
+          {canManageFeatures ? (
+            <Button onClick={() => setIsCreateModalOpen(true)} type="button">
+              <Plus className="h-4 w-4" strokeWidth={2} />
+              Add feature
+            </Button>
+          ) : null}
+        </div>
       </div>
 
-      {canManageFeatures ? (
-        <div className="flex justify-start">
-          <Button onClick={() => setIsCreateModalOpen(true)} type="button">
-            Add feature
-          </Button>
+      <div className="rounded-[var(--radius-xl)] border border-[var(--border)] bg-[linear-gradient(180deg,color-mix(in_srgb,var(--primary)_7%,var(--surface))_0%,var(--surface)_100%)] p-5 shadow-[var(--shadow-sm)]">
+        <div className="flex items-start gap-3">
+          <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--radius-md)] border border-[color:color-mix(in_srgb,var(--primary)_16%,var(--border))] bg-[color:color-mix(in_srgb,var(--primary)_10%,transparent)] text-[var(--primary)]">
+            <Sparkles className="h-5 w-5" strokeWidth={2} />
+          </div>
+          <div className="space-y-2">
+            <h3 className="text-sm font-semibold">Editorial guidance</h3>
+            <p className="text-sm leading-6 text-[var(--foreground-muted)]">
+              Features should read like client-recognizable deliverables. Prefer names such as
+              “Client Portal”, “Reporting Dashboard”, or “Billing Rollout” over internal team names
+              or technical layers.
+            </p>
+          </div>
         </div>
-      ) : null}
+      </div>
 
       {createFeatureMutation.isError ? (
         <p className="text-sm text-[var(--danger)]">
@@ -100,45 +142,62 @@ export function FeatureManagementPanel({ project }: FeatureManagementPanelProps)
       ) : null}
 
       {featuresQuery.isPending ? (
-        <FeatureListSkeleton />
-      ) : features.length ? (
-        <div className="space-y-4">
-          {features.map((feature, index) => (
-            <FeatureRow
-              key={feature.id}
-              canManage={canManageFeatures}
-              feature={feature}
-              index={index}
-              isDeleting={deleteFeatureMutation.isPending && deleteFeatureMutation.variables === feature.id}
-              isEditing={editingFeatureId === feature.id}
-              progressSummary={featureProgressById.get(feature.id)}
-              isSaving={updateFeatureMutation.isPending && updateFeatureMutation.variables?.id === feature.id}
-              onDelete={() => actions.deleteFeature(feature.id)}
-              onEditToggle={() => actions.toggleEditingFeature(feature.id)}
-              onMoveDown={() =>
-                actions.moveFeature(feature.id, Math.min(index + 1, features.length - 1))
-              }
-              onMoveUp={() =>
-                actions.moveFeature(feature.id, Math.max(index - 1, 0))
-              }
-              onSaveName={(name) => actions.renameFeature(feature.id, name)}
-              total={features.length}
-            />
-          ))}
+        <FeatureWorkspaceSkeleton />
+      ) : !features.length ? (
+        <div className="grid gap-5 xl:grid-cols-[1.05fr_1.25fr]">
+          <EmptyState
+            title="No feature groups yet"
+            description={
+              canManageFeatures
+                ? "Create the first feature so synced work can be grouped into something a client can actually follow."
+                : "No feature groups have been created yet. Team Leaders and Business Analysts can add them here."
+            }
+          />
+          <FeatureEmptyEditor canManageFeatures={canManageFeatures} hasFeatures={false} />
         </div>
       ) : (
-        <EmptyState
-          title="No feature groups yet"
-          description={
-            canManageFeatures
-              ? "Create the first feature bucket so synced work can be organized into something client-facing."
-              : "No feature groups have been created yet. Team Leaders and Business Analysts can add them here."
-          }
-        />
+        <div className="grid gap-5 xl:grid-cols-[0.92fr_1.08fr]">
+          <FeatureListPane
+            activeFilter={activeFilter}
+            features={visibleFeatures}
+            onFilterChange={setActiveFilter}
+            onSearchChange={setSearchTerm}
+            onSelectFeature={actions.selectFeature}
+            progressByFeatureId={featureProgressById}
+            searchTerm={searchTerm}
+            selectedFeatureId={effectiveSelectedFeature?.id ?? null}
+            totalFeatureCount={features.length}
+          />
+
+          {effectiveSelectedFeature ? (
+            <FeatureDetailPane
+              canManageFeatures={canManageFeatures}
+              feature={effectiveSelectedFeature}
+              isDeleting={deleteFeatureMutation.isPending && deleteFeatureMutation.variables === effectiveSelectedFeature.id}
+              isSaving={updateFeatureMutation.isPending && updateFeatureMutation.variables?.id === effectiveSelectedFeature.id}
+              onDelete={() => setIsDeleteDialogOpen(true)}
+              onMoveDown={() =>
+                actions.moveFeature(
+                  effectiveSelectedFeature.id,
+                  Math.min(effectiveSelectedFeature.order + 1, features.length - 1),
+                )
+              }
+              onMoveToPosition={(order) => actions.moveFeature(effectiveSelectedFeature.id, order)}
+              onMoveToBottom={() => actions.moveFeature(effectiveSelectedFeature.id, features.length - 1)}
+              onMoveToTop={() => actions.moveFeature(effectiveSelectedFeature.id, 0)}
+              onMoveUp={() => actions.moveFeature(effectiveSelectedFeature.id, Math.max(effectiveSelectedFeature.order - 1, 0))}
+              onSaveName={(name) => actions.renameFeature(effectiveSelectedFeature.id, name)}
+              progressSummary={featureProgressById.get(effectiveSelectedFeature.id)}
+              totalFeatures={features.length}
+            />
+          ) : (
+            <FeatureEmptyEditor canManageFeatures={canManageFeatures} hasFeatures />
+          )}
+        </div>
       )}
 
       <Modal
-        description="Feature names should read well in front of a client."
+        description="Feature names should read well in front of a client and clearly describe a deliverable."
         onClose={() => setIsCreateModalOpen(false)}
         open={canManageFeatures && isCreateModalOpen}
         title="Add feature"
@@ -149,173 +208,62 @@ export function FeatureManagementPanel({ project }: FeatureManagementPanelProps)
               Feature name
             </label>
             <Input id="feature-name" placeholder="Client portal" {...register("name")} />
-            {errors.name ? (
-              <p className="text-sm text-[var(--danger)]">{errors.name.message}</p>
-            ) : null}
+            {errors.name ? <p className="text-sm text-[var(--danger)]">{errors.name.message}</p> : null}
+            <p className="text-sm leading-6 text-[var(--foreground-muted)]">
+              Use a client-facing deliverable name rather than an internal team bucket or technical layer.
+            </p>
           </div>
 
           <div className="flex flex-wrap justify-end gap-3">
-            <Button disabled={isSubmitting || createFeatureMutation.isPending} type="submit">
-              {isSubmitting || createFeatureMutation.isPending ? "Adding..." : "Add feature"}
-            </Button>
             <Button onClick={() => setIsCreateModalOpen(false)} type="button" variant="secondary">
               Cancel
+            </Button>
+            <Button disabled={isSubmitting || createFeatureMutation.isPending} type="submit">
+              {isSubmitting || createFeatureMutation.isPending ? "Adding..." : "Add feature"}
             </Button>
           </div>
         </form>
       </Modal>
+
+      <DeleteFeatureDialog
+        feature={effectiveSelectedFeature}
+        isDeleting={
+          Boolean(
+            effectiveSelectedFeature &&
+              deleteFeatureMutation.isPending &&
+              deleteFeatureMutation.variables === effectiveSelectedFeature.id,
+          )
+        }
+        onClose={() => setIsDeleteDialogOpen(false)}
+        onConfirm={() => {
+          if (!effectiveSelectedFeature) {
+            return;
+          }
+
+          actions.deleteFeature(effectiveSelectedFeature.id);
+          setIsDeleteDialogOpen(false);
+        }}
+        open={isDeleteDialogOpen && Boolean(effectiveSelectedFeature)}
+      />
     </Card>
   );
 }
 
-function FeatureRow({
-  feature,
-  index,
-  total,
-  canManage,
-  isEditing,
-  isSaving,
-  isDeleting,
-  progressSummary,
-  onEditToggle,
-  onSaveName,
-  onMoveUp,
-  onMoveDown,
-  onDelete,
-}: {
-  feature: ProjectFeatureSummary;
-  index: number;
-  total: number;
-  canManage: boolean;
-  isEditing: boolean;
-  isSaving: boolean;
-  isDeleting: boolean;
-  progressSummary?: {
-    progress: number;
-    totalTickets: number;
-    completedTickets: number;
-  };
-  onEditToggle: () => void;
-  onSaveName: (name: string) => void;
-  onMoveUp: () => void;
-  onMoveDown: () => void;
-  onDelete: () => void;
-}) {
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<UpdateFeatureFormValues>({
-    resolver: zodResolver(updateFeatureSchema),
-    defaultValues: {
-      name: feature.name,
-    },
-  });
-
-  const onSubmit = handleSubmit((values) => {
-    onSaveName(values.name);
-  });
-
-  useEffect(() => {
-    reset({ name: feature.name });
-  }, [feature.name, reset]);
-
-  const progress = progressSummary?.progress ?? 0;
-  const totalTickets = progressSummary?.totalTickets ?? 0;
-  const completedTickets = progressSummary?.completedTickets ?? 0;
-
+function FeatureWorkspaceSkeleton() {
   return (
-    <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--background)] p-5">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-        <div className="flex-1 space-y-3">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-full border border-[var(--border)] bg-[var(--surface)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--foreground-muted)]">
-              Order {index + 1}
-            </span>
-            <span className="rounded-full border border-[var(--border)] bg-[var(--surface)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--foreground-muted)]">
-              {feature._count.tickets} tickets
-            </span>
-          </div>
-
-          <div>
-            <h3 className="text-xl font-semibold">{feature.name}</h3>
-            <p className="text-sm text-[var(--foreground-muted)]">
-              {totalTickets > 0
-                ? `${completedTickets} of ${totalTickets} assigned ticket${
-                    totalTickets === 1 ? "" : "s"
-                  } count toward this feature's progress.`
-                : "Progress appears once assigned, non-missing tickets start contributing work to this feature."}
-            </p>
-          </div>
-          <div className="space-y-2">
-            <div className="h-3 overflow-hidden rounded-full bg-[var(--surface-muted)]">
-              <div className="h-full rounded-full bg-[var(--primary)]" style={{ width: `${progress}%` }} />
-            </div>
-            <div className="text-sm text-[var(--foreground-muted)]">{progress}% progress</div>
-          </div>
-        </div>
-
-        {canManage ? (
-          <div className="flex flex-wrap gap-2">
-            <Button disabled={index === 0 || isSaving || isDeleting} onClick={onMoveUp} type="button" variant="secondary">
-              Move up
-            </Button>
-            <Button
-              disabled={index === total - 1 || isSaving || isDeleting}
-              onClick={onMoveDown}
-              type="button"
-              variant="secondary"
-            >
-              Move down
-            </Button>
-            <Button disabled={isSaving || isDeleting} onClick={onEditToggle} type="button" variant="secondary">
-              Rename
-            </Button>
-            <Button disabled={isSaving || isDeleting} onClick={onDelete} type="button" variant="ghost">
-              {isDeleting ? "Deleting..." : "Delete"}
-            </Button>
-          </div>
-        ) : null}
+    <div className="grid gap-5 xl:grid-cols-[0.92fr_1.08fr]">
+      <div className="space-y-4 rounded-[var(--radius-xl)] border border-[var(--border)] bg-[var(--surface)] p-5">
+        <div className="h-6 w-40 animate-pulse rounded bg-[var(--surface-muted)]" />
+        <div className="h-24 animate-pulse rounded-[var(--radius-lg)] bg-[var(--surface-muted)]" />
+        <div className="h-24 animate-pulse rounded-[var(--radius-lg)] bg-[var(--surface-muted)]" />
+        <div className="h-24 animate-pulse rounded-[var(--radius-lg)] bg-[var(--surface-muted)]" />
       </div>
-
-      <Modal
-        description="Use a name that reads clearly in the client-facing progress story."
-        onClose={onEditToggle}
-        open={canManage && isEditing}
-        title="Rename feature"
-      >
-        <form className="space-y-4" onSubmit={onSubmit}>
-          <div className="space-y-2">
-            <label className="text-sm font-medium" htmlFor={`feature-name-${feature.id}`}>
-              Feature name
-            </label>
-            <Input id={`feature-name-${feature.id}`} {...register("name")} />
-            {errors.name ? <p className="text-sm text-[var(--danger)]">{errors.name.message}</p> : null}
-          </div>
-          <div className="flex flex-wrap justify-end gap-3">
-            <Button disabled={isSaving} type="submit">
-              {isSaving ? "Saving..." : "Save name"}
-            </Button>
-            <Button onClick={onEditToggle} type="button" variant="secondary">
-              Cancel
-            </Button>
-          </div>
-        </form>
-      </Modal>
-    </div>
-  );
-}
-
-function FeatureListSkeleton() {
-  return (
-    <div className="space-y-4">
-      {Array.from({ length: 3 }).map((_, index) => (
-        <div
-          key={index}
-          className="h-36 animate-pulse rounded-[var(--radius-lg)] bg-[var(--surface-muted)]"
-        />
-      ))}
+      <div className="space-y-4 rounded-[var(--radius-xl)] border border-[var(--border)] bg-[var(--surface)] p-6">
+        <div className="h-8 w-56 animate-pulse rounded bg-[var(--surface-muted)]" />
+        <div className="h-28 animate-pulse rounded-[var(--radius-lg)] bg-[var(--surface-muted)]" />
+        <div className="h-40 animate-pulse rounded-[var(--radius-lg)] bg-[var(--surface-muted)]" />
+        <div className="h-28 animate-pulse rounded-[var(--radius-lg)] bg-[var(--surface-muted)]" />
+      </div>
     </div>
   );
 }

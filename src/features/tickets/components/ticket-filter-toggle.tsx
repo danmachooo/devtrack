@@ -13,10 +13,10 @@ export function TicketFilterToggle({
 }: TicketFilterToggleProps) {
   return (
     <label
-      className={`flex items-start gap-3 rounded-[var(--radius-md)] border px-4 py-3 transition duration-200 ${
+      className={`flex items-start gap-3 rounded-[var(--radius-lg)] border px-4 py-3.5 transition duration-200 shadow-[var(--shadow-sm)] ${
         checked
-          ? "border-[color:color-mix(in_srgb,var(--primary)_28%,var(--border))] bg-[color:color-mix(in_srgb,var(--primary)_10%,var(--surface))] shadow-[var(--shadow-sm)]"
-          : "border-[var(--border)] bg-[var(--surface)] hover:border-[color:color-mix(in_srgb,var(--primary)_20%,var(--border))]"
+          ? "border-[color:color-mix(in_srgb,var(--primary)_28%,var(--border))] bg-[linear-gradient(180deg,color-mix(in_srgb,var(--primary)_10%,var(--surface))_0%,var(--surface)_100%)]"
+          : "border-[var(--border)] bg-[var(--surface)] hover:border-[color:color-mix(in_srgb,var(--primary)_20%,var(--border))] hover:bg-[color:color-mix(in_srgb,var(--surface)_92%,var(--background))]"
       }`}
     >
       <input

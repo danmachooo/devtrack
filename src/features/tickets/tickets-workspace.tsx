@@ -2,12 +2,15 @@
 
 import {
   ArrowRight,
+  Compass,
   FolderKanban,
+  MapPinned,
   Sparkles,
   Target,
   Ticket,
 } from "lucide-react";
 import Link from "next/link";
+import type { ReactNode } from "react";
 
 import { EmptyState } from "@/components/feedback/empty-state";
 import { ErrorState } from "@/components/feedback/error-state";
@@ -69,43 +72,71 @@ export function TicketsWorkspace() {
         </EmptyState>
       ) : selectedProject ? (
         <>
-          <Card className="space-y-5 p-6">
-            <div className="grid gap-5 lg:grid-cols-[1.15fr_0.85fr]">
-              <div className="space-y-2">
-                <p className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
-                  <Target className="h-3.5 w-3.5" strokeWidth={2} />
+          <Card className="overflow-hidden border-[color:color-mix(in_srgb,var(--primary)_16%,var(--border))] bg-[linear-gradient(180deg,color-mix(in_srgb,var(--primary)_7%,var(--surface))_0%,var(--surface)_38%,var(--background)_100%)] p-0">
+            <div className="grid gap-0 lg:grid-cols-[1.12fr_0.88fr]">
+              <div className="space-y-5 p-6 lg:p-7">
+                <div className="inline-flex items-center gap-2 rounded-full border border-[color:color-mix(in_srgb,var(--primary)_18%,var(--border))] bg-[color:color-mix(in_srgb,var(--primary)_10%,var(--surface))] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--foreground-muted)]">
+                  <MapPinned className="h-3.5 w-3.5 text-[var(--primary)]" strokeWidth={2} />
                   Project scope
-                </p>
-                <h2 className="max-w-xl text-2xl font-semibold text-balance">
-                  Choose the project you want to organize
-                </h2>
-                <p className="max-w-2xl text-sm leading-6 text-[var(--foreground-muted)] text-pretty">
-                  Ticket assignment is project-scoped, so this workspace stays focused on one delivery track at a time.
-                </p>
+                </div>
+                <div className="space-y-2">
+                  <h2 className="max-w-xl text-2xl font-semibold tracking-tight text-balance">
+                    Keep ticket mapping anchored to one delivery track
+                  </h2>
+                  <p className="max-w-2xl text-sm leading-6 text-[var(--foreground-muted)] text-pretty">
+                    This workspace is intentionally project-scoped so search, triage, and bulk assignment stay tied to the same client story and progress model.
+                  </p>
+                </div>
+
+                <div className="grid gap-3 md:grid-cols-2">
+                  <ProjectScopeCallout
+                    description="Review one project at a time so bulk actions never cross delivery boundaries."
+                    icon={<Compass className="h-4 w-4" strokeWidth={2} />}
+                    title="Focused mapping"
+                  />
+                  <ProjectScopeCallout
+                    description="Return to the command center anytime for setup, sync, and sharing work."
+                    icon={<ArrowRight className="h-4 w-4" strokeWidth={2} />}
+                    title="Connected workflow"
+                  />
+                </div>
               </div>
 
-              <div className="space-y-2 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--background)] p-4">
-                <label className="text-sm font-medium" htmlFor="tickets-project-select">
-                  Active project
-                </label>
-                <Select
-                  id="tickets-project-select"
-                  onChange={(event) => actions.setSelectedProject(event.target.value)}
-                  value={selectedProject.id}
-                >
-                  {projects.map((project) => (
-                    <option key={project.id} value={project.id}>
-                      {project.name} | {project.clientName}
-                    </option>
-                  ))}
-                </Select>
-                <p className="text-sm leading-6 text-[var(--foreground-muted)]">
-                  The selected project is stored in the URL so you can return directly to the same mapping context.
-                </p>
+              <div className="border-t border-[color:color-mix(in_srgb,var(--border)_82%,transparent)] bg-[color:color-mix(in_srgb,var(--surface)_90%,var(--background))] p-6 lg:border-l lg:border-t-0 lg:p-7">
+                <div className="space-y-4 rounded-[calc(var(--radius-lg)+2px)] border border-[var(--border)] bg-[var(--background)] p-5 shadow-[var(--shadow-sm)]">
+                  <div className="space-y-1.5">
+                    <p className="text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
+                      Active project
+                    </p>
+                    <h3 className="text-lg font-semibold">Switch the mapping context</h3>
+                    <p className="text-sm leading-6 text-[var(--foreground-muted)]">
+                      The selected project is stored in the URL so you can return directly to the same ticket workspace later.
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium" htmlFor="tickets-project-select">
+                      Project
+                    </label>
+                    <Select
+                      id="tickets-project-select"
+                      onChange={(event) => actions.setSelectedProject(event.target.value)}
+                      value={selectedProject.id}
+                    >
+                      {projects.map((project) => (
+                        <option key={project.id} value={project.id}>
+                          {project.name} | {project.clientName}
+                        </option>
+                      ))}
+                    </Select>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <SelectedProjectSummary project={selectedProject} />
+            <div className="border-t border-[color:color-mix(in_srgb,var(--border)_82%,transparent)] px-6 py-6 lg:px-7">
+              <SelectedProjectSummary project={selectedProject} />
+            </div>
           </Card>
 
           <TicketReviewPanel project={selectedProject} />
@@ -126,7 +157,7 @@ function SelectedProjectSummary({
   const nextStep = getNextProjectStep(project);
 
   return (
-    <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--background)] p-5">
+    <div className="rounded-[calc(var(--radius-lg)+2px)] border border-[var(--border)] bg-[linear-gradient(180deg,var(--background)_0%,color-mix(in_srgb,var(--surface)_84%,var(--background))_100%)] p-5">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="space-y-2">
           <div className="flex flex-wrap items-center gap-2">
@@ -149,7 +180,7 @@ function SelectedProjectSummary({
         <LinkButton href={`/projects/${project.id}`}>Open command center</LinkButton>
       </div>
 
-      <div className="mt-4 grid gap-3 md:grid-cols-3">
+      <div className="mt-5 grid gap-3 md:grid-cols-3">
         <ProjectMetric
           label="Last synced"
           value={project.lastSyncedAt ? formatDateTime(project.lastSyncedAt) : "Awaiting first sync"}
@@ -163,12 +194,36 @@ function SelectedProjectSummary({
 
 function ProjectMetric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] p-4">
+    <div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[color:color-mix(in_srgb,var(--surface)_92%,var(--background))] p-4">
       <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
         <Sparkles className="h-3.5 w-3.5" strokeWidth={2} />
         {label}
       </div>
       <div className="mt-2 text-sm font-medium leading-6">{value}</div>
+    </div>
+  );
+}
+
+function ProjectScopeCallout({
+  icon,
+  title,
+  description,
+}: {
+  icon: ReactNode;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="rounded-[var(--radius-lg)] border border-[color:color-mix(in_srgb,var(--border)_86%,transparent)] bg-[color:color-mix(in_srgb,var(--surface)_84%,var(--background))] p-4 shadow-[var(--shadow-sm)]">
+      <div className="flex items-start gap-3">
+        <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--radius-md)] border border-[color:color-mix(in_srgb,var(--primary)_16%,var(--border))] bg-[color:color-mix(in_srgb,var(--primary)_10%,transparent)] text-[var(--primary)]">
+          {icon}
+        </div>
+        <div className="space-y-1">
+          <h3 className="text-sm font-semibold">{title}</h3>
+          <p className="text-sm leading-6 text-[var(--foreground-muted)]">{description}</p>
+        </div>
+      </div>
     </div>
   );
 }

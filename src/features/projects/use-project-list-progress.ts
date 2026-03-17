@@ -35,7 +35,7 @@ export function useProjectListProgress(projects: Project[]) {
       return;
     }
 
-    const tickets = query.data?.data;
+    const tickets = query.data?.data.items;
     if (!tickets) {
       progressByProjectId.set(project.id, 0);
       return;
