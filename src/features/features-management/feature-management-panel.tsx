@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -9,8 +10,10 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
+import { buildFeatureProgressSummaries } from "@/features/progress/progress-utils";
 import { useSession } from "@/hooks/use-session";
 import { canPerformAction } from "@/lib/auth/permissions";
+import { getProjectTickets } from "@/lib/api/tickets.api";
 import {
   createFeatureSchema,
   updateFeatureSchema,
@@ -54,6 +57,15 @@ export function FeatureManagementPanel({ project }: FeatureManagementPanelProps)
     reset();
     setIsCreateModalOpen(false);
   });
+
+  const ticketsQuery = useQuery({
+    queryKey: ["project", project.id, "tickets", { showMissing: true }, "feature-management"],
+    queryFn: () => getProjectTickets(project.id, { showMissing: true }),
+    enabled: features.length > 0,
+  });
+
+  const featureProgress = buildFeatureProgressSummaries(features, ticketsQuery.data?.data ?? []);
+  const featureProgressById = new Map(featureProgress.map((item) => [item.featureId, item]));
 
   const onSubmit = handleSubmit((values) => {
     actions.createFeature(values);
@@ -99,6 +111,7 @@ export function FeatureManagementPanel({ project }: FeatureManagementPanelProps)
               index={index}
               isDeleting={deleteFeatureMutation.isPending && deleteFeatureMutation.variables === feature.id}
               isEditing={editingFeatureId === feature.id}
+              progressSummary={featureProgressById.get(feature.id)}
               isSaving={updateFeatureMutation.isPending && updateFeatureMutation.variables?.id === feature.id}
               onDelete={() => actions.deleteFeature(feature.id)}
               onEditToggle={() => actions.toggleEditingFeature(feature.id)}
@@ -163,6 +176,7 @@ function FeatureRow({
   isEditing,
   isSaving,
   isDeleting,
+  progressSummary,
   onEditToggle,
   onSaveName,
   onMoveUp,
@@ -176,6 +190,11 @@ function FeatureRow({
   isEditing: boolean;
   isSaving: boolean;
   isDeleting: boolean;
+  progressSummary?: {
+    progress: number;
+    totalTickets: number;
+    completedTickets: number;
+  };
   onEditToggle: () => void;
   onSaveName: (name: string) => void;
   onMoveUp: () => void;
@@ -202,7 +221,9 @@ function FeatureRow({
     reset({ name: feature.name });
   }, [feature.name, reset]);
 
-  const progress = feature._count.tickets > 0 ? 0 : 0;
+  const progress = progressSummary?.progress ?? 0;
+  const totalTickets = progressSummary?.totalTickets ?? 0;
+  const completedTickets = progressSummary?.completedTickets ?? 0;
 
   return (
     <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--background)] p-5">
@@ -220,7 +241,11 @@ function FeatureRow({
           <div>
             <h3 className="text-xl font-semibold">{feature.name}</h3>
             <p className="text-sm text-[var(--foreground-muted)]">
-              Progress stays at 0% until ticket assignment lands and gives this feature real contributing work.
+              {totalTickets > 0
+                ? `${completedTickets} of ${totalTickets} assigned ticket${
+                    totalTickets === 1 ? "" : "s"
+                  } count toward this feature's progress.`
+                : "Progress appears once assigned, non-missing tickets start contributing work to this feature."}
             </p>
           </div>
           <div className="space-y-2">

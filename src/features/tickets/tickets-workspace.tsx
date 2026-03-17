@@ -1,5 +1,12 @@
 "use client";
 
+import {
+  ArrowRight,
+  FolderKanban,
+  Sparkles,
+  Target,
+  Ticket,
+} from "lucide-react";
 import Link from "next/link";
 
 import { EmptyState } from "@/components/feedback/empty-state";
@@ -18,6 +25,8 @@ export function TicketsWorkspace() {
   return (
     <div className="space-y-8">
       <PageHeader
+        eyebrow="Ticket mapping"
+        icon={<Ticket className="h-5 w-5" strokeWidth={2.1} />}
         title="Tickets"
         description="Map synced work into client-facing features one project at a time so the progress story stays intentional and accurate."
         actions={
@@ -27,12 +36,14 @@ export function TicketsWorkspace() {
                 label: "Open projects",
                 href: "/projects",
                 variant: "secondary",
+                icon: <FolderKanban className="h-4 w-4" strokeWidth={2} />,
               },
               {
                 label: "Manage assignments",
                 href: selectedProjectId ? `/projects/${selectedProjectId}` : "/projects",
                 action: "assignTickets",
                 variant: "ghost",
+                icon: <ArrowRight className="h-4 w-4" strokeWidth={2} />,
               },
             ]}
           />
@@ -51,9 +62,7 @@ export function TicketsWorkspace() {
           title="No projects are ready for ticket review yet"
           description="Create the first client delivery track before the team can start syncing work, reviewing tickets, and mapping them into features."
           icon={
-            <div className="rounded-full bg-[color:color-mix(in_srgb,var(--primary)_14%,transparent)] p-3">
-              <span className="text-sm font-semibold uppercase tracking-[0.16em]">Tickets</span>
-            </div>
+            <Ticket className="h-6 w-6" strokeWidth={2.1} />
           }
         >
           <LinkButton href="/projects">Open projects</LinkButton>
@@ -63,16 +72,19 @@ export function TicketsWorkspace() {
           <Card className="space-y-5 p-6">
             <div className="grid gap-5 lg:grid-cols-[1.15fr_0.85fr]">
               <div className="space-y-2">
-                <p className="text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
+                <p className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
+                  <Target className="h-3.5 w-3.5" strokeWidth={2} />
                   Project scope
                 </p>
-                <h2 className="text-2xl font-semibold">Choose the project you want to organize</h2>
-                <p className="text-sm text-[var(--foreground-muted)]">
+                <h2 className="max-w-xl text-2xl font-semibold text-balance">
+                  Choose the project you want to organize
+                </h2>
+                <p className="max-w-2xl text-sm leading-6 text-[var(--foreground-muted)] text-pretty">
                   Ticket assignment is project-scoped, so this workspace stays focused on one delivery track at a time.
                 </p>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-2 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--background)] p-4">
                 <label className="text-sm font-medium" htmlFor="tickets-project-select">
                   Active project
                 </label>
@@ -87,7 +99,7 @@ export function TicketsWorkspace() {
                     </option>
                   ))}
                 </Select>
-                <p className="text-sm text-[var(--foreground-muted)]">
+                <p className="text-sm leading-6 text-[var(--foreground-muted)]">
                   The selected project is stored in the URL so you can return directly to the same mapping context.
                 </p>
               </div>
@@ -127,8 +139,8 @@ function SelectedProjectSummary({
             </span>
           </div>
           <div>
-            <h3 className="text-xl font-semibold">{project.name}</h3>
-            <p className="text-sm text-[var(--foreground-muted)]">
+            <h3 className="max-w-2xl text-xl font-semibold text-balance">{project.name}</h3>
+            <p className="text-sm leading-6 text-[var(--foreground-muted)]">
               {project.clientName} | {project.clientEmail}
             </p>
           </div>
@@ -152,8 +164,11 @@ function SelectedProjectSummary({
 function ProjectMetric({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] p-4">
-      <div className="text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">{label}</div>
-      <div className="mt-2 text-sm font-medium">{value}</div>
+      <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
+        <Sparkles className="h-3.5 w-3.5" strokeWidth={2} />
+        {label}
+      </div>
+      <div className="mt-2 text-sm font-medium leading-6">{value}</div>
     </div>
   );
 }
@@ -204,7 +219,7 @@ function FreshnessPill({
 
   return (
     <span
-      className={`rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] ${toneClasses[tone]}`}
+      className={`inline-flex min-h-7 items-center rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] ${toneClasses[tone]}`}
     >
       {label}
     </span>
@@ -214,9 +229,10 @@ function FreshnessPill({
 function LinkButton({ children, href }: { children: string; href: string }) {
   return (
     <Link
-      className="inline-flex items-center justify-center rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 text-sm font-semibold text-[var(--foreground)] transition hover:bg-[var(--surface-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]"
+      className="inline-flex items-center justify-center gap-2 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 text-sm font-semibold text-[var(--foreground)] transition duration-200 hover:-translate-y-0.5 hover:border-[color:color-mix(in_srgb,var(--primary)_24%,var(--border))] hover:bg-[var(--surface-muted)] hover:shadow-[var(--shadow-sm)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]"
       href={href}
     >
+      <ArrowRight className="h-4 w-4" strokeWidth={2} />
       {children}
     </Link>
   );

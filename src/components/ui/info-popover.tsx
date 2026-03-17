@@ -95,7 +95,7 @@ export function InfoPopover({
         aria-label={label}
         ref={triggerRef}
         type="button"
-        className="flex h-7 w-7 cursor-pointer list-none items-center justify-center rounded-full border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground-muted)] transition hover:border-[color:color-mix(in_srgb,var(--primary)_28%,var(--border))] hover:text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] [&::-webkit-details-marker]:hidden"
+        className="flex h-8 w-8 cursor-pointer list-none items-center justify-center rounded-full border border-[var(--border)] bg-[color:color-mix(in_srgb,var(--surface)_96%,var(--background))] text-[var(--foreground-muted)] shadow-[var(--shadow-sm)] transition duration-200 hover:-translate-y-0.5 hover:border-[color:color-mix(in_srgb,var(--primary)_28%,var(--border))] hover:text-[var(--foreground)] hover:shadow-[var(--shadow-md)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] [&::-webkit-details-marker]:hidden"
         onBlur={(event) => {
           if (!event.currentTarget.parentElement?.contains(event.relatedTarget as Node | null)) {
             setIsOpen(false);
@@ -109,7 +109,7 @@ export function InfoPopover({
         ? createPortal(
             <div
               className={cn(
-                "fixed z-[70] w-[calc(100vw-2rem)] max-w-72 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] p-4 text-sm leading-6 text-[var(--foreground-muted)] shadow-[var(--shadow-md)] transition duration-150",
+                "fixed z-[70] w-[calc(100vw-2rem)] max-w-72 rounded-[var(--radius-lg)] border border-[color:color-mix(in_srgb,var(--border)_84%,transparent)] bg-[color:color-mix(in_srgb,var(--surface)_98%,var(--background))] p-4 text-sm leading-6 text-[var(--foreground-muted)] shadow-[var(--shadow-md)] transition duration-150",
                 isOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0",
                 panelClassName,
               )}

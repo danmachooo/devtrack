@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Building2, MailPlus, ShieldCheck, Users } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -204,6 +205,8 @@ export default function OrganizationPage() {
   return (
     <div className="space-y-8">
       <PageHeader
+        eyebrow="Workspace management"
+        icon={<Building2 className="h-5 w-5" strokeWidth={2.1} />}
         title="Organization"
         description={
           activeOrganizationId
@@ -223,8 +226,11 @@ export default function OrganizationPage() {
         <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
           <Card className="space-y-6 p-6">
             <div className="space-y-1">
-              <h2 className="text-xl font-semibold">Create your organization</h2>
-              <p className="text-sm text-[var(--foreground-muted)]">
+              <h2 className="flex items-center gap-2 text-xl font-semibold">
+                <Building2 className="h-5 w-5 text-[var(--primary)]" strokeWidth={2} />
+                Create your organization
+              </h2>
+              <p className="text-sm leading-6 text-[var(--foreground-muted)]">
                 This is the first team workspace shell. Once it exists, projects, invitations, and
                 delivery views can become organization-scoped.
               </p>
@@ -304,8 +310,11 @@ export default function OrganizationPage() {
 
           <Card className="space-y-6 p-6">
             <div className="space-y-1">
-              <h2 className="text-xl font-semibold">Personal invitations</h2>
-              <p className="text-sm text-[var(--foreground-muted)]">
+              <h2 className="flex items-center gap-2 text-xl font-semibold">
+                <MailPlus className="h-5 w-5 text-[var(--primary)]" strokeWidth={2} />
+                Personal invitations
+              </h2>
+              <p className="text-sm leading-6 text-[var(--foreground-muted)]">
                 If another team invited you already, accept it here and the workspace becomes active
                 immediately.
               </p>
@@ -359,8 +368,11 @@ export default function OrganizationPage() {
             <div className="items-start grid gap-6 xl:grid-cols-[1fr_1fr]">
               <Card className="self-start space-y-6 p-6">
                 <div className="space-y-1">
-                  <h2 className="text-xl font-semibold">Invite teammates</h2>
-                  <p className="text-sm text-[var(--foreground-muted)]">
+                  <h2 className="flex items-center gap-2 text-xl font-semibold">
+                    <MailPlus className="h-5 w-5 text-[var(--primary)]" strokeWidth={2} />
+                    Invite teammates
+                  </h2>
+                  <p className="text-sm leading-6 text-[var(--foreground-muted)]">
                     Invite business analysts, QA, and developers into this workspace. Team leader
                     access stays reserved for the creator flow right now.
                   </p>
@@ -372,8 +384,11 @@ export default function OrganizationPage() {
 
               <Card className="space-y-6 p-6">
                 <div className="space-y-1">
-                  <h2 className="text-xl font-semibold">Invitation management</h2>
-                  <p className="text-sm text-[var(--foreground-muted)]">
+                  <h2 className="flex items-center gap-2 text-xl font-semibold">
+                    <ShieldCheck className="h-5 w-5 text-[var(--primary)]" strokeWidth={2} />
+                    Invitation management
+                  </h2>
+                  <p className="text-sm leading-6 text-[var(--foreground-muted)]">
                     Review outgoing invitations and cancel any pending invites that should no longer
                     be available.
                   </p>
@@ -412,8 +427,11 @@ export default function OrganizationPage() {
 
           <Card className="space-y-6 p-6">
             <div className="space-y-1">
-              <h2 className="text-xl font-semibold">Members</h2>
-              <p className="text-sm text-[var(--foreground-muted)]">
+              <h2 className="flex items-center gap-2 text-xl font-semibold">
+                <Users className="h-5 w-5 text-[var(--primary)]" strokeWidth={2} />
+                Members
+              </h2>
+              <p className="text-sm leading-6 text-[var(--foreground-muted)]">
                 See who is inside the organization and adjust roles or membership where team-leader
                 permissions allow it.
               </p>
@@ -514,11 +532,21 @@ export default function OrganizationPage() {
 }
 
 function SummaryCard({ label, value, detail }: { label: string; value: string; detail: string }) {
+  const iconByLabel = {
+    Organization: Building2,
+    Members: Users,
+    "Pending invites": MailPlus,
+  } as const;
+  const Icon = iconByLabel[label as keyof typeof iconByLabel] ?? Building2;
+
   return (
     <Card className="space-y-2 p-5">
-      <p className="text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">{label}</p>
+      <p className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
+        <Icon className="h-3.5 w-3.5" strokeWidth={2} />
+        {label}
+      </p>
       <p className="text-3xl font-semibold">{value}</p>
-      <p className="text-sm text-[var(--foreground-muted)]">{detail}</p>
+      <p className="text-sm leading-6 text-[var(--foreground-muted)]">{detail}</p>
     </Card>
   );
 }
@@ -539,9 +567,9 @@ function InvitationCard({
   return (
     <Card className="space-y-4 p-5">
       <div className="space-y-1">
-        <h3 className="text-lg font-semibold">{invitation.organizationName ?? "Organization"}</h3>
-        <p className="text-sm text-[var(--foreground-muted)]">
-          Role: {formatRole(invitation.role)} · Status: {formatStatus(invitation.status)}
+        <h3 className="text-lg font-semibold text-balance">{invitation.organizationName ?? "Organization"}</h3>
+        <p className="text-sm leading-6 text-[var(--foreground-muted)]">
+          Role: {formatRole(invitation.role)} | Status: {formatStatus(invitation.status)}
         </p>
       </div>
       <div className="flex flex-wrap gap-3">
@@ -568,12 +596,12 @@ function ManageInvitationRow({
   const isPendingAction = pendingActionId === invitation.id;
 
   return (
-    <div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--background)] p-4">
+    <div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--background)] p-4 shadow-[var(--shadow-sm)]">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="space-y-1">
           <p className="font-medium">{invitation.email}</p>
-          <p className="text-sm text-[var(--foreground-muted)]">
-            {formatRole(invitation.role)} · {formatStatus(invitation.status)}
+          <p className="text-sm leading-6 text-[var(--foreground-muted)]">
+            {formatRole(invitation.role)} | {formatStatus(invitation.status)}
           </p>
         </div>
         <Button
@@ -615,14 +643,14 @@ function MemberRow({
   const isRemoving = pendingRemoveId === member.id;
 
   return (
-    <div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--background)] p-4">
+    <div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--background)] p-4 shadow-[var(--shadow-sm)]">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="space-y-1">
           <p className="font-medium">
             {member.user.name}
             {isCurrentUser ? " (You)" : ""}
           </p>
-          <p className="text-sm text-[var(--foreground-muted)]">{member.user.email}</p>
+          <p className="text-sm leading-6 text-[var(--foreground-muted)]">{member.user.email}</p>
         </div>
         <div className="flex flex-col gap-3 md:flex-row md:items-center">
           {canManage ? (

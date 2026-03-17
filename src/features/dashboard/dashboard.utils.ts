@@ -1,4 +1,4 @@
-import { formatDateTime, getNextProjectStep, getProjectProgress, getSyncFreshness } from "@/features/projects/project-utils";
+import { formatDateTime, getNextProjectStep, getSyncFreshness } from "@/features/projects/project-utils";
 import { canPerformAction } from "@/lib/auth/permissions";
 import type { Project, UserRole } from "@/types/api";
 
@@ -205,7 +205,10 @@ export function buildDashboardPriorities(projects: Project[], role: UserRole | n
   return priorities.slice(0, 3);
 }
 
-export function buildDashboardProjectHealth(projects: Project[]): DashboardProjectHealth[] {
+export function buildDashboardProjectHealth(
+  projects: Project[],
+  progressByProjectId: Map<string, number>,
+) {
   return [...projects]
     .sort((left, right) => new Date(right.updatedAt).getTime() - new Date(left.updatedAt).getTime())
     .map((project) => {
@@ -217,7 +220,7 @@ export function buildDashboardProjectHealth(projects: Project[]): DashboardProje
         name: project.name,
         clientName: project.clientName,
         clientEmail: project.clientEmail,
-        progress: getProjectProgress(project),
+        progress: progressByProjectId.get(project.id) ?? 0,
         nextStepTitle: nextStep.title,
         nextStepDescription: nextStep.description,
         freshnessLabel: freshness.label,

@@ -74,6 +74,7 @@ export function useFeatureManagement(projectId: string, resetCreateForm: () => v
 async function invalidateFeatureState(queryClient: ReturnType<typeof useQueryClient>, projectId: string) {
   await Promise.all([
     queryClient.invalidateQueries({ queryKey: ["project", projectId, "features"] }),
+    queryClient.invalidateQueries({ queryKey: ["project", projectId, "tickets"] }),
     queryClient.invalidateQueries({ queryKey: ["project", projectId] }),
     queryClient.invalidateQueries({ queryKey: ["projects"] }),
   ]);

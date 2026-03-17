@@ -191,3 +191,14 @@ Assumption:
 - [x] Normalize Axios error messages so API feedback remains readable in the existing UI
 - [x] Add `.env.example` for backend wiring discovery
 - [x] Verify the live-backend cutover with typecheck and production build validation
+
+## Phase 20 - UI Polish Alignment
+
+- [x] Refine shared headers, cards, buttons, empty states, popovers, and modal surfaces so alignment and hierarchy feel more deliberate
+- [x] Upgrade shared select treatment with clearer trigger alignment, caret affordance, hover states, and focus states
+- [x] Tighten text wrapping and scanability across prioritized internal routes, especially `/tickets`, `/projects`, `/projects/[id]`, and `/organization`
+- [x] Add purposeful Lucide icon support to page headers, page actions, summary surfaces, and key workspace controls
+- [x] Strengthen active and selected treatments for ticket filters, workspace tabs, checklist cards, and assignment controls without changing RBAC or query logic
+- [x] Replace misleading setup-completion percentages on `/projects`, `/dashboard`, and `/projects/[id]` with the correct progress or clearly scoped setup-readiness messaging
+- [x] Wire feature-management progress bars to real assigned-ticket progress instead of placeholder `0%` values
+- [x] Verify the polish pass with typecheck and production build validation

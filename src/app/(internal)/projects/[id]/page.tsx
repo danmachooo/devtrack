@@ -2,6 +2,15 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  ArrowRight,
+  ClipboardList,
+  FolderTree,
+  Gauge,
+  Radar,
+  Route,
+  Settings2,
+} from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { type FormEventHandler, useEffect, useMemo, useState } from "react";
@@ -24,7 +33,6 @@ import {
   formatDateTime,
   getNextProjectStep,
   getProjectChecklist,
-  getProjectProgress,
   getSyncFreshness,
   type ProjectChecklistStep,
 } from "@/features/projects/project-utils";
@@ -138,6 +146,8 @@ export default function ProjectDetailPage() {
     return (
       <div className="space-y-6">
         <PageHeader
+          eyebrow="Project workspace"
+          icon={<FolderTree className="h-5 w-5" strokeWidth={2.1} />}
           title="Project detail"
           description="The project setup workspace could not be loaded."
           actions={<RoleAwarePageActions items={[{ label: "Back to projects", href: "/projects" }]} />}
@@ -150,7 +160,8 @@ export default function ProjectDetailPage() {
     );
   }
 
-  const progress = getProjectProgress(project);
+  const completedSetupMilestones = checklist.filter((step) => step.state === "complete").length;
+  const totalSetupMilestones = checklist.length;
   const freshness = getSyncFreshness(project.lastSyncedAt);
   const handleUpdateProject = handleSubmit((values) => {
     updateProjectMutation.mutate(values);
@@ -184,6 +195,8 @@ export default function ProjectDetailPage() {
   return (
     <div className="space-y-8">
       <PageHeader
+        eyebrow="Guided setup"
+        icon={<FolderTree className="h-5 w-5" strokeWidth={2.1} />}
         title={project.name}
         description="Guide setup first, then drop into the operational workspace when the project is ready."
         actions={
@@ -196,8 +209,14 @@ export default function ProjectDetailPage() {
                   ? {
                       label: "Edit project",
                       onClick: () => setIsEditing(true),
+                      icon: <Settings2 className="h-4 w-4" strokeWidth={2} />,
                     }
-                  : { label: "Open organization", href: "/organization", variant: "secondary" },
+                  : {
+                      label: "Open organization",
+                      href: "/organization",
+                      variant: "secondary",
+                      icon: <ArrowRight className="h-4 w-4" strokeWidth={2} />,
+                    },
               ]}
             />
           </div>
@@ -222,11 +241,25 @@ export default function ProjectDetailPage() {
               </div>
             </div>
             <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--background)] px-5 py-4 text-right">
-              <div className="text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
-                Setup confidence
+              <div className="flex items-center justify-end gap-2 text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
+                <Gauge className="h-3.5 w-3.5" strokeWidth={2} />
+                Setup readiness
               </div>
-              <div className="mt-1 text-4xl font-semibold">{progress}%</div>
-              <div className="text-sm text-[var(--foreground-muted)]">Visible readiness signal</div>
+              <div className="mt-1 text-4xl font-semibold">
+                {completedSetupMilestones} of {totalSetupMilestones}
+              </div>
+              <div className="text-sm font-medium text-[var(--foreground)]">
+                {completedSetupMilestones === totalSetupMilestones
+                  ? "Setup complete"
+                  : "Guided steps complete"}
+              </div>
+              <div className="text-sm text-[var(--foreground-muted)]">
+                {completedSetupMilestones === totalSetupMilestones
+                  ? "Ready for operational tracking"
+                  : `${totalSetupMilestones - completedSetupMilestones} setup step${
+                      totalSetupMilestones - completedSetupMilestones === 1 ? "" : "s"
+                    } remaining`}
+              </div>
             </div>
           </div>
 
@@ -280,7 +313,8 @@ export default function ProjectDetailPage() {
         <div className="space-y-6">
           <Card className="h-fit space-y-5 p-6">
             <div className="space-y-2">
-              <p className="text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
+              <p className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
+                <Radar className="h-3.5 w-3.5" strokeWidth={2} />
                 Next guided step
               </p>
               <div className="flex items-start justify-between gap-3">
@@ -315,7 +349,8 @@ export default function ProjectDetailPage() {
 
       <Card className="h-fit space-y-6 p-6">
         <div className="space-y-1">
-          <p className="text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
+          <p className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
+            <Route className="h-3.5 w-3.5" strokeWidth={2} />
             Setup rail
           </p>
           <h2 className="text-2xl font-semibold">Move through the first-share sequence</h2>
@@ -346,7 +381,8 @@ export default function ProjectDetailPage() {
       <Card className="h-fit space-y-6 p-6">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="space-y-1">
-            <p className="text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
+            <p className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
+              <ClipboardList className="h-3.5 w-3.5" strokeWidth={2} />
               Secondary workspace
             </p>
             <h2 className="text-2xl font-semibold">Open the lower-priority project tools when needed</h2>
@@ -564,7 +600,7 @@ function WorkspaceTabButton({
 }) {
   return (
     <button
-      className={`rounded-full border px-4 py-2 text-sm font-semibold transition duration-200 ${
+      className={`inline-flex items-center justify-center rounded-full border px-4 py-2 text-sm font-semibold transition duration-200 ${
         active
           ? "border-[color:color-mix(in_srgb,var(--primary)_35%,var(--border))] bg-[color:color-mix(in_srgb,var(--primary)_12%,transparent)] text-[var(--primary)] shadow-[var(--shadow-sm)]"
           : "border-[var(--border)] bg-[var(--surface)] text-[var(--foreground-muted)] hover:-translate-y-0.5 hover:border-[color:color-mix(in_srgb,var(--primary)_24%,var(--border))] hover:text-[var(--foreground)] hover:shadow-[var(--shadow-sm)]"
@@ -620,7 +656,7 @@ function CompactChecklistCard({
             <div className="text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
               Step {index}
             </div>
-            <div className="mt-1 text-base font-semibold leading-snug">{title}</div>
+            <div className="mt-1 text-base font-semibold leading-snug text-balance">{title}</div>
           </div>
           <span className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--foreground-muted)]">
             {stateLabel}
@@ -661,7 +697,7 @@ function HeaderSyncSignal({
         aria-hidden="true"
         className={`h-2.5 w-2.5 flex-none rounded-full ${toneStyles[freshness.tone]}`}
       />
-      <span className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--foreground-muted)]">
+      <span className="inline-flex min-h-7 items-center rounded-full border border-[var(--border)] bg-[color:color-mix(in_srgb,var(--surface)_88%,var(--background))] px-2.5 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--foreground-muted)]">
         {freshness.label}
       </span>
       <InfoPopover label="More about sync signal" align="left" className="shrink-0">
@@ -731,8 +767,8 @@ function ProjectWorkspaceHandoff({
         <p className="text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
           Dedicated workspace
         </p>
-        <h3 className="text-xl font-semibold">{title}</h3>
-        <p className="text-sm text-[var(--foreground-muted)]">{description}</p>
+        <h3 className="text-xl font-semibold text-balance">{title}</h3>
+        <p className="text-sm leading-6 text-[var(--foreground-muted)]">{description}</p>
       </div>
 
       <div className="flex flex-wrap gap-3">
@@ -842,8 +878,11 @@ function ProjectEditCard({
 function ProjectMeta({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--background)] p-4">
-      <div className="text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">{label}</div>
-      <div className="mt-2 text-sm font-medium">{value}</div>
+      <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
+        <Gauge className="h-3.5 w-3.5" strokeWidth={2} />
+        {label}
+      </div>
+      <div className="mt-2 text-sm font-medium leading-6">{value}</div>
     </div>
   );
 }
@@ -851,8 +890,11 @@ function ProjectMeta({ label, value }: { label: string; value: string }) {
 function MetadataRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="space-y-1 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] p-4">
-      <div className="text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">{label}</div>
-      <div className="break-all text-sm font-medium">{value}</div>
+      <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
+        <ClipboardList className="h-3.5 w-3.5" strokeWidth={2} />
+        {label}
+      </div>
+      <div className="break-words text-sm font-medium leading-6">{value}</div>
     </div>
   );
 }

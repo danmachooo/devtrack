@@ -1,5 +1,6 @@
 "use client";
 
+import { Layers3, ListFilter, Rows3, SlidersHorizontal } from "lucide-react";
 import { EmptyState } from "@/components/feedback/empty-state";
 import { Card } from "@/components/ui/card";
 import { InfoPopover } from "@/components/ui/info-popover";
@@ -28,13 +29,14 @@ export function TicketReviewPanel({ project }: TicketReviewPanelProps) {
   return (
     <Card className="space-y-6 p-6">
       <div className="space-y-2">
-        <p className="text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
+        <p className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
+          <Rows3 className="h-3.5 w-3.5" strokeWidth={2} />
           Ticket review
         </p>
         <div className="flex items-start justify-between gap-3">
           <div className="space-y-1">
-            <h2 className="text-2xl font-semibold">Review synced tickets</h2>
-            <p className="text-sm text-[var(--foreground-muted)]">
+            <h2 className="max-w-2xl text-2xl font-semibold text-balance">Review synced tickets</h2>
+            <p className="max-w-2xl text-sm leading-6 text-[var(--foreground-muted)] text-pretty">
               Inspect source work and map it into feature groups.
             </p>
           </div>
@@ -47,7 +49,12 @@ export function TicketReviewPanel({ project }: TicketReviewPanelProps) {
         </div>
       </div>
 
-      <div className="grid gap-4 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--background)] p-4 md:grid-cols-2 xl:grid-cols-4">
+      <div className="space-y-4 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--background)] p-4">
+        <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
+          <SlidersHorizontal className="h-3.5 w-3.5" strokeWidth={2} />
+          Filter and narrow this project view
+        </div>
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <div className="space-y-2">
           <label className="text-sm font-medium" htmlFor="ticket-feature-filter">
             Feature
@@ -97,6 +104,7 @@ export function TicketReviewPanel({ project }: TicketReviewPanelProps) {
           label="Include missing"
           onChange={actions.setShowMissing}
         />
+        </div>
       </div>
 
       {ticketsQuery.isPending ? (
@@ -121,6 +129,13 @@ export function TicketReviewPanel({ project }: TicketReviewPanelProps) {
             project.lastSyncedAt
               ? "Try widening the filters or include missing tickets to inspect a broader slice of the synced work."
               : "Run the first sync after connecting Notion and saving the status mapping. Tickets will appear here once the source data lands."
+          }
+          icon={
+            project.lastSyncedAt ? (
+              <ListFilter className="h-6 w-6" strokeWidth={2.1} />
+            ) : (
+              <Layers3 className="h-6 w-6" strokeWidth={2.1} />
+            )
           }
         />
       )}
