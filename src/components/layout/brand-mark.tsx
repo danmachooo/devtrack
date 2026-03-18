@@ -16,8 +16,8 @@ type BrandMarkProps = {
 
 const sizeClasses = {
   sm: {
-    image: "h-10 w-10",
-    title: "text-base",
+    image: "h-9 w-9",
+    title: "text-[15px]",
     subtitle: "text-[9px] tracking-[0.14em]",
   },
   md: {
@@ -33,7 +33,7 @@ const sizeClasses = {
 } as const;
 
 const imageScaleClasses = {
-  sm: "scale-[1.5]",
+  sm: "scale-[1.42]",
   md: "scale-[1.6]",
   lg: "scale-[1.72]",
 } as const;

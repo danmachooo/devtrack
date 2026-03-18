@@ -32,7 +32,7 @@ const navigation = [
   { href: "/organization", label: "Organization", icon: Building2 },
 ];
 
-const collapsedSidebarUtilityClasses = "h-10 w-10 self-center justify-center p-0";
+const collapsedSidebarUtilityClasses = "mx-auto h-10 w-10 justify-center p-0";
 const sidebarFooterTriggerBaseClasses =
   "flex items-center rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--background)] text-sm font-medium text-[var(--foreground)] shadow-[var(--shadow-sm)] transition hover:bg-[var(--surface-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]";
 const sidebarFooterIconClasses =
@@ -74,7 +74,7 @@ export function InternalAppShell({ children }: PropsWithChildren) {
       <div className="grid min-h-screen grid-cols-1 md:grid-cols-[auto_1fr]">
         <aside
           className={`sticky top-0 flex h-screen self-start flex-col overflow-visible border-r border-[var(--border)] bg-[var(--surface)] py-6 transition-[width,padding] duration-200 ease-out ${
-            isSidebarOpen ? "w-64 px-4" : "w-20 px-2"
+            isSidebarOpen ? "w-64 px-4" : "w-20 px-0"
           }`}
         >
           <button
@@ -115,7 +115,7 @@ export function InternalAppShell({ children }: PropsWithChildren) {
             ))}
           </nav>
 
-          <div className={`mt-auto pt-6 ${isSidebarOpen ? "space-y-3" : "flex flex-col items-center gap-3"}`}>
+          <div className={`mt-auto pt-6 ${isSidebarOpen ? "space-y-3" : "flex w-full flex-col items-center gap-3"}`}>
             <button
               aria-label={themeMode === "dark" ? "Switch to light mode" : "Switch to dark mode"}
               className={`${sidebarFooterTriggerBaseClasses} ${
@@ -152,7 +152,7 @@ export function InternalAppShell({ children }: PropsWithChildren) {
               </span>
             </button>
 
-            <details className={`group relative ${isSidebarOpen ? "block" : "flex justify-center"}`}>
+            <details className={`group relative ${isSidebarOpen ? "block" : "flex w-full justify-center"}`}>
               <summary
                 className={`${sidebarFooterTriggerBaseClasses} cursor-pointer list-none ${
                   isSidebarOpen
