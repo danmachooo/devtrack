@@ -5,7 +5,6 @@ import { Card } from "@/components/ui/card";
 import { InfoPopover } from "@/components/ui/info-popover";
 import { formatDateTime } from "@/features/projects/project-utils";
 import { FeatureStatusPill } from "@/features/progress/components/feature-status-pill";
-import { ProgressCardSkeleton } from "@/features/progress/components/progress-card-skeleton";
 import { SyncLogSkeleton } from "@/features/progress/components/sync-log-skeleton";
 import { SyncMetric } from "@/features/progress/components/sync-metric";
 import { SyncStatusPill } from "@/features/progress/components/sync-status-pill";
@@ -18,8 +17,7 @@ type ProgressAndSyncLogsPanelProps = {
 };
 
 export function ProgressAndSyncLogsPanel({ project }: ProgressAndSyncLogsPanelProps) {
-  const { aggregateProgress, featureProgress, featuresQuery, syncLogs, syncLogsQuery, ticketsQuery } =
-    useProjectProgress(project.id);
+  const { aggregateProgress, featureProgress, syncLogs, syncLogsQuery } = useProjectProgress(project);
 
   return (
     <Card className="space-y-6 p-6">
@@ -64,9 +62,7 @@ export function ProgressAndSyncLogsPanel({ project }: ProgressAndSyncLogsPanelPr
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
-          {featuresQuery.isPending || ticketsQuery.isPending ? (
-            <ProgressCardSkeleton />
-          ) : featureProgress.length ? (
+          {featureProgress.length ? (
             featureProgress.map((feature) => (
               <div
                 key={feature.featureId}
@@ -92,10 +88,17 @@ export function ProgressAndSyncLogsPanel({ project }: ProgressAndSyncLogsPanelPr
             ))
           ) : (
             <div className="md:col-span-2">
-              <EmptyState
-                title="No feature progress yet"
-                description="Feature progress appears once there are client-facing features to average and assigned tickets to contribute work."
-              />
+              {project.features.length ? (
+                <EmptyState
+                  title="No feature progress yet"
+                  description="Feature progress appears once assigned, non-missing tickets contribute work to the project summary."
+                />
+              ) : (
+                <EmptyState
+                  title="No feature progress yet"
+                  description="Create client-facing features and assign tickets before the project summary can show progress by feature."
+                />
+              )}
             </div>
           )}
         </div>

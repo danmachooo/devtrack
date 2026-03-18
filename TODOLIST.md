@@ -256,3 +256,18 @@ Assumption:
 - [x] Replace bulk assignment refetch churn with targeted ticket and feature-count cache updates
 - [x] Keep project-scoped ticket review results responsive without broad project-level invalidations
 - [x] Verify the assignment-cache pass with typecheck and production build validation
+
+## Phase 27 - Project Detail Progress Summary Cutover
+
+- [x] Switch `/projects/[id]` progress rendering to the backend-provided `progressSummary` on `GET /api/projects/:id`
+- [x] Remove the progress-only feature-plus-ticket derivation path from the project-detail progress panel
+- [x] Keep sync-log loading intact while simplifying project-detail progress state
+- [x] Verify the project-detail progress cutover with typecheck and production build validation
+
+## Phase 28 - Route Boundaries And Cache Tightening
+
+- [x] Add App Router `loading.tsx` and `error.tsx` boundaries for the internal, auth, and client route groups
+- [x] Replace broad Notion setup invalidations with targeted project and list cache updates plus direct Notion-database cache hydration
+- [x] Replace broad sync metadata invalidations with direct project and list cache updates while keeping ticket and sync-log refreshes scoped to sync completion
+- [x] Move `/projects` to a server route wrapper around a dedicated client feature component for a safer route-level client boundary
+- [x] Verify the route-boundary and cache-tightening pass with typecheck and production build validation

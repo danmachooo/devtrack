@@ -14,6 +14,7 @@ import type {
   NotionConnectionFormValues,
   NotionStatusMappingFormValues,
 } from "@/features/notion/notion.schemas";
+import type { ApiResponse, NotionConnectionDetails, Project } from "@/types/api";
 
 type UseNotionIntegrationOptions = {
   canManageNotion: boolean;
@@ -55,13 +56,20 @@ export function useNotionIntegration(
 
   const connectMutation = useMutation({
     mutationFn: (values: NotionConnectionFormValues) => connectNotion(projectId, values),
-    onSuccess: async (response) => {
+    onSuccess: (response) => {
       options.resetConnectionForm(connectMutation.variables?.databaseId ?? "");
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["project", projectId] }),
-        queryClient.invalidateQueries({ queryKey: ["projects"] }),
-        queryClient.invalidateQueries({ queryKey: ["project", projectId, "notion-databases"] }),
-      ]);
+      syncProjectCaches(queryClient, projectId, (project) => ({
+        ...project,
+        notionDatabaseId: response.data.notionDatabaseId,
+      }));
+      queryClient.setQueryData<ApiResponse<NotionConnectionDetails[]>>(
+        ["project", projectId, "notion-databases"],
+        {
+          statusCode: response.statusCode,
+          message: response.message,
+          data: [response.data],
+        },
+      );
       showToast({
         tone: "success",
         title: "Notion connection saved",
@@ -83,11 +91,11 @@ export function useNotionIntegration(
       saveNotionStatusMapping(projectId, {
         statusMapping: buildStatusMappingPayload(values),
       }),
-    onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["project", projectId] }),
-        queryClient.invalidateQueries({ queryKey: ["projects"] }),
-      ]);
+    onSuccess: (response) => {
+      syncProjectCaches(queryClient, projectId, (project) => ({
+        ...project,
+        statusMapping: response.data.statusMapping,
+      }));
       showToast({
         tone: "success",
         title: "Status mapping saved",
@@ -112,4 +120,34 @@ export function useNotionIntegration(
     savedDatabase: databasesQuery.data?.data[0] ?? null,
     testResult: testMutation.data?.data ?? null,
   };
+}
+
+function syncProjectCaches(
+  queryClient: ReturnType<typeof useQueryClient>,
+  projectId: string,
+  updateProject: (project: Project) => Project,
+) {
+  queryClient.setQueryData<ApiResponse<Project>>(["project", projectId], (current) => {
+    if (!current) {
+      return current;
+    }
+
+    return {
+      ...current,
+      data: updateProject(current.data),
+    };
+  });
+
+  queryClient.setQueryData<ApiResponse<Project[]>>(["projects"], (current) => {
+    if (!current) {
+      return current;
+    }
+
+    return {
+      ...current,
+      data: current.data.map((project) =>
+        project.id === projectId ? updateProject(project) : project,
+      ),
+    };
+  });
 }

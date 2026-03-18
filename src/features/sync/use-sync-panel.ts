@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { triggerProjectSync } from "@/lib/api/sync.api";
 import { getSyncCopy, type SyncUiState } from "@/features/sync/sync.utils";
 import { useUiStore } from "@/store/ui-store";
+import type { ApiResponse, Project } from "@/types/api";
 
 export function useSyncPanel(projectId: string, lastSyncedAt: string | null) {
   const queryClient = useQueryClient();
@@ -36,13 +37,6 @@ export function useSyncPanel(projectId: string, lastSyncedAt: string | null) {
   async function triggerSync() {
     const response = await syncMutation.mutateAsync();
 
-    await Promise.all([
-      queryClient.invalidateQueries({ queryKey: ["project", projectId] }),
-      queryClient.invalidateQueries({ queryKey: ["projects"] }),
-      queryClient.invalidateQueries({ queryKey: ["project", projectId, "tickets"] }),
-      queryClient.invalidateQueries({ queryKey: ["project", projectId, "sync-logs"] }),
-    ]);
-
     if (response.data.alreadyQueued) {
       setSyncState("alreadyQueued");
       showToast({
@@ -55,6 +49,12 @@ export function useSyncPanel(projectId: string, lastSyncedAt: string | null) {
       return;
     }
 
+    const queuedAt = new Date().toISOString();
+    syncProjectCaches(queryClient, projectId, (project) => ({
+      ...project,
+      lastSyncedAt: queuedAt,
+      updatedAt: queuedAt,
+    }));
     setSyncState("queued");
     showToast({
       tone: "success",
@@ -65,8 +65,8 @@ export function useSyncPanel(projectId: string, lastSyncedAt: string | null) {
     const completeTimeout = window.setTimeout(async () => {
       setSyncState("completed");
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["project", projectId] }),
-        queryClient.invalidateQueries({ queryKey: ["projects"] }),
+        queryClient.invalidateQueries({ queryKey: ["project", projectId, "tickets"] }),
+        queryClient.invalidateQueries({ queryKey: ["project", projectId, "sync-logs"] }),
       ]);
     }, 2_400);
     const resetTimeout = window.setTimeout(() => setSyncState("idle"), 4_600);
@@ -80,4 +80,34 @@ export function useSyncPanel(projectId: string, lastSyncedAt: string | null) {
     syncCopy: getSyncCopy(syncState, lastSyncedAt),
     triggerSync,
   };
+}
+
+function syncProjectCaches(
+  queryClient: ReturnType<typeof useQueryClient>,
+  projectId: string,
+  updateProject: (project: Project) => Project,
+) {
+  queryClient.setQueryData<ApiResponse<Project>>(["project", projectId], (current) => {
+    if (!current) {
+      return current;
+    }
+
+    return {
+      ...current,
+      data: updateProject(current.data),
+    };
+  });
+
+  queryClient.setQueryData<ApiResponse<Project[]>>(["projects"], (current) => {
+    if (!current) {
+      return current;
+    }
+
+    return {
+      ...current,
+      data: current.data.map((project) =>
+        project.id === projectId ? updateProject(project) : project,
+      ),
+    };
+  });
 }

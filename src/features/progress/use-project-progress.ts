@@ -2,41 +2,35 @@
 
 import { useQuery } from "@tanstack/react-query";
 
-import { getProjectFeatures } from "@/lib/api/features.api";
 import { getProjectSyncLogs } from "@/lib/api/sync.api";
-import { getProjectTickets } from "@/lib/api/tickets.api";
-import {
-  buildFeatureProgressSummaries,
-  getAggregateProjectProgress,
-} from "@/features/progress/progress-utils";
+import type { FeatureProgressSummary, Project } from "@/types/api";
 
-export function useProjectProgress(projectId: string) {
-  const featuresQuery = useQuery({
-    queryKey: ["project", projectId, "features"],
-    queryFn: () => getProjectFeatures(projectId),
-  });
-
-  const ticketsQuery = useQuery({
-    queryKey: ["project", projectId, "tickets", { showMissing: true }],
-    queryFn: () => getProjectTickets(projectId, { showMissing: true }),
-  });
+export function useProjectProgress(project: Project) {
+  const featureProgress = mapFeatureProgressSummaries(project);
 
   const syncLogsQuery = useQuery({
-    queryKey: ["project", projectId, "sync-logs"],
-    queryFn: () => getProjectSyncLogs(projectId, 10),
+    queryKey: ["project", project.id, "sync-logs"],
+    queryFn: () => getProjectSyncLogs(project.id, 10),
   });
 
-  const featureProgress = buildFeatureProgressSummaries(
-    featuresQuery.data?.data ?? [],
-    ticketsQuery.data?.data.items ?? [],
-  );
-
   return {
-    featuresQuery,
-    ticketsQuery,
     syncLogsQuery,
     featureProgress,
-    aggregateProgress: getAggregateProjectProgress(featureProgress),
+    aggregateProgress: project.progressSummary?.overallProgress ?? 0,
     syncLogs: syncLogsQuery.data?.data ?? [],
   };
+}
+
+function mapFeatureProgressSummaries(project: Project): FeatureProgressSummary[] {
+  return [...(project.progressSummary?.featureSummaries ?? [])]
+    .sort((left, right) => left.order - right.order)
+    .map((feature) => ({
+      featureId: feature.featureId,
+      featureName: feature.name,
+      order: feature.order,
+      progress: feature.progress,
+      status: feature.status,
+      totalTickets: feature.totalTickets,
+      completedTickets: feature.completedTickets,
+    }));
 }
