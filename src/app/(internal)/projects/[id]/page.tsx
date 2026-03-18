@@ -8,6 +8,7 @@ import {
   FolderTree,
   Gauge,
   Radar,
+  RefreshCcw,
   Route,
   Settings2,
 } from "lucide-react";
@@ -41,6 +42,7 @@ import {
   type UpdateProjectFormValues,
 } from "@/features/projects/projects.schemas";
 import { SyncPanel } from "@/features/sync/sync-panel";
+import { useSyncPanel } from "@/features/sync/use-sync-panel";
 import { useSession } from "@/hooks/use-session";
 import { canPerformAction } from "@/lib/auth/permissions";
 import { getProject, updateProject } from "@/lib/api/projects.api";
@@ -201,7 +203,7 @@ export default function ProjectDetailPage() {
         description="Guide setup first, then drop into the operational workspace when the project is ready."
         actions={
           <div className="flex flex-wrap items-center justify-end gap-3">
-            <HeaderSyncSignal freshness={freshness} lastSyncedAt={project.lastSyncedAt} />
+            <HeaderSyncSignal project={project} freshness={freshness} />
             <RoleAwarePageActions
               items={[
                 { label: "Back to projects", href: "/projects", variant: "ghost" },
@@ -678,12 +680,21 @@ function CompactChecklistCard({
 }
 
 function HeaderSyncSignal({
+  project,
   freshness,
-  lastSyncedAt,
 }: {
+  project: Project;
   freshness: ReturnType<typeof getSyncFreshness>;
-  lastSyncedAt: string | null;
 }) {
+  const { data: sessionResponse } = useSession();
+  const role = sessionResponse?.data.user?.role;
+  const canTriggerSync = canPerformAction(role, "triggerManualSync");
+  const isBlocked = !project.notionDatabaseId || !project.statusMapping;
+  const { syncCopy, syncMutation, syncState, triggerSync } = useSyncPanel(
+    project.id,
+    project.lastSyncedAt,
+  );
+
   const toneStyles = {
     success: "bg-[var(--success)]",
     warning: "bg-[var(--warning)]",
@@ -692,23 +703,90 @@ function HeaderSyncSignal({
   };
 
   return (
-    <div className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--surface)] px-3 py-2 transition duration-200 hover:border-[color:color-mix(in_srgb,var(--primary)_24%,var(--border))] hover:shadow-[var(--shadow-sm)]">
-      <span
-        aria-hidden="true"
-        className={`h-2.5 w-2.5 flex-none rounded-full ${toneStyles[freshness.tone]}`}
-      />
-      <span className="inline-flex min-h-7 items-center rounded-full border border-[var(--border)] bg-[color:color-mix(in_srgb,var(--surface)_88%,var(--background))] px-2.5 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--foreground-muted)]">
-        {freshness.label}
-      </span>
-      <InfoPopover label="More about sync signal" align="left" className="shrink-0">
-        <p>{freshness.detail}</p>
-        <p className="mt-2">
-          {lastSyncedAt
-            ? `Latest sync: ${formatDateTime(lastSyncedAt)}.`
-            : "No sync has been recorded yet."}
-        </p>
-      </InfoPopover>
-    </div>
+    <details className="group relative">
+      <summary className="inline-flex list-none items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--surface)] px-3 py-2 transition duration-200 hover:border-[color:color-mix(in_srgb,var(--primary)_24%,var(--border))] hover:shadow-[var(--shadow-sm)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]">
+        <span
+          aria-hidden="true"
+          className={`h-2.5 w-2.5 flex-none rounded-full ${toneStyles[freshness.tone]}`}
+        />
+        <span className="inline-flex min-h-7 items-center rounded-full border border-[var(--border)] bg-[color:color-mix(in_srgb,var(--surface)_88%,var(--background))] px-2.5 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--foreground-muted)]">
+          {freshness.label}
+        </span>
+        <span className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--foreground-muted)]">
+          Sync
+        </span>
+      </summary>
+
+      <div className="absolute right-0 z-40 mt-3 hidden w-[min(24rem,calc(100vw-2rem))] rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] p-4 shadow-[var(--shadow-md)] group-open:block">
+        <div className="space-y-4">
+          <div className="space-y-1">
+            <p className="text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
+              Sync freshness
+            </p>
+            <p className="text-sm text-[var(--foreground-muted)]">{freshness.detail}</p>
+          </div>
+
+          <div className="grid gap-3 md:grid-cols-2">
+            <div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--background)] p-3">
+              <div className="text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
+                Last synced
+              </div>
+              <div className="mt-2 text-sm font-medium">
+                {project.lastSyncedAt ? formatDateTime(project.lastSyncedAt) : "Not synced yet"}
+              </div>
+            </div>
+            <div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--background)] p-3">
+              <div className="text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
+                Sync state
+              </div>
+              <div className="mt-2 text-sm font-medium">{syncCopy.title}</div>
+            </div>
+          </div>
+
+          {canTriggerSync ? (
+            <div className="space-y-3">
+              {!isBlocked ? (
+                <Button
+                  disabled={syncMutation.isPending || syncState === "queued" || syncState === "syncing"}
+                  onClick={triggerSync}
+                  type="button"
+                  variant="secondary"
+                >
+                  <RefreshCcw className="h-4 w-4" strokeWidth={2} />
+                  {syncMutation.isPending
+                    ? "Scheduling..."
+                    : syncState === "queued"
+                      ? "Queued"
+                      : syncState === "syncing"
+                        ? "Syncing..."
+                        : "Trigger manual sync"}
+                </Button>
+              ) : (
+                <div className="rounded-[var(--radius-md)] border border-[color:color-mix(in_srgb,var(--warning)_30%,var(--border))] bg-[color:color-mix(in_srgb,var(--warning)_10%,var(--surface))] p-3 text-sm text-[var(--foreground)]">
+                  Save the Notion connection and status mapping first before running manual sync.
+                </div>
+              )}
+
+              <p className="text-sm text-[var(--foreground-muted)]">
+                {syncCopy.description}
+              </p>
+            </div>
+          ) : (
+            <p className="text-sm text-[var(--foreground-muted)]">
+              Manual sync is available only to Team Leaders and Business Analysts.
+            </p>
+          )}
+
+          {syncMutation.isError ? (
+            <p className="text-sm text-[var(--danger)]">
+              {syncMutation.error instanceof Error
+                ? syncMutation.error.message
+                : "Sync could not be scheduled. Try again."}
+            </p>
+          ) : null}
+        </div>
+      </div>
+    </details>
   );
 }
 
