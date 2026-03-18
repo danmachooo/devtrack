@@ -48,7 +48,7 @@ export function BrandMark({
   subtitle,
 }: BrandMarkProps) {
   const content = (
-    <span className={clsx("flex items-center gap-3.5", className)}>
+    <span className={clsx("flex items-center", showLabel ? "gap-3.5" : "gap-0", className)}>
       <span
         className={clsx(
           "flex shrink-0 items-center justify-center overflow-hidden rounded-[var(--radius-md)] bg-[color:color-mix(in_srgb,var(--primary)_10%,var(--surface))] ring-1 ring-[color:color-mix(in_srgb,var(--primary)_18%,var(--border))]",
