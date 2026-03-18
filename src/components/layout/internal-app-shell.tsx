@@ -89,22 +89,60 @@ export function InternalAppShell({ children }: PropsWithChildren) {
               <PanelLeftOpen className="h-4 w-4" strokeWidth={2} />
             )}
           </button>
-          <div className={`mb-5 flex ${isSidebarOpen ? "items-center" : "justify-center"}`}>
-            <div className="flex items-center overflow-hidden">
-              <BrandMark
-                className={isSidebarOpen ? undefined : "justify-center"}
+
+          {/* ── Brand header ─────────────────────────────────────────── */}
+          <div
+            className={`mb-5 flex ${
+              isSidebarOpen ? "items-center px-1" : "justify-center"
+            }`}
+          >
+            {isSidebarOpen ? (
+              /* Expanded: logo + text side-by-side, both baseline-aligned */
+              <Link
                 href="/dashboard"
-                imageClassName={
-                  isSidebarOpen ? "shadow-[var(--shadow-sm)]" : "!h-9 !w-9 shadow-[var(--shadow-sm)]"
-                }
-                imageScaleClassName={isSidebarOpen ? undefined : "scale-[1.24]"}
-                priority
-                showLabel={isSidebarOpen}
-                size="sm"
-                subtitle="Internal Workspace"
-              />
-            </div>
+                className="flex items-center gap-2.5 min-w-0"
+              >
+                {/* Logo constrained to a consistent square so it never overflows */}
+                <span className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-[var(--radius-md)]">
+                  <BrandMark
+                    href=""          /* navigation handled by parent <Link> */
+                    imageClassName="!h-8 !w-8 object-contain shadow-none"
+                    imageScaleClassName="scale-100"
+                    priority
+                    showLabel={false}
+                    size="sm"
+                    subtitle=""
+                  />
+                </span>
+                <span className="flex flex-col min-w-0">
+                  <span className="truncate text-sm font-semibold leading-tight text-[var(--foreground)]">
+                    DevTrack
+                  </span>
+                  <span className="truncate text-[10px] uppercase tracking-[0.2em] text-[var(--foreground-muted)]">
+                    Internal Workspace
+                  </span>
+                </span>
+              </Link>
+            ) : (
+              /* Collapsed: centred logo, clipped to a tidy circle/square */
+              <Link
+                href="/dashboard"
+                aria-label="DevTrack – go to dashboard"
+                className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-[var(--radius-md)]"
+              >
+                <BrandMark
+                  href=""
+                  imageClassName="!h-8 !w-8 object-contain shadow-none"
+                  imageScaleClassName="scale-100"
+                  priority
+                  showLabel={false}
+                  size="sm"
+                  subtitle=""
+                />
+              </Link>
+            )}
           </div>
+
           <nav className={isSidebarOpen ? "space-y-2" : "flex flex-col items-center gap-4"}>
             {navigation.map((item) => (
               <SidebarNavLink
