@@ -94,11 +94,14 @@ export function InternalAppShell({ children }: PropsWithChildren) {
               <BrandMark
                 className={isSidebarOpen ? undefined : "justify-center"}
                 href="/dashboard"
-                imageClassName="shadow-[var(--shadow-sm)]"
+                imageClassName={
+                  isSidebarOpen ? "shadow-[var(--shadow-sm)]" : "!h-8 !w-8 shadow-[var(--shadow-sm)]"
+                }
+                imageScaleClassName={isSidebarOpen ? undefined : "scale-[1.16]"}
                 priority
                 showLabel={isSidebarOpen}
                 size="sm"
-                subtitle={undefined}
+                subtitle="Internal Workspace"
               />
             </div>
           </div>

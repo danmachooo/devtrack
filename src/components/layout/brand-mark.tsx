@@ -8,6 +8,7 @@ type BrandMarkProps = {
   className?: string;
   href?: string;
   imageClassName?: string;
+  imageScaleClassName?: string;
   priority?: boolean;
   showLabel?: boolean;
   size?: "sm" | "md" | "lg";
@@ -42,6 +43,7 @@ export function BrandMark({
   className,
   href,
   imageClassName,
+  imageScaleClassName,
   priority = false,
   showLabel = true,
   size = "md",
@@ -58,7 +60,7 @@ export function BrandMark({
       >
         <Image
           alt="DevTrack logo"
-          className={clsx("h-full w-full object-contain", imageScaleClasses[size])}
+          className={clsx("h-full w-full object-contain", imageScaleClasses[size], imageScaleClassName)}
           height={160}
           priority={priority}
           src="/devtrack.png"
