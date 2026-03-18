@@ -32,7 +32,7 @@ const navigation = [
   { href: "/organization", label: "Organization", icon: Building2 },
 ];
 
-const collapsedSidebarUtilityClasses = "mx-auto h-11 w-11 justify-center rounded-full p-0";
+const collapsedSidebarUtilityClasses = "mx-auto h-9 w-9 justify-center rounded-full p-0";
 const sidebarFooterTriggerBaseClasses =
   "flex items-center rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--background)] text-sm font-medium text-[var(--foreground)] shadow-[var(--shadow-sm)] transition hover:bg-[var(--surface-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]";
 const sidebarFooterIconClasses =
@@ -115,7 +115,7 @@ export function InternalAppShell({ children }: PropsWithChildren) {
             ))}
           </nav>
 
-          <div className={`mt-auto pt-6 ${isSidebarOpen ? "space-y-3" : "flex w-full flex-col items-center gap-3"}`}>
+          <div className={`mt-auto pt-6 ${isSidebarOpen ? "space-y-3" : "flex w-full flex-col items-center gap-2.5"}`}>
             <button
               aria-label={themeMode === "dark" ? "Switch to light mode" : "Switch to dark mode"}
               className={`${sidebarFooterTriggerBaseClasses} ${
@@ -132,7 +132,7 @@ export function InternalAppShell({ children }: PropsWithChildren) {
                   className={
                     isSidebarOpen
                       ? sidebarFooterIconClasses
-                      : "inline-flex h-11 w-11 items-center justify-center rounded-full text-[var(--foreground-muted)]"
+                      : "inline-flex items-center justify-center text-[var(--foreground-muted)]"
                   }
                 >
                   {themeMode === "dark" ? (
@@ -172,7 +172,7 @@ export function InternalAppShell({ children }: PropsWithChildren) {
                     className={
                       isSidebarOpen
                         ? sidebarFooterIconClasses
-                        : "inline-flex h-11 w-11 items-center justify-center rounded-full text-[var(--foreground-muted)]"
+                        : "inline-flex items-center justify-center text-[var(--foreground-muted)]"
                     }
                   >
                     <UserCircle2 className="h-5 w-5" strokeWidth={2} />
