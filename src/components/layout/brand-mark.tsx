@@ -18,16 +18,19 @@ type BrandMarkProps = {
 const sizeClasses = {
   sm: {
     image: "h-9 w-9",
+    imageInset: "p-1",
     title: "text-[15px]",
     subtitle: "text-[9px] tracking-[0.14em]",
   },
   md: {
     image: "h-14 w-14",
+    imageInset: "p-1.5",
     title: "text-lg",
     subtitle: "text-[10px] tracking-[0.14em]",
   },
   lg: {
     image: "h-20 w-20",
+    imageInset: "p-2",
     title: "text-2xl",
     subtitle: "text-xs tracking-[0.16em]",
   },
@@ -55,6 +58,7 @@ export function BrandMark({
         className={clsx(
           "flex shrink-0 items-center justify-center overflow-hidden rounded-[var(--radius-md)] bg-[color:color-mix(in_srgb,var(--primary)_10%,var(--surface))] ring-1 ring-[color:color-mix(in_srgb,var(--primary)_18%,var(--border))]",
           sizeClasses[size].image,
+          sizeClasses[size].imageInset,
           imageClassName,
         )}
       >
