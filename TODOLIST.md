@@ -272,6 +272,13 @@ Assumption:
 - [x] Move `/projects` to a server route wrapper around a dedicated client feature component for a safer route-level client boundary
 - [x] Verify the route-boundary and cache-tightening pass with typecheck and production build validation
 
+## Phase 29 - Tickets Route Render Deferral
+
+- [x] Defer the heavy ticket review workspace behind a dynamic import so `/tickets` can paint its route shell before mounting the dense review surface
+- [x] Add a dedicated deferred-loading fallback for the ticket review area
+- [x] Memoize the heaviest repeated ticket workspace subcomponents to reduce avoidable rerenders during selection and assignment flows
+- [x] Verify the tickets-route optimization pass with typecheck and production build validation
+
 ## Phase 29 - Responsive Hardening
 
 - [x] Audit the shared shell and all major routes across mobile, tablet, desktop, and wide desktop breakpoints

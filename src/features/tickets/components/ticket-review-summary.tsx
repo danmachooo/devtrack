@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { memo, type ReactNode } from "react";
 import { CircleAlert, CircleCheck, Eye, ListChecks, Target } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -11,7 +11,7 @@ type TicketReviewSummaryProps = {
   missingOnPage: number;
 };
 
-export function TicketReviewSummary({
+export const TicketReviewSummary = memo(function TicketReviewSummary({
   totalMatching,
   selectedCount,
   visibleCount,
@@ -58,7 +58,7 @@ export function TicketReviewSummary({
       />
     </div>
   );
-}
+});
 
 function SummaryCard({
   icon,

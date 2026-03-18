@@ -10,6 +10,7 @@ import {
   Ticket,
 } from "lucide-react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import type { ReactNode } from "react";
 
 import { EmptyState } from "@/components/feedback/empty-state";
@@ -19,8 +20,18 @@ import { RoleAwarePageActions } from "@/components/layout/role-aware-page-action
 import { Card } from "@/components/ui/card";
 import { Select } from "@/components/ui/select";
 import { formatDateTime, getNextProjectStep, getSyncFreshness } from "@/features/projects/project-utils";
-import { TicketReviewPanel } from "@/features/tickets/ticket-review-panel";
 import { useTicketsWorkspace } from "@/features/tickets/use-tickets-workspace";
+
+const TicketReviewPanel = dynamic(
+  () =>
+    import("@/features/tickets/ticket-review-panel").then((module) => ({
+      default: module.TicketReviewPanel,
+    })),
+  {
+    ssr: false,
+    loading: () => <DeferredTicketReviewFallback />,
+  },
+);
 
 export function TicketsWorkspace() {
   const { actions, projects, projectsQuery, selectedProject, selectedProjectId } = useTicketsWorkspace();
@@ -254,6 +265,42 @@ function TicketsWorkspaceSkeleton() {
         <div className="h-24 animate-pulse rounded-[var(--radius-lg)] bg-[var(--surface-muted)]" />
       </Card>
     </div>
+  );
+}
+
+function DeferredTicketReviewFallback() {
+  return (
+    <Card className="space-y-5 p-6">
+      <div className="space-y-2">
+        <div className="h-4 w-28 animate-pulse rounded bg-[var(--surface-muted)]" />
+        <div className="h-8 w-56 animate-pulse rounded bg-[var(--surface-muted)]" />
+        <div className="h-12 animate-pulse rounded-[var(--radius-md)] bg-[var(--surface-muted)]" />
+      </div>
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+        {Array.from({ length: 5 }).map((_, index) => (
+          <div
+            key={index}
+            className="h-28 animate-pulse rounded-[var(--radius-lg)] bg-[var(--surface-muted)]"
+          />
+        ))}
+      </div>
+      <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, index) => (
+          <div
+            key={index}
+            className="h-24 animate-pulse rounded-[var(--radius-lg)] bg-[var(--surface-muted)]"
+          />
+        ))}
+      </div>
+      <div className="space-y-4">
+        {Array.from({ length: 3 }).map((_, index) => (
+          <div
+            key={index}
+            className="h-36 animate-pulse rounded-[var(--radius-xl)] bg-[var(--surface-muted)]"
+          />
+        ))}
+      </div>
+    </Card>
   );
 }
 

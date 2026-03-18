@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { memo, type ReactNode } from "react";
 import { ArrowRightLeft, FolderTree, Layers3, RefreshCcw, UserRound } from "lucide-react";
 import { Select } from "@/components/ui/select";
 import { formatDateTime } from "@/features/projects/project-utils";
@@ -18,7 +18,7 @@ type TicketRowProps = {
   onSelectChange: (checked: boolean) => void;
 };
 
-export function TicketRow({
+export const TicketRow = memo(function TicketRow({
   ticket,
   features,
   canAssignTickets,
@@ -131,7 +131,7 @@ export function TicketRow({
       </div>
     </div>
   );
-}
+});
 
 function TicketMetaCard({
   icon,

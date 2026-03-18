@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { CheckSquare, FolderTree, MinusCircle, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -14,7 +15,7 @@ type BulkTicketActionsProps = {
   onClearSelection: () => void;
 };
 
-export function BulkTicketActions({
+export const BulkTicketActions = memo(function BulkTicketActions({
   features,
   selectedCount,
   allVisibleSelected,
@@ -94,4 +95,4 @@ export function BulkTicketActions({
       </div>
     </div>
   );
-}
+});
