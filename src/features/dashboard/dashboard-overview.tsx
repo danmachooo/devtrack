@@ -1,5 +1,6 @@
 "use client";
 
+import { LayoutDashboard } from "lucide-react";
 import Link from "next/link";
 
 import { EmptyState } from "@/components/feedback/empty-state";
@@ -59,11 +60,7 @@ export function DashboardOverview() {
               ? "Create the first client delivery track to start Notion setup, sync work, and build toward a shareable client dashboard."
               : "No projects are available yet. A team leader can create the first delivery track from the projects area."
           }
-          icon={
-            <div className="rounded-full bg-[color:color-mix(in_srgb,var(--primary)_14%,transparent)] p-3">
-              <span className="text-sm font-semibold uppercase tracking-[0.16em]">Dashboard</span>
-            </div>
-          }
+          icon={<LayoutDashboard className="h-6 w-6" strokeWidth={2.1} />}
         >
           <LinkButton href="/projects">{canCreateProject ? "Create first project" : "Open projects"}</LinkButton>
         </EmptyState>
