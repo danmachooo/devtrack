@@ -32,11 +32,11 @@ const navigation = [
   { href: "/organization", label: "Organization", icon: Building2 },
 ];
 
-const collapsedSidebarUtilityClasses = "mx-auto h-14 w-14 justify-center p-0";
+const collapsedSidebarUtilityClasses = "mx-auto h-11 w-11 justify-center p-0";
 const sidebarFooterTriggerBaseClasses =
-  "flex items-center rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--background)] text-sm font-medium text-[var(--foreground)] transition hover:bg-[var(--surface-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]";
+  "flex items-center rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--background)] text-sm font-medium text-[var(--foreground)] shadow-[var(--shadow-sm)] transition hover:bg-[var(--surface-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]";
 const sidebarFooterIconClasses =
-  "inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground-muted)]";
+  "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[color:color-mix(in_srgb,var(--surface-muted)_72%,transparent)] text-[var(--foreground-muted)]";
 const sidebarLabelTransitionClasses =
   "overflow-hidden transition-[max-width,opacity,margin] duration-200 ease-out";
 
@@ -89,14 +89,14 @@ export function InternalAppShell({ children }: PropsWithChildren) {
               <PanelLeftOpen className="h-4 w-4" strokeWidth={2} />
             )}
           </button>
-          <div className="mb-10 flex items-center gap-3">
+          <div className="mb-6 flex items-center gap-3">
             <div className="flex items-center gap-3 overflow-hidden">
               <BrandMark
                 href="/dashboard"
                 imageClassName="shadow-[var(--shadow-sm)]"
                 priority
                 showLabel={isSidebarOpen}
-                size="lg"
+                size="md"
                 subtitle="Internal workspace"
               />
             </div>
@@ -119,7 +119,7 @@ export function InternalAppShell({ children }: PropsWithChildren) {
               aria-label={themeMode === "dark" ? "Switch to light mode" : "Switch to dark mode"}
               className={`${sidebarFooterTriggerBaseClasses} ${
                 isSidebarOpen
-                  ? "w-full justify-between gap-3 px-3 py-3"
+                  ? "h-11 w-full justify-between gap-3 px-3"
                   : collapsedSidebarUtilityClasses
               }`}
               onClick={toggleThemeMode}
@@ -155,7 +155,7 @@ export function InternalAppShell({ children }: PropsWithChildren) {
               <summary
                 className={`${sidebarFooterTriggerBaseClasses} cursor-pointer list-none ${
                   isSidebarOpen
-                    ? "w-full justify-between gap-3 px-3 py-3"
+                    ? "h-11 w-full justify-between gap-3 px-3"
                     : collapsedSidebarUtilityClasses
                 }`}
                 title={isSidebarOpen ? undefined : "Account"}
@@ -175,7 +175,7 @@ export function InternalAppShell({ children }: PropsWithChildren) {
                 </span>
                 <ChevronsUpDown
                   className={`h-4 w-4 shrink-0 text-[var(--foreground-muted)] transition-opacity duration-200 ${
-                    isSidebarOpen ? "opacity-100" : "opacity-0"
+                    isSidebarOpen ? "opacity-100" : "hidden opacity-0"
                   }`}
                   strokeWidth={2}
                 />

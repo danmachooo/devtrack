@@ -16,25 +16,25 @@ type BrandMarkProps = {
 
 const sizeClasses = {
   sm: {
-    image: "h-12 w-12",
-    title: "text-lg",
-    subtitle: "text-[10px] tracking-[0.18em]",
+    image: "h-10 w-10",
+    title: "text-base",
+    subtitle: "text-[9px] tracking-[0.14em]",
   },
   md: {
-    image: "h-16 w-16",
-    title: "text-xl",
-    subtitle: "text-xs tracking-[0.2em]",
+    image: "h-14 w-14",
+    title: "text-lg",
+    subtitle: "text-[10px] tracking-[0.14em]",
   },
   lg: {
     image: "h-20 w-20",
     title: "text-2xl",
-    subtitle: "text-[13px] tracking-[0.22em]",
+    subtitle: "text-xs tracking-[0.16em]",
   },
 } as const;
 
 const imageScaleClasses = {
-  sm: "scale-[1.55]",
-  md: "scale-[1.65]",
+  sm: "scale-[1.5]",
+  md: "scale-[1.6]",
   lg: "scale-[1.72]",
 } as const;
 
@@ -66,14 +66,14 @@ export function BrandMark({
         />
       </span>
       {showLabel ? (
-        <span className="min-w-0 space-y-0.5">
+        <span className="min-w-0 space-y-px">
           <span className={clsx("block font-semibold text-[var(--foreground)]", sizeClasses[size].title)}>
             DevTrack
           </span>
           {subtitle ? (
             <span
               className={clsx(
-                "block uppercase text-[var(--foreground-muted)]",
+                "block uppercase text-[color:color-mix(in_srgb,var(--foreground-muted)_88%,var(--surface))]",
                 sizeClasses[size].subtitle,
               )}
             >
