@@ -7,6 +7,10 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "DevTrack",
   description: "Client-safe project progress storytelling for internal teams.",
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

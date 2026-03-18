@@ -17,13 +17,13 @@ import { usePathname, useRouter } from "next/navigation";
 import { PropsWithChildren } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import { BrandMark } from "@/components/layout/brand-mark";
 import { Button } from "@/components/ui/button";
 import { useSession } from "@/hooks/use-session";
 import { signOut } from "@/lib/api/auth.api";
 import { formatRoleLabel } from "@/lib/auth/permissions";
 import { getOrganization } from "@/lib/api/organization.api";
 import { useUiStore } from "@/store/ui-store";
-import { appConfig } from "@/lib/config/app";
 
 const navigation = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -90,20 +90,15 @@ export function InternalAppShell({ children }: PropsWithChildren) {
             )}
           </button>
           <div className="mb-10 flex items-center gap-3">
-            <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-[var(--radius-md)] bg-[color:color-mix(in_srgb,var(--primary)_18%,var(--surface))] text-[var(--primary)] shadow-[var(--shadow-sm)]">
-                <LayoutDashboard className="h-5 w-5" strokeWidth={2.1} />
-              </div>
-              <div
-                className={`${sidebarLabelTransitionClasses} ${
-                  isSidebarOpen ? "max-w-40 opacity-100" : "max-w-0 opacity-0"
-                }`}
-              >
-                <div className="text-lg font-semibold">DevTrack</div>
-                <div className="text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
-                  Internal workspace
-                </div>
-              </div>
+            <div className="flex items-center gap-3 overflow-hidden">
+              <BrandMark
+                href="/dashboard"
+                imageClassName="shadow-[var(--shadow-sm)]"
+                priority
+                showLabel={isSidebarOpen}
+                size="lg"
+                subtitle="Internal workspace"
+              />
             </div>
           </div>
           <nav className="space-y-2">
