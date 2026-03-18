@@ -32,7 +32,7 @@ const navigation = [
   { href: "/organization", label: "Organization", icon: Building2 },
 ];
 
-const collapsedSidebarUtilityClasses = "mx-auto h-10 w-10 justify-center p-0";
+const collapsedSidebarUtilityClasses = "mx-auto h-11 w-11 justify-center rounded-full p-0";
 const sidebarFooterTriggerBaseClasses =
   "flex items-center rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--background)] text-sm font-medium text-[var(--foreground)] shadow-[var(--shadow-sm)] transition hover:bg-[var(--surface-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]";
 const sidebarFooterIconClasses =
@@ -128,7 +128,13 @@ export function InternalAppShell({ children }: PropsWithChildren) {
               title={themeMode === "dark" ? "Switch to light mode" : "Switch to dark mode"}
             >
               <span className="flex min-w-0 items-center gap-3">
-                <span className={sidebarFooterIconClasses}>
+                <span
+                  className={
+                    isSidebarOpen
+                      ? sidebarFooterIconClasses
+                      : "inline-flex h-11 w-11 items-center justify-center rounded-full text-[var(--foreground-muted)]"
+                  }
+                >
                   {themeMode === "dark" ? (
                     <SunMedium className="h-4 w-4" strokeWidth={2.1} />
                   ) : (
@@ -162,7 +168,13 @@ export function InternalAppShell({ children }: PropsWithChildren) {
                 title={isSidebarOpen ? undefined : "Account"}
               >
                 <span className="flex min-w-0 items-center gap-3">
-                  <span className={sidebarFooterIconClasses}>
+                  <span
+                    className={
+                      isSidebarOpen
+                        ? sidebarFooterIconClasses
+                        : "inline-flex h-11 w-11 items-center justify-center rounded-full text-[var(--foreground-muted)]"
+                    }
+                  >
                     <UserCircle2 className="h-5 w-5" strokeWidth={2} />
                   </span>
                   <span
