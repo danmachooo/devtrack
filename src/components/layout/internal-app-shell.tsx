@@ -95,9 +95,9 @@ export function InternalAppShell({ children }: PropsWithChildren) {
                 className={isSidebarOpen ? undefined : "justify-center"}
                 href="/dashboard"
                 imageClassName={
-                  isSidebarOpen ? "shadow-[var(--shadow-sm)]" : "!h-8 !w-8 shadow-[var(--shadow-sm)]"
+                  isSidebarOpen ? "shadow-[var(--shadow-sm)]" : "!h-9 !w-9 shadow-[var(--shadow-sm)]"
                 }
-                imageScaleClassName={isSidebarOpen ? undefined : "scale-[1.16]"}
+                imageScaleClassName={isSidebarOpen ? undefined : "scale-[1.24]"}
                 priority
                 showLabel={isSidebarOpen}
                 size="sm"
