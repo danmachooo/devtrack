@@ -17,7 +17,6 @@ import { usePathname, useRouter } from "next/navigation";
 import { PropsWithChildren } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { BrandMark } from "@/components/layout/brand-mark";
 import { Button } from "@/components/ui/button";
 import { useSession } from "@/hooks/use-session";
 import { signOut } from "@/lib/api/auth.api";
@@ -97,23 +96,16 @@ export function InternalAppShell({ children }: PropsWithChildren) {
             }`}
           >
             {isSidebarOpen ? (
-              /* Expanded: logo + text side-by-side, both baseline-aligned */
+              /* Expanded: logo image + text, clean with no extra wrappers */
               <Link
                 href="/dashboard"
                 className="flex items-center gap-2.5 min-w-0"
               >
-                {/* Logo constrained to a consistent square so it never overflows */}
-                <span className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-sm">
-                  <BrandMark
-                    href=""          /* navigation handled by parent <Link> */
-                    imageClassName="!h-8 !w-8 object-contain shadow-none"
-                    imageScaleClassName="scale-100"
-                    priority
-                    showLabel={false}
-                    size="sm"
-                    subtitle=""
-                  />
-                </span>
+                <img
+                  src="/devtrack.png"
+                  alt="DevTrack logo"
+                  className="h-7 w-7 shrink-0 object-contain"
+                />
                 <span className="flex flex-col min-w-0">
                   <span className="truncate text-sm font-semibold leading-tight text-[var(--foreground)]">
                     DevTrack
@@ -124,20 +116,16 @@ export function InternalAppShell({ children }: PropsWithChildren) {
                 </span>
               </Link>
             ) : (
-              /* Collapsed: centred logo, clipped to a tidy circle/square */
+              /* Collapsed: just the logo, centred, no clipping container */
               <Link
                 href="/dashboard"
                 aria-label="DevTrack – go to dashboard"
-                className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-sm"
+                className="flex items-center justify-center"
               >
-                <BrandMark
-                  href=""
-                  imageClassName="!h-8 !w-8 object-contain shadow-none"
-                  imageScaleClassName="scale-100"
-                  priority
-                  showLabel={false}
-                  size="sm"
-                  subtitle=""
+                <img
+                  src="/devtrack.png"
+                  alt="DevTrack logo"
+                  className="h-8 w-8 object-contain"
                 />
               </Link>
             )}
