@@ -271,3 +271,11 @@ Assumption:
 - [x] Replace broad sync metadata invalidations with direct project and list cache updates while keeping ticket and sync-log refreshes scoped to sync completion
 - [x] Move `/projects` to a server route wrapper around a dedicated client feature component for a safer route-level client boundary
 - [x] Verify the route-boundary and cache-tightening pass with typecheck and production build validation
+
+## Phase 29 - Responsive Hardening
+
+- [x] Audit the shared shell and all major routes across mobile, tablet, desktop, and wide desktop breakpoints
+- [x] Tighten shared responsive foundations for headers, dialogs, selects, spacing, and typography wrapping
+- [x] Refine `/organization`, `/dashboard`, `/projects`, `/projects/[id]`, `/tickets`, and `/client/[token]` for stable cross-breakpoint behavior
+- [x] Preserve RBAC, client-safety, and internal-versus-client surface separation across every responsive layout
+- [x] Verify the responsive pass with typecheck, production build validation, and route-level breakpoint checks

@@ -58,6 +58,8 @@ The internal UI should feel operational, structured, intentionally dense where i
 
 The user is here to manage delivery, not browse. The navigation should make the product feel reliable and organized.
 
+Route changes should feel responsive and recoverable. Major screens should avoid blank waits, and failures should be contained to the current route with a clear retry path instead of collapsing the whole workspace experience.
+
 Likely core navigation:
 
 - Dashboard
@@ -202,6 +204,8 @@ The UI should make progress feel both visible and trustworthy:
 - progress bars
 - status labels
 - freshness indicators
+
+That progress should come from one backend-owned source of truth where possible so overview and detail surfaces stay consistent instead of recomputing separate answers in the browser.
 
 A strong internal dashboard helps the team understand:
 

@@ -65,13 +65,13 @@ export function TicketReviewPanel({ project }: TicketReviewPanelProps) {
   const pageSizeHelp = `${ticketPageSizeOptions.join(", ")} per page supported by the backend.`;
 
   return (
-    <Card className="space-y-6 border-[color:color-mix(in_srgb,var(--primary)_12%,var(--border))] bg-[linear-gradient(180deg,var(--surface)_0%,var(--background)_100%)] p-6">
+    <Card className="space-y-6 border-[color:color-mix(in_srgb,var(--primary)_12%,var(--border))] bg-[linear-gradient(180deg,var(--surface)_0%,var(--background)_100%)] p-4 sm:p-6">
       <div className="space-y-3">
         <p className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
           <Rows3 className="h-3.5 w-3.5" strokeWidth={2} />
           Ticket review
         </p>
-        <div className="flex items-start justify-between gap-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="space-y-2">
             <h2 className="max-w-2xl text-2xl font-semibold tracking-tight text-balance">
               Review synced tickets
@@ -98,7 +98,7 @@ export function TicketReviewPanel({ project }: TicketReviewPanelProps) {
         visibleCount={pageMetrics.visibleCount}
       />
 
-      <div className="space-y-4 rounded-[var(--radius-xl)] border border-[var(--border)] bg-[linear-gradient(180deg,color-mix(in_srgb,var(--surface)_92%,var(--background))_0%,var(--background)_100%)] p-5 shadow-[var(--shadow-sm)]">
+      <div className="space-y-4 rounded-[var(--radius-xl)] border border-[var(--border)] bg-[linear-gradient(180deg,color-mix(in_srgb,var(--surface)_92%,var(--background))_0%,var(--background)_100%)] p-4 shadow-[var(--shadow-sm)] sm:p-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
             <SlidersHorizontal className="h-3.5 w-3.5" strokeWidth={2} />
@@ -109,7 +109,7 @@ export function TicketReviewPanel({ project }: TicketReviewPanelProps) {
           </span>
         </div>
 
-        <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-4">
           <div className="space-y-2 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] p-4">
             <label className="flex items-center gap-2 text-sm font-medium" htmlFor="ticket-search-filter">
               <Search className="h-4 w-4 text-[var(--primary)]" strokeWidth={2} />
@@ -175,7 +175,7 @@ export function TicketReviewPanel({ project }: TicketReviewPanelProps) {
           </div>
         </div>
 
-        <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-[1fr_1fr_0.8fr_0.8fr]">
+        <div className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-[1fr_1fr_0.8fr_0.8fr]">
           <TicketFilterToggle
             checked={filterState.showUnassigned}
             description="Great for inbox-style mapping, and keeps feature-specific filtering off."

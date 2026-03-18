@@ -74,13 +74,13 @@ export function TicketsWorkspace() {
         <>
           <Card className="overflow-hidden border-[color:color-mix(in_srgb,var(--primary)_16%,var(--border))] bg-[linear-gradient(180deg,color-mix(in_srgb,var(--primary)_7%,var(--surface))_0%,var(--surface)_38%,var(--background)_100%)] p-0">
             <div className="grid gap-0 lg:grid-cols-[1.12fr_0.88fr]">
-              <div className="space-y-5 p-6 lg:p-7">
+              <div className="space-y-5 p-5 sm:p-6 lg:p-7">
                 <div className="inline-flex items-center gap-2 rounded-full border border-[color:color-mix(in_srgb,var(--primary)_18%,var(--border))] bg-[color:color-mix(in_srgb,var(--primary)_10%,var(--surface))] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--foreground-muted)]">
                   <MapPinned className="h-3.5 w-3.5 text-[var(--primary)]" strokeWidth={2} />
                   Project scope
                 </div>
                 <div className="space-y-2">
-                  <h2 className="max-w-xl text-2xl font-semibold tracking-tight text-balance">
+                  <h2 className="max-w-xl text-xl font-semibold tracking-tight text-balance sm:text-2xl">
                     Keep ticket mapping anchored to one delivery track
                   </h2>
                   <p className="max-w-2xl text-sm leading-6 text-[var(--foreground-muted)] text-pretty">
@@ -102,7 +102,7 @@ export function TicketsWorkspace() {
                 </div>
               </div>
 
-              <div className="border-t border-[color:color-mix(in_srgb,var(--border)_82%,transparent)] bg-[color:color-mix(in_srgb,var(--surface)_90%,var(--background))] p-6 lg:border-l lg:border-t-0 lg:p-7">
+              <div className="border-t border-[color:color-mix(in_srgb,var(--border)_82%,transparent)] bg-[color:color-mix(in_srgb,var(--surface)_90%,var(--background))] p-5 sm:p-6 lg:border-l lg:border-t-0 lg:p-7">
                 <div className="space-y-4 rounded-[calc(var(--radius-lg)+2px)] border border-[var(--border)] bg-[var(--background)] p-5 shadow-[var(--shadow-sm)]">
                   <div className="space-y-1.5">
                     <p className="text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
@@ -134,7 +134,7 @@ export function TicketsWorkspace() {
               </div>
             </div>
 
-            <div className="border-t border-[color:color-mix(in_srgb,var(--border)_82%,transparent)] px-6 py-6 lg:px-7">
+            <div className="border-t border-[color:color-mix(in_srgb,var(--border)_82%,transparent)] px-5 py-5 sm:px-6 sm:py-6 lg:px-7">
               <SelectedProjectSummary project={selectedProject} />
             </div>
           </Card>
@@ -158,7 +158,7 @@ function SelectedProjectSummary({
 
   return (
     <div className="rounded-[calc(var(--radius-lg)+2px)] border border-[var(--border)] bg-[linear-gradient(180deg,var(--background)_0%,color-mix(in_srgb,var(--surface)_84%,var(--background))_100%)] p-5">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+      <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
         <div className="space-y-2">
           <div className="flex flex-wrap items-center gap-2">
             <FreshnessPill label={freshness.label} tone={freshness.tone} />
@@ -172,7 +172,9 @@ function SelectedProjectSummary({
           <div>
             <h3 className="max-w-2xl text-xl font-semibold text-balance">{project.name}</h3>
             <p className="text-sm leading-6 text-[var(--foreground-muted)]">
-              {project.clientName} | {project.clientEmail}
+              <span className="block sm:inline">{project.clientName}</span>
+              <span className="hidden sm:inline"> | </span>
+              <span className="break-all">{project.clientEmail}</span>
             </p>
           </div>
         </div>
@@ -180,7 +182,7 @@ function SelectedProjectSummary({
         <LinkButton href={`/projects/${project.id}`}>Open command center</LinkButton>
       </div>
 
-      <div className="mt-5 grid gap-3 md:grid-cols-3">
+      <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         <ProjectMetric
           label="Last synced"
           value={project.lastSyncedAt ? formatDateTime(project.lastSyncedAt) : "Awaiting first sync"}
@@ -284,7 +286,7 @@ function FreshnessPill({
 function LinkButton({ children, href }: { children: string; href: string }) {
   return (
     <Link
-      className="inline-flex items-center justify-center gap-2 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 text-sm font-semibold text-[var(--foreground)] transition duration-200 hover:-translate-y-0.5 hover:border-[color:color-mix(in_srgb,var(--primary)_24%,var(--border))] hover:bg-[var(--surface-muted)] hover:shadow-[var(--shadow-sm)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]"
+      className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 text-sm font-semibold text-[var(--foreground)] transition duration-200 hover:-translate-y-0.5 hover:border-[color:color-mix(in_srgb,var(--primary)_24%,var(--border))] hover:bg-[var(--surface-muted)] hover:shadow-[var(--shadow-sm)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] sm:w-auto"
       href={href}
     >
       <ArrowRight className="h-4 w-4" strokeWidth={2} />

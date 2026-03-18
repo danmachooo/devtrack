@@ -4,11 +4,11 @@ This document defines the recommended frontend implementation approach for DevTr
 
 It is the primary build guide for agents and developers working on the frontend. Read it alongside:
 
-- `AGENTS..md` - agent rules, guardrails, API expectations, and RBAC guidance
+- `AGENTS.md` - agent rules, guardrails, API expectations, and RBAC guidance
 - `CONTEXT.md` - backend model, auth model, scoping rules, and data safety rules
 - `PROJECT-FLOW.md` - end-to-end product workflows
 - `UI-UX-STORY.md` - screen intent, pacing, and UX tone
-- `endpoints.md` - exact request and response contracts
+- `ENDPOINTS.md` - exact request and response contracts
 
 When these files conflict with assumptions in this document, those files win.
 
@@ -248,6 +248,9 @@ src/
 - prefer current stable patterns for Next.js App Router, React, TanStack Query, shadcn/ui, React Hook Form, and Zod
 - avoid `any` in application code; use explicit types and safe narrowing
 - keep files focused and avoid long, sprawling components or helpers when they should be split
+- prefer route files to stay server-first where practical, with dedicated client feature components owning interactive behavior
+- when mutation responses are sufficient, update React Query caches surgically instead of defaulting to broad invalidation sweeps
+- add route-group `loading.tsx` and `error.tsx` boundaries for major surfaces so loading and failure states stay local to the current route
 
 ---
 

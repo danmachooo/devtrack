@@ -138,6 +138,8 @@ Important behavior:
 - projects are organization-scoped
 - cross-organization access is rejected
 - project creation also creates a `ClientAccess` record
+- `GET /api/projects` now includes additive `progressSummary` for overview screens
+- `GET /api/projects/:id` now includes additive `progressSummary` for project-detail progress surfaces
 
 ### 6. Notion Connection
 
@@ -250,6 +252,10 @@ Current logic:
 - `APPROVED` and `RELEASED` count as complete
 - project progress is the average of feature progress values
 - unassigned tickets do not contribute to progress
+
+Current contract note:
+
+- overview and project-detail routes can now read backend-owned `progressSummary` data directly from the main project endpoints instead of reconstructing progress from separate feature and ticket reads only for display
 
 ### 13. Sync History
 

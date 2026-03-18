@@ -45,26 +45,26 @@ export function ClientDashboardView({ token }: ClientDashboardViewProps) {
   return (
     <div className="space-y-8">
       <section className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
-        <div className="space-y-4 rounded-[var(--radius-lg)] border border-[color:color-mix(in_srgb,var(--primary)_18%,var(--border))] bg-[linear-gradient(135deg,color-mix(in_srgb,var(--primary)_12%,var(--surface))_0%,var(--surface)_55%,color-mix(in_srgb,var(--background)_86%,var(--surface))_100%)] p-8 shadow-[var(--shadow-md)]">
+        <div className="space-y-4 rounded-[var(--radius-lg)] border border-[color:color-mix(in_srgb,var(--primary)_18%,var(--border))] bg-[linear-gradient(135deg,color-mix(in_srgb,var(--primary)_12%,var(--surface))_0%,var(--surface)_55%,color-mix(in_srgb,var(--background)_86%,var(--surface))_100%)] p-5 shadow-[var(--shadow-md)] sm:p-6 md:p-8">
           <p className="text-sm uppercase tracking-[0.24em] text-[var(--foreground-muted)]">
             Client Dashboard
           </p>
           <div className="space-y-2">
-            <h1 className="text-4xl font-semibold tracking-tight md:text-5xl">
+            <h1 className="text-3xl font-semibold tracking-tight text-balance sm:text-4xl md:text-5xl">
               {dashboard.projectName}
             </h1>
             <p className="max-w-2xl text-sm leading-6 text-[var(--foreground-muted)] md:text-base">
               A calm view of progress across the work your team is organizing and delivering.
             </p>
           </div>
-          <div className="flex flex-wrap items-end gap-4 pt-4">
-            <div>
+          <div className="flex flex-col gap-4 pt-4 sm:flex-row sm:flex-wrap sm:items-end">
+            <div className="min-w-0">
               <div className="text-sm uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
                 Overall progress
               </div>
-              <div className="text-6xl font-semibold">{dashboard.overallProgress}%</div>
+              <div className="text-5xl font-semibold sm:text-6xl">{dashboard.overallProgress}%</div>
             </div>
-            <div className="min-w-56 flex-1 space-y-2 rounded-[var(--radius-md)] border border-[var(--border)] bg-[color:color-mix(in_srgb,var(--surface)_78%,transparent)] p-4">
+            <div className="min-w-0 flex-1 space-y-2 rounded-[var(--radius-md)] border border-[var(--border)] bg-[color:color-mix(in_srgb,var(--surface)_78%,transparent)] p-4 sm:min-w-56">
               <div className="h-3 overflow-hidden rounded-full bg-[var(--surface-muted)]">
                 <div
                   className="h-full rounded-full bg-[var(--primary)] transition-[width]"
@@ -105,10 +105,10 @@ export function ClientDashboardView({ token }: ClientDashboardViewProps) {
         {dashboard.features.length ? (
           <div className="grid gap-4 md:grid-cols-2">
             {dashboard.features.map((feature) => (
-              <Card key={feature.name} className="space-y-4 p-6">
-                <div className="flex items-start justify-between gap-3">
+              <Card key={feature.name} className="space-y-4 p-5 sm:p-6">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div>
-                    <h3 className="text-xl font-semibold">{feature.name}</h3>
+                    <h3 className="text-xl font-semibold text-balance">{feature.name}</h3>
                     <p className="mt-1 text-sm text-[var(--foreground-muted)]">
                       {feature.completedTickets}/{feature.totalTickets} tickets complete
                     </p>
@@ -163,7 +163,7 @@ export function ClientDashboardView({ token }: ClientDashboardViewProps) {
                       {formatDateTime(activity.happenedAt)}
                     </p>
                   </div>
-                  <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="grid gap-3 sm:grid-cols-2 md:min-w-64">
                     <ActivityMetric label="Tickets added" value={String(activity.ticketsAdded)} />
                     <ActivityMetric label="Tickets updated" value={String(activity.ticketsUpdated)} />
                   </div>
@@ -196,7 +196,7 @@ function MetricCard({
   tone: "success" | "warning" | "danger" | "neutral";
 }) {
   return (
-    <Card className="space-y-2 p-6">
+    <Card className="space-y-2 p-5 sm:p-6">
       <div className="text-sm uppercase tracking-[0.18em] text-[var(--foreground-muted)]">{label}</div>
       <div className="text-2xl font-semibold">{value}</div>
       <TonePill label={tone === "neutral" ? "Calm" : tone} tone={tone} />

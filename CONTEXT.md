@@ -468,6 +468,7 @@ Current implementation note:
 - the Notion connection form now normalizes pasted database identifiers from either plain 32-character values or URL-derived values into the UUID format expected by the documented API contract before validation and submission
 - the frontend now includes a shared toast viewport backed by Zustand UI state for transient action feedback; it is currently wired into project creation and editing, Notion test and save flows, status-mapping saves, manual sync feedback, and client-link copy outcomes while continuing to keep server data out of Zustand
 - the feature-management workspace now uses lighter interaction cues: feature rows lift slightly on hover, the left list pane sizes to its own content instead of stretching with the editor, the shown-versus-total summary stays on one line, and the right editor is split into simpler `Details` and `Order` tabs with a compact trash action that still routes through the existing delete confirmation
+- the latest responsive pass introduced a real mobile internal-shell navigation drawer, tighter shared page-header and action wrapping, smaller-screen modal padding, and route-level layout reflow across `/organization`, `/dashboard`, `/projects`, `/projects/[id]`, `/tickets`, and `/client/[token]` so internal workflows remain readable on narrow widths without changing RBAC, API wiring, or client-safety boundaries
 
 ---
 

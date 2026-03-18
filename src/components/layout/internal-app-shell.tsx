@@ -5,6 +5,7 @@ import {
   ChevronsUpDown,
   FolderKanban,
   LayoutDashboard,
+  Menu,
   MoonStar,
   PanelLeftClose,
   PanelLeftOpen,
@@ -14,7 +15,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { PropsWithChildren } from "react";
+import { PropsWithChildren, useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useShallow } from "zustand/react/shallow";
 
@@ -44,6 +45,7 @@ export function InternalAppShell({ children }: PropsWithChildren) {
   const router = useRouter();
   const pathname = usePathname();
   const queryClient = useQueryClient();
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const { isSidebarOpen, toggleSidebar, themeMode, toggleThemeMode } = useUiStore(
     useShallow((state) => ({
       isSidebarOpen: state.isSidebarOpen,
@@ -76,17 +78,39 @@ export function InternalAppShell({ children }: PropsWithChildren) {
   const userEmail = user?.email ?? "Loading session";
   const userRole = user?.role ? formatRoleLabel(user.role) : "Restoring access";
 
+  useEffect(() => {
+    setIsMobileNavOpen(false);
+  }, [pathname]);
+
   return (
     <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
+      <div
+        aria-hidden={!isMobileNavOpen}
+        className={`fixed inset-0 z-30 bg-[color:color-mix(in_srgb,var(--foreground)_28%,transparent)] backdrop-blur-sm transition duration-200 md:hidden ${
+          isMobileNavOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
+        }`}
+        onClick={() => setIsMobileNavOpen(false)}
+      />
+
       <div className="grid min-h-screen grid-cols-1 md:grid-cols-[auto_1fr]">
         <aside
-          className={`sticky top-0 flex h-screen self-start flex-col overflow-visible border-r border-[var(--border)] bg-[var(--surface)] py-6 transition-[width,padding] duration-200 ease-out ${
-            isSidebarOpen ? "w-64 px-4" : "w-20 px-0"
-          }`}
+          className={`fixed inset-y-0 left-0 z-40 flex h-screen w-72 flex-col overflow-visible border-r border-[var(--border)] bg-[var(--surface)] px-4 py-5 transition-[transform,width,padding] duration-200 ease-out md:sticky md:top-0 md:self-start md:w-auto md:px-0 ${
+            isSidebarOpen ? "md:w-64 md:px-4" : "md:w-20 md:px-0"
+          } ${
+            isMobileNavOpen ? "translate-x-0" : "-translate-x-full"
+          } md:translate-x-0`}
         >
           <button
+            aria-label="Close mobile navigation"
+            className="absolute top-4 right-4 inline-flex h-9 w-9 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground-muted)] shadow-[var(--shadow-sm)] transition hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] md:hidden"
+            onClick={() => setIsMobileNavOpen(false)}
+            type="button"
+          >
+            <PanelLeftClose className="h-4 w-4" strokeWidth={2} />
+          </button>
+          <button
             aria-label={isSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
-            className="absolute top-8 right-0 z-30 inline-flex h-10 w-7 translate-x-1/2 items-center justify-center rounded-full border border-[var(--border)] bg-[color:color-mix(in_srgb,var(--surface)_96%,transparent)] text-[var(--foreground-muted)] shadow-[var(--shadow-sm)] backdrop-blur transition hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]"
+            className="absolute top-8 right-0 z-30 hidden h-10 w-7 translate-x-1/2 items-center justify-center rounded-full border border-[var(--border)] bg-[color:color-mix(in_srgb,var(--surface)_96%,transparent)] text-[var(--foreground-muted)] shadow-[var(--shadow-sm)] backdrop-blur transition hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] md:inline-flex"
             onClick={toggleSidebar}
             type="button"
           >
@@ -100,7 +124,7 @@ export function InternalAppShell({ children }: PropsWithChildren) {
           {/* ── Brand header ─────────────────────────────────────────── */}
           <div
             className={`mb-5 flex ${
-              isSidebarOpen ? "items-center px-1" : "justify-center"
+              isSidebarOpen ? "items-center px-1 pr-10 md:pr-1" : "justify-center"
             }`}
           >
             {isSidebarOpen ? (
@@ -139,7 +163,13 @@ export function InternalAppShell({ children }: PropsWithChildren) {
             )}
           </div>
 
-          <nav className={isSidebarOpen ? "space-y-2" : "flex flex-col items-center gap-4"}>
+          <nav
+            className={
+              isSidebarOpen
+                ? "space-y-2"
+                : "space-y-2 md:flex md:flex-col md:items-center md:gap-4 md:space-y-0"
+            }
+          >
             {navigation.map((item) => (
               <SidebarNavLink
                 key={item.href}
@@ -152,7 +182,11 @@ export function InternalAppShell({ children }: PropsWithChildren) {
             ))}
           </nav>
 
-          <div className={`mt-auto pt-6 ${isSidebarOpen ? "space-y-3" : "flex w-full flex-col items-center gap-2.5"}`}>
+          <div
+            className={`mt-auto pt-6 ${
+              isSidebarOpen ? "space-y-3" : "flex w-full flex-col items-center gap-2.5"
+            }`}
+          >
             <button
               aria-label={themeMode === "dark" ? "Switch to light mode" : "Switch to dark mode"}
               className={`${sidebarFooterTriggerBaseClasses} ${
@@ -193,12 +227,16 @@ export function InternalAppShell({ children }: PropsWithChildren) {
               )}
             </button>
 
-            <details className={`group relative ${isSidebarOpen ? "block" : "flex w-full justify-center"}`}>
+            <details
+              className={`group relative ${
+                isSidebarOpen ? "block" : "block md:flex md:w-full md:justify-center"
+              }`}
+            >
               <summary
                 className={`${sidebarFooterTriggerBaseClasses} cursor-pointer list-none ${
                   isSidebarOpen
                     ? "h-11 w-full justify-between gap-3 px-3"
-                  : collapsedSidebarUtilityClasses
+                    : collapsedSidebarUtilityClasses
                 }`}
                 title={isSidebarOpen ? undefined : "Account"}
               >
@@ -223,7 +261,11 @@ export function InternalAppShell({ children }: PropsWithChildren) {
                 )}
               </summary>
               <div
-                className="absolute bottom-0 left-full z-40 ml-3 w-72 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] p-4 shadow-[var(--shadow-md)]"
+                className={`z-40 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] p-4 shadow-[var(--shadow-md)] ${
+                  isSidebarOpen
+                    ? "mt-3 w-full"
+                    : "absolute bottom-0 left-full ml-3 w-72"
+                }`}
               >
                 <div className="space-y-1">
                   <p className="font-semibold">{userName}</p>
@@ -248,15 +290,23 @@ export function InternalAppShell({ children }: PropsWithChildren) {
           </div>
         </aside>
         <div className="flex min-h-screen flex-col">
-          <header className="relative z-0 border-b border-[var(--border)] bg-[color:color-mix(in_srgb,var(--surface)_78%,transparent)] px-6 py-4 md:pl-10 backdrop-blur">
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-              <div className="flex flex-wrap items-center gap-3">
-                <div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface-muted)] px-3 py-2 shadow-[var(--shadow-sm)]">
+          <header className="relative z-0 border-b border-[var(--border)] bg-[color:color-mix(in_srgb,var(--surface)_78%,transparent)] px-4 py-4 backdrop-blur sm:px-6 md:pl-10">
+            <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+              <div className="flex items-start gap-3 sm:gap-4">
+                <button
+                  aria-label="Open navigation"
+                  className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] shadow-[var(--shadow-sm)] transition hover:bg-[var(--surface-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] md:hidden"
+                  onClick={() => setIsMobileNavOpen(true)}
+                  type="button"
+                >
+                  <Menu className="h-4 w-4" strokeWidth={2} />
+                </button>
+                <div className="min-w-0 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface-muted)] px-3 py-2 shadow-[var(--shadow-sm)]">
                   <div className="text-[11px] uppercase tracking-[0.22em] text-[var(--foreground-muted)]">
                     Active Workspace
                   </div>
-                  <div className="mt-1 text-sm font-semibold">{organizationName}</div>
-                  <div className="text-xs text-[var(--foreground-muted)]">
+                  <div className="mt-1 break-words text-sm font-semibold">{organizationName}</div>
+                  <div className="text-xs leading-5 text-[var(--foreground-muted)]">
                     {activeOrgId
                       ? organizationSlug
                         ? `Organization slug: ${organizationSlug}`
@@ -264,16 +314,19 @@ export function InternalAppShell({ children }: PropsWithChildren) {
                       : "Create or accept an organization to unlock internal workflows"}
                   </div>
                 </div>
-                <div className="rounded-full border border-[var(--border)] bg-[var(--surface)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
-                  {activeOrgId ? userRole : "Onboarding"}
+                <div className="flex flex-wrap items-center gap-2">
+                  <div className="rounded-full border border-[var(--border)] bg-[var(--surface)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
+                    {activeOrgId ? userRole : "Onboarding"}
+                  </div>
                 </div>
               </div>
-              <div className="text-sm text-[var(--foreground-muted)]">
-                {userName} | {userEmail}
+              <div className="min-w-0 text-sm leading-6 text-[var(--foreground-muted)] xl:text-right">
+                <div className="truncate font-medium text-[var(--foreground)]">{userName}</div>
+                <div className="break-all">{userEmail}</div>
               </div>
             </div>
           </header>
-          <main className="flex-1 px-6 py-8 md:pl-10">{children}</main>
+          <main className="flex-1 px-4 py-6 sm:px-6 sm:py-8 md:pl-10">{children}</main>
         </div>
       </div>
     </div>

@@ -295,7 +295,7 @@ export default function ProjectDetailPage() {
       />
 
       <div className="grid items-start gap-6 xl:grid-cols-[1.15fr_0.85fr]">
-        <Card className="h-fit space-y-6 p-6">
+        <Card className="h-fit space-y-6 p-5 sm:p-6">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
             <div className="space-y-3">
               <div className="flex flex-wrap items-center gap-2">
@@ -305,9 +305,11 @@ export default function ProjectDetailPage() {
                 <FreshnessPill tone={freshness.tone} label={freshness.label} />
               </div>
               <div>
-                <h2 className="text-2xl font-semibold">{project.name}</h2>
+                <h2 className="text-xl font-semibold text-balance sm:text-2xl">{project.name}</h2>
                 <p className="text-sm text-[var(--foreground-muted)]">
-                  {project.clientName} | {project.clientEmail}
+                  <span className="block sm:inline">{project.clientName}</span>
+                  <span className="hidden sm:inline"> | </span>
+                  <span className="break-all">{project.clientEmail}</span>
                 </p>
               </div>
             </div>
@@ -334,7 +336,7 @@ export default function ProjectDetailPage() {
             </div>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             <ProjectMeta label="Last synced" value={project.lastSyncedAt ? formatDateTime(project.lastSyncedAt) : "Not synced yet"} />
             <ProjectMeta
               label="Sync interval"
@@ -369,7 +371,7 @@ export default function ProjectDetailPage() {
               </InfoPopover>
             </div>
 
-            <div className="mt-4 grid gap-3 md:grid-cols-2">
+            <div className="mt-4 grid gap-3 lg:grid-cols-2">
               <MetadataRow label="Project ID" value={project.id} />
               <MetadataRow label="Created" value={formatDateTime(project.createdAt)} />
               <MetadataRow label="Last updated" value={formatDateTime(project.updatedAt)} />
@@ -382,7 +384,7 @@ export default function ProjectDetailPage() {
         </Card>
 
         <div className="space-y-6">
-          <Card className="h-fit space-y-5 p-6">
+          <Card className="h-fit space-y-5 p-5 sm:p-6">
             <div className="space-y-2">
               <p className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
                 <Radar className="h-3.5 w-3.5" strokeWidth={2} />
@@ -390,7 +392,9 @@ export default function ProjectDetailPage() {
               </p>
               <div className="flex items-start justify-between gap-3">
                 <div className="space-y-1">
-                  <h2 className="text-2xl font-semibold">{nextStep?.title ?? "Project is staged"}</h2>
+                  <h2 className="text-xl font-semibold text-balance sm:text-2xl">
+                    {nextStep?.title ?? "Project is staged"}
+                  </h2>
                   <p className="text-sm text-[var(--foreground-muted)]">
                     {nextStep?.description ??
                       "The initial setup sequence is complete. Use the workspace below for ongoing organization and sharing."}
@@ -418,13 +422,13 @@ export default function ProjectDetailPage() {
         </div>
       </div>
 
-      <Card className="h-fit space-y-6 p-6">
+      <Card className="h-fit space-y-6 p-5 sm:p-6">
         <div className="space-y-1">
           <p className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
             <Route className="h-3.5 w-3.5" strokeWidth={2} />
             Setup rail
           </p>
-          <h2 className="text-2xl font-semibold">Move through the first-share sequence</h2>
+          <h2 className="text-xl font-semibold sm:text-2xl">Move through the first-share sequence</h2>
           <p className="text-sm text-[var(--foreground-muted)]">
             The documented order stays visible below the overview, with the current step called out
             more strongly than the rest.
@@ -449,14 +453,16 @@ export default function ProjectDetailPage() {
         </div>
       </Card>
 
-      <Card className="h-fit space-y-6 p-6">
+      <Card className="h-fit space-y-6 p-5 sm:p-6">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="space-y-1">
             <p className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
               <ClipboardList className="h-3.5 w-3.5" strokeWidth={2} />
               Secondary workspace
             </p>
-            <h2 className="text-2xl font-semibold">Open the lower-priority project tools when needed</h2>
+            <h2 className="text-xl font-semibold sm:text-2xl">
+              Open the lower-priority project tools when needed
+            </h2>
             <p className="text-sm text-[var(--foreground-muted)]">
               Assignment stays behind a workspace area, while progress, sync diagnostics, and client
               sharing sit in their own lower-priority view.
@@ -644,7 +650,7 @@ function ProjectSetupStatusGrid({ project }: { project: Project }) {
   ];
 
   return (
-    <div className="grid gap-3 md:grid-cols-2">
+    <div className="grid gap-3 sm:grid-cols-2">
       {items.map((item) => (
         <div
           key={item.label}
@@ -671,7 +677,7 @@ function WorkspaceTabButton({
 }) {
   return (
     <button
-      className={`inline-flex items-center justify-center rounded-full border px-4 py-2 text-sm font-semibold transition duration-200 ${
+      className={`inline-flex min-h-11 w-full items-center justify-center rounded-full border px-4 py-2 text-sm font-semibold transition duration-200 sm:w-auto ${
         active
           ? "border-[color:color-mix(in_srgb,var(--primary)_35%,var(--border))] bg-[color:color-mix(in_srgb,var(--primary)_12%,transparent)] text-[var(--primary)] shadow-[var(--shadow-sm)]"
           : "border-[var(--border)] bg-[var(--surface)] text-[var(--foreground-muted)] hover:-translate-y-0.5 hover:border-[color:color-mix(in_srgb,var(--primary)_24%,var(--border))] hover:text-[var(--foreground)] hover:shadow-[var(--shadow-sm)]"
@@ -909,7 +915,7 @@ function ProjectWorkspaceHandoff({
   href: string;
 }) {
   return (
-    <Card className="space-y-4 p-6 transition duration-200 hover:shadow-[var(--shadow-sm)]">
+    <Card className="space-y-4 p-5 transition duration-200 hover:shadow-[var(--shadow-sm)] sm:p-6">
       <div className="space-y-1">
         <p className="text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
           Dedicated workspace
@@ -918,15 +924,15 @@ function ProjectWorkspaceHandoff({
         <p className="text-sm leading-6 text-[var(--foreground-muted)]">{description}</p>
       </div>
 
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
         <Link
-          className="inline-flex items-center justify-center rounded-[var(--radius-md)] bg-[var(--primary)] px-4 py-2.5 text-sm font-semibold !text-white visited:!text-white hover:!text-white shadow-[var(--shadow-sm)] transition duration-200 hover:-translate-y-0.5 hover:opacity-95 hover:shadow-[var(--shadow-md)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]"
+          className="inline-flex min-h-11 items-center justify-center rounded-[var(--radius-md)] bg-[var(--primary)] px-4 py-2.5 text-sm font-semibold !text-white visited:!text-white hover:!text-white shadow-[var(--shadow-sm)] transition duration-200 hover:-translate-y-0.5 hover:opacity-95 hover:shadow-[var(--shadow-md)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]"
           href={href}
         >
           Open tickets workspace
         </Link>
         <Link
-          className="inline-flex items-center justify-center rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 text-sm font-semibold text-[var(--foreground)] transition duration-200 hover:-translate-y-0.5 hover:bg-[var(--surface-muted)] hover:shadow-[var(--shadow-sm)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]"
+          className="inline-flex min-h-11 items-center justify-center rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 text-sm font-semibold text-[var(--foreground)] transition duration-200 hover:-translate-y-0.5 hover:bg-[var(--surface-muted)] hover:shadow-[var(--shadow-sm)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]"
           href="/tickets"
         >
           Browse all projects

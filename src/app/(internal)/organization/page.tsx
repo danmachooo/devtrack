@@ -229,7 +229,7 @@ export default function OrganizationPage() {
 
       {!activeOrganizationId ? (
         <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
-          <Card className="space-y-6 p-6">
+          <Card className="space-y-6 p-5 sm:p-6">
             <div className="space-y-1">
               <h2 className="flex items-center gap-2 text-xl font-semibold">
                 <Building2 className="h-5 w-5 text-[var(--primary)]" strokeWidth={2} />
@@ -313,7 +313,7 @@ export default function OrganizationPage() {
             </form>
           </Card>
 
-          <Card className="space-y-6 p-6">
+          <Card className="space-y-6 p-5 sm:p-6">
             <div className="space-y-1">
               <h2 className="flex items-center gap-2 text-xl font-semibold">
                 <MailPlus className="h-5 w-5 text-[var(--primary)]" strokeWidth={2} />
@@ -351,7 +351,7 @@ export default function OrganizationPage() {
         </div>
       ) : (
         <div className="space-y-6">
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             <SummaryCard
               label="Organization"
               value={organization?.name ?? "Loading"}
@@ -370,8 +370,8 @@ export default function OrganizationPage() {
           </div>
 
           {isTeamLeader ? (
-            <div className="items-start grid gap-6 xl:grid-cols-[1fr_1fr]">
-              <Card className="self-start space-y-6 p-6">
+            <div className="grid items-start gap-6 xl:grid-cols-[1fr_1fr]">
+              <Card className="self-start space-y-6 p-5 sm:p-6">
                 <div className="space-y-1">
                   <h2 className="flex items-center gap-2 text-xl font-semibold">
                     <MailPlus className="h-5 w-5 text-[var(--primary)]" strokeWidth={2} />
@@ -387,7 +387,7 @@ export default function OrganizationPage() {
                 </Button>
               </Card>
 
-              <Card className="space-y-6 p-6">
+              <Card className="space-y-6 p-5 sm:p-6">
                 <div className="space-y-1">
                   <h2 className="flex items-center gap-2 text-xl font-semibold">
                     <ShieldCheck className="h-5 w-5 text-[var(--primary)]" strokeWidth={2} />
@@ -430,7 +430,7 @@ export default function OrganizationPage() {
             </Card>
           )}
 
-          <Card className="space-y-6 p-6">
+          <Card className="space-y-6 p-5 sm:p-6">
             <div className="space-y-1">
               <h2 className="flex items-center gap-2 text-xl font-semibold">
                 <Users className="h-5 w-5 text-[var(--primary)]" strokeWidth={2} />
@@ -522,7 +522,7 @@ export default function OrganizationPage() {
             </p>
           ) : null}
 
-          <div className="flex flex-wrap justify-end gap-3">
+          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:flex-wrap sm:justify-end">
             <Button disabled={isInvitingForm || inviteMemberMutation.isPending} type="submit">
               {isInvitingForm || inviteMemberMutation.isPending ? "Sending invitation..." : "Invite teammate"}
             </Button>
@@ -577,7 +577,7 @@ function InvitationCard({
           Role: {formatRole(invitation.role)} | Status: {formatStatus(invitation.status)}
         </p>
       </div>
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
         <Button disabled={isPendingAction} onClick={onAccept} type="button">
           {isPendingAction ? "Working..." : "Accept invitation"}
         </Button>
@@ -603,7 +603,7 @@ function ManageInvitationRow({
 
   return (
     <div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--background)] p-4 shadow-[var(--shadow-sm)]">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="space-y-1">
           <p className="font-medium">{invitation.email}</p>
           <p className="text-sm leading-6 text-[var(--foreground-muted)]">
@@ -650,7 +650,7 @@ function MemberRow({
 
   return (
     <div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--background)] p-4 shadow-[var(--shadow-sm)]">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+      <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
         <div className="space-y-1">
           <p className="font-medium">
             {member.user.name}
@@ -658,7 +658,7 @@ function MemberRow({
           </p>
           <p className="text-sm leading-6 text-[var(--foreground-muted)]">{member.user.email}</p>
         </div>
-        <div className="flex flex-col gap-3 md:flex-row md:items-center">
+        <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
           {canManage ? (
             <>
               <Select

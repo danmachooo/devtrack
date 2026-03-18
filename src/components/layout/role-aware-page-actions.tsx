@@ -38,6 +38,7 @@ export function RoleAwarePageActions({ items }: RoleAwarePageActionsProps) {
       {visibleItems.map((item) => (
         <Button
           key={`${item.label}-${item.href ?? "action"}`}
+          className="min-h-11 w-full justify-center sm:w-auto"
           onClick={() => {
             if (item.onClick) {
               item.onClick();

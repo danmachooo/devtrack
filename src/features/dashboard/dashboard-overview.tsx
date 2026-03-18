@@ -75,7 +75,7 @@ export function DashboardOverview() {
         </EmptyState>
       ) : (
         <>
-          <section className="grid gap-4 xl:grid-cols-4">
+          <section className="grid gap-4 sm:grid-cols-2 2xl:grid-cols-4">
             {metrics.map((metric) => (
               <MetricCard
                 key={metric.label}
@@ -87,13 +87,13 @@ export function DashboardOverview() {
             ))}
           </section>
 
-          <section className="grid gap-5 xl:grid-cols-[1.05fr_1.45fr]">
-            <Card className="space-y-5 p-6">
+          <section className="grid gap-5 2xl:grid-cols-[1.05fr_1.45fr]">
+            <Card className="space-y-5 p-5 sm:p-6">
               <div className="space-y-2">
                 <p className="text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
                   Next steps
                 </p>
-                <div className="flex items-start justify-between gap-3">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div className="space-y-1">
                     <h2 className="text-2xl font-semibold">Keep the delivery loop moving</h2>
                     <p className="text-sm text-[var(--foreground-muted)]">
@@ -115,7 +115,7 @@ export function DashboardOverview() {
                     key={priority.id}
                     className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--background)] p-4"
                   >
-                    <div className="flex items-start justify-between gap-4">
+                    <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                       <div className="space-y-2">
                         <div className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
                           Priority {index + 1}
@@ -134,12 +134,12 @@ export function DashboardOverview() {
               </div>
             </Card>
 
-            <Card className="space-y-5 p-6">
+            <Card className="space-y-5 p-5 sm:p-6">
               <div className="space-y-2">
                 <p className="text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
                   Project health
                 </p>
-                <div className="flex items-start justify-between gap-3">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div className="space-y-1">
                     <h2 className="text-2xl font-semibold">See what needs attention right now</h2>
                     <p className="text-sm text-[var(--foreground-muted)]">
@@ -196,7 +196,7 @@ export function DashboardOverview() {
                       />
                     </div>
 
-                    <div className="mt-4 grid gap-3 md:grid-cols-4">
+                    <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                       <ProjectMetric label="Last synced" value={project.lastSyncedLabel} />
                       <ProjectMetric label="Tickets" value={project.ticketsLabel} />
                       <ProjectMetric label="Features" value={project.featuresLabel} />
@@ -258,7 +258,7 @@ function ProjectMetric({ label, value }: { label: string; value: string }) {
 function DashboardSkeleton() {
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 xl:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 2xl:grid-cols-4">
         {Array.from({ length: 4 }).map((_, index) => (
           <Card key={index} className="space-y-3 p-5">
             <div className="h-4 w-24 animate-pulse rounded bg-[var(--surface-muted)]" />
@@ -267,7 +267,7 @@ function DashboardSkeleton() {
           </Card>
         ))}
       </div>
-      <div className="grid gap-5 xl:grid-cols-[1.05fr_1.45fr]">
+      <div className="grid gap-5 2xl:grid-cols-[1.05fr_1.45fr]">
         {Array.from({ length: 2 }).map((_, index) => (
           <Card key={index} className="space-y-4 p-6">
             <div className="h-6 w-40 animate-pulse rounded bg-[var(--surface-muted)]" />
@@ -309,7 +309,7 @@ function FreshnessPill({
 function LinkButton({ children, href }: { children: string; href: string }) {
   return (
     <Link
-      className="inline-flex items-center justify-center rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 text-sm font-semibold text-[var(--foreground)] transition hover:bg-[var(--surface-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]"
+      className="inline-flex min-h-11 w-full items-center justify-center rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 text-sm font-semibold text-[var(--foreground)] transition hover:bg-[var(--surface-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] sm:w-auto"
       href={href}
     >
       {children}

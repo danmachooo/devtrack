@@ -189,7 +189,7 @@ export default function ProjectsPage() {
           description="DevTrack could not load the organization project list right now. Try again in a moment."
         />
       ) : sortedProjects.length ? (
-        <div className="grid gap-5 xl:grid-cols-2">
+        <div className="grid gap-5 2xl:grid-cols-2">
           {sortedProjects.map((project) => (
             <ProjectCard
               key={project.id}
@@ -236,9 +236,9 @@ function ProjectCard({
       className="group block rounded-[var(--radius-xl)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]"
       href={`/projects/${project.id}`}
     >
-      <Card className="p-6 transition duration-200 group-hover:-translate-y-0.5 group-hover:border-[color:color-mix(in_srgb,var(--primary)_26%,var(--border))] group-hover:shadow-[var(--shadow-md)]">
+      <Card className="p-5 transition duration-200 group-hover:-translate-y-0.5 group-hover:border-[color:color-mix(in_srgb,var(--primary)_26%,var(--border))] group-hover:shadow-[var(--shadow-md)] sm:p-6">
         <div className="flex flex-col gap-5">
-          <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+          <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
             <div className="space-y-2">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="rounded-full border border-[var(--border)] bg-[var(--surface-muted)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--foreground-muted)]">
@@ -251,16 +251,18 @@ function ProjectCard({
                 </span>
               </div>
               <div>
-                <h2 className="max-w-xl text-2xl font-semibold text-balance transition group-hover:text-[var(--primary)]">
+                <h2 className="max-w-xl text-xl font-semibold text-balance transition group-hover:text-[var(--primary)] sm:text-2xl">
                   {project.name}
                 </h2>
                 <p className="text-sm leading-6 text-[var(--foreground-muted)]">
-                  {project.clientName} | {project.clientEmail}
+                  <span className="block sm:inline">{project.clientName}</span>
+                  <span className="hidden sm:inline"> | </span>
+                  <span className="break-all">{project.clientEmail}</span>
                 </p>
               </div>
             </div>
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--background)] px-4 py-3 text-right transition group-hover:border-[color:color-mix(in_srgb,var(--primary)_20%,var(--border))]">
-              <div className="flex items-center justify-end gap-2 text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
+            <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--background)] px-4 py-3 transition group-hover:border-[color:color-mix(in_srgb,var(--primary)_20%,var(--border))] xl:min-w-52 xl:text-right">
+              <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)] xl:justify-end">
                 <Gauge className="h-3.5 w-3.5" strokeWidth={2} />
                 Progress
               </div>
@@ -280,7 +282,7 @@ function ProjectCard({
             />
           </div>
 
-          <div className="grid gap-3 md:grid-cols-3">
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
             <ProjectMetric
               label="Last synced"
               value={project.lastSyncedAt ? formatDateTime(project.lastSyncedAt) : "Not synced yet"}
@@ -311,7 +313,7 @@ function ProjectMetric({ label, value }: { label: string; value: string }) {
 
 function ProjectListSkeleton() {
   return (
-    <div className="grid gap-5 xl:grid-cols-2">
+    <div className="grid gap-5 2xl:grid-cols-2">
       {Array.from({ length: 4 }).map((_, index) => (
         <Card key={index} className="space-y-5 p-6">
           <div className="h-6 w-40 animate-pulse rounded bg-[var(--surface-muted)]" />
