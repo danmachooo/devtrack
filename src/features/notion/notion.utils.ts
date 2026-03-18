@@ -78,3 +78,35 @@ export function formatTargetLabel(target: string) {
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(" ");
 }
+
+export function normalizeNotionDatabaseId(value: string) {
+  const trimmedValue = value.trim();
+
+  if (!trimmedValue) {
+    return "";
+  }
+
+  const hyphenatedMatch = trimmedValue.match(
+    /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/,
+  );
+
+  if (hyphenatedMatch) {
+    return hyphenatedMatch[0].toLowerCase();
+  }
+
+  const compactMatch = trimmedValue.match(/[0-9a-fA-F]{32}/);
+
+  if (!compactMatch) {
+    return trimmedValue;
+  }
+
+  const compactId = compactMatch[0].toLowerCase();
+
+  return [
+    compactId.slice(0, 8),
+    compactId.slice(8, 12),
+    compactId.slice(12, 16),
+    compactId.slice(16, 20),
+    compactId.slice(20),
+  ].join("-");
+}

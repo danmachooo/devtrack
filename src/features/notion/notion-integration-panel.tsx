@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useMemo, useState } from "react";
+import { ClipboardEvent, FocusEvent, useEffect, useMemo, useState } from "react";
 import { type UseFormRegisterReturn, useForm } from "react-hook-form";
 
 import { EmptyState } from "@/components/feedback/empty-state";
@@ -20,6 +20,7 @@ import {
 import {
   deriveMappingFormValues,
   formatTargetLabel,
+  normalizeNotionDatabaseId,
 } from "@/features/notion/notion.utils";
 import { useNotionIntegration } from "@/features/notion/use-notion-integration";
 import type { DevtrackStatus, Project } from "@/types/api";
@@ -40,6 +41,7 @@ export function NotionIntegrationPanel({ project }: NotionIntegrationPanelProps)
     register: registerConnection,
     handleSubmit: handleConnectionSubmit,
     reset: resetConnectionForm,
+    setValue: setConnectionValue,
     formState: { errors: connectionErrors, isSubmitting: isConnectionSubmitting },
   } = useForm<NotionConnectionFormValues>({
     resolver: zodResolver(notionConnectionSchema),
@@ -102,6 +104,7 @@ export function NotionIntegrationPanel({ project }: NotionIntegrationPanelProps)
 
   const hasSavedConnection = Boolean(project.notionDatabaseId || savedDatabase);
   const canOpenMapping = hasSavedConnection;
+  const databaseIdRegistration = registerConnection("databaseId");
   const connectionStatusTone = useMemo(() => {
     if (connectMutation.isSuccess || hasSavedConnection) {
       return "success";
@@ -113,6 +116,39 @@ export function NotionIntegrationPanel({ project }: NotionIntegrationPanelProps)
 
     return "neutral";
   }, [connectMutation.isSuccess, hasSavedConnection, testResult]);
+
+  const applyNormalizedDatabaseId = (rawValue: string) => {
+    const normalizedValue = normalizeNotionDatabaseId(rawValue);
+
+    if (normalizedValue !== rawValue) {
+      setConnectionValue("databaseId", normalizedValue, {
+        shouldDirty: true,
+        shouldTouch: true,
+        shouldValidate: true,
+      });
+    }
+
+    return normalizedValue;
+  };
+
+  const handleDatabaseIdPaste = (event: ClipboardEvent<HTMLInputElement>) => {
+    const pastedValue = event.clipboardData.getData("text");
+    const normalizedValue = normalizeNotionDatabaseId(pastedValue);
+
+    if (normalizedValue !== pastedValue.trim()) {
+      event.preventDefault();
+      setConnectionValue("databaseId", normalizedValue, {
+        shouldDirty: true,
+        shouldTouch: true,
+        shouldValidate: true,
+      });
+    }
+  };
+
+  const handleDatabaseIdBlur = (event: FocusEvent<HTMLInputElement>) => {
+    databaseIdRegistration.onBlur(event);
+    applyNormalizedDatabaseId(event.currentTarget.value);
+  };
 
   return (
     <Card className="space-y-6 p-6">
@@ -209,7 +245,9 @@ export function NotionIntegrationPanel({ project }: NotionIntegrationPanelProps)
                   <Input
                     id="notion-database-id"
                     placeholder="aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
-                    {...registerConnection("databaseId")}
+                    {...databaseIdRegistration}
+                    onBlur={handleDatabaseIdBlur}
+                    onPaste={handleDatabaseIdPaste}
                   />
                   {connectionErrors.databaseId ? (
                     <p className="text-sm text-[var(--danger)]">
@@ -217,7 +255,7 @@ export function NotionIntegrationPanel({ project }: NotionIntegrationPanelProps)
                     </p>
                   ) : (
                     <p className="text-sm text-[var(--foreground-muted)]">
-                      Use the Notion database identifier exactly as the API contract expects.
+                      Paste the database ID from Notion and DevTrack will format plain 32-character IDs into the expected UUID shape.
                     </p>
                   )}
                 </div>
