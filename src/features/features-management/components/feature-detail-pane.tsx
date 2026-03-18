@@ -8,7 +8,7 @@ import {
   PencilLine,
   Trash2,
 } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
@@ -56,6 +56,7 @@ export function FeatureDetailPane({
   onMoveToPosition,
   onDelete,
 }: FeatureDetailPaneProps) {
+  const [activeTab, setActiveTab] = useState<"details" | "order">("details");
   const {
     register,
     handleSubmit,
@@ -71,6 +72,10 @@ export function FeatureDetailPane({
   useEffect(() => {
     reset({ name: feature.name });
   }, [feature.name, reset]);
+
+  useEffect(() => {
+    setActiveTab("details");
+  }, [feature.id]);
 
   const progress = progressSummary?.progress ?? 0;
   const totalTickets = progressSummary?.totalTickets ?? 0;
@@ -89,11 +94,26 @@ export function FeatureDetailPane({
           Feature editor
         </p>
         <div className="space-y-2">
-          <div className="flex flex-wrap items-center gap-2">
-            <FeatureStatusPill status={status} />
-            <span className="rounded-full border border-[var(--border)] bg-[var(--background)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--foreground-muted)]">
-              Order {feature.order + 1} of {totalFeatures}
-            </span>
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <FeatureStatusPill status={status} />
+              <span className="rounded-full border border-[var(--border)] bg-[var(--background)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--foreground-muted)]">
+                Order {feature.order + 1} of {totalFeatures}
+              </span>
+            </div>
+            {canManageFeatures ? (
+              <Button
+                aria-label={`Delete feature ${feature.name}`}
+                disabled={isSaving || isDeleting}
+                onClick={onDelete}
+                title="Delete feature"
+                type="button"
+                variant="ghost"
+                className="h-10 w-10 rounded-full border border-[color:color-mix(in_srgb,var(--danger)_22%,var(--border))] bg-[color:color-mix(in_srgb,var(--danger)_8%,var(--surface))] p-0 text-[var(--danger)] hover:bg-[color:color-mix(in_srgb,var(--danger)_12%,var(--surface))]"
+              >
+                <Trash2 className="h-4 w-4" strokeWidth={2} />
+              </Button>
+            ) : null}
           </div>
           <h3 className="text-2xl font-semibold tracking-tight text-balance">{feature.name}</h3>
           <p className="text-sm leading-6 text-[var(--foreground-muted)]">
@@ -139,123 +159,121 @@ export function FeatureDetailPane({
         </div>
       </div>
 
-      <form className="space-y-4 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--background)] p-5" onSubmit={onSubmit}>
-        <div className="space-y-1.5">
-          <p className="flex items-center gap-2 text-sm font-semibold">
-            <PencilLine className="h-4 w-4 text-[var(--primary)]" strokeWidth={2} />
-            Rename feature
-          </p>
-          <p className="text-sm leading-6 text-[var(--foreground-muted)]">
-            Use client-facing language that sounds like a real deliverable, not a team bucket.
-          </p>
-        </div>
-        <div className="space-y-2">
-          <label className="text-sm font-medium" htmlFor={`feature-editor-name-${feature.id}`}>
-            Feature name
-          </label>
-          <Input
-            disabled={!canManageFeatures || isSaving || isDeleting}
-            id={`feature-editor-name-${feature.id}`}
-            placeholder="Client portal"
-            {...register("name")}
-          />
-          {errors.name ? <p className="text-sm text-[var(--danger)]">{errors.name.message}</p> : null}
-        </div>
-
-        {canManageFeatures ? (
-          <div className="flex flex-wrap justify-end gap-3">
-            <Button disabled={!isDirty || isSaving || isDeleting} type="submit">
-              {isSaving ? "Saving..." : "Save name"}
-            </Button>
-          </div>
-        ) : null}
-      </form>
-
-      <div className="space-y-4 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--background)] p-5">
-        <div className="space-y-1.5">
-          <h4 className="text-sm font-semibold">Ordering controls</h4>
-          <p className="text-sm leading-6 text-[var(--foreground-muted)]">
-            Keep higher-level deliverables near the top so the client-facing narrative flows naturally.
-          </p>
-        </div>
-
-        <div className="grid gap-3 sm:grid-cols-2">
-          <Button
-            disabled={!canManageFeatures || feature.order === 0 || isSaving || isDeleting}
-            onClick={onMoveToTop}
-            type="button"
-            variant="secondary"
-          >
-            <ChevronsUp className="h-4 w-4" strokeWidth={2} />
-            Move to top
-          </Button>
-          <Button
-            disabled={!canManageFeatures || feature.order === 0 || isSaving || isDeleting}
-            onClick={onMoveUp}
-            type="button"
-            variant="secondary"
-          >
-            <ArrowUp className="h-4 w-4" strokeWidth={2} />
-            Move up
-          </Button>
-          <Button
-            disabled={!canManageFeatures || feature.order === totalFeatures - 1 || isSaving || isDeleting}
-            onClick={onMoveDown}
-            type="button"
-            variant="secondary"
-          >
-            <ArrowDown className="h-4 w-4" strokeWidth={2} />
-            Move down
-          </Button>
-          <Button
-            disabled={!canManageFeatures || feature.order === totalFeatures - 1 || isSaving || isDeleting}
-            onClick={onMoveToBottom}
-            type="button"
-            variant="secondary"
-          >
-            <ChevronsDown className="h-4 w-4" strokeWidth={2} />
-            Move to bottom
-          </Button>
-        </div>
-
-        <div className="space-y-2 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] p-4">
-          <label className="text-sm font-medium" htmlFor={`feature-order-position-${feature.id}`}>
-            Move directly to position
-          </label>
-          <Select
-            disabled={!canManageFeatures || isSaving || isDeleting}
-            id={`feature-order-position-${feature.id}`}
-            onChange={(event) => onMoveToPosition(Number(event.target.value))}
-            value={String(feature.order)}
-          >
-            {Array.from({ length: totalFeatures }).map((_, index) => (
-              <option key={index} value={index}>
-                Position {index + 1}
-              </option>
-            ))}
-          </Select>
-          <p className="text-sm leading-6 text-[var(--foreground-muted)]">
-            Use this when the feature needs to jump further in the client narrative without repeated step moves.
-          </p>
-        </div>
+      <div className="flex flex-wrap gap-2">
+        <EditorTabButton
+          active={activeTab === "details"}
+          label="Details"
+          onClick={() => setActiveTab("details")}
+        />
+        <EditorTabButton
+          active={activeTab === "order"}
+          label="Order"
+          onClick={() => setActiveTab("order")}
+        />
       </div>
 
-      {canManageFeatures ? (
-        <div className="space-y-4 rounded-[var(--radius-lg)] border border-[color:color-mix(in_srgb,var(--danger)_20%,var(--border))] bg-[color:color-mix(in_srgb,var(--danger)_8%,var(--surface))] p-5">
+      {activeTab === "details" ? (
+        <form className="space-y-4 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--background)] p-5" onSubmit={onSubmit}>
           <div className="space-y-1.5">
-            <h4 className="text-sm font-semibold">Delete feature</h4>
+            <p className="flex items-center gap-2 text-sm font-semibold">
+              <PencilLine className="h-4 w-4 text-[var(--primary)]" strokeWidth={2} />
+              Rename feature
+            </p>
             <p className="text-sm leading-6 text-[var(--foreground-muted)]">
-              Deleting this feature clears related ticket assignments. Those tickets will need to be grouped again from the tickets workspace.
+              Use client-facing language that sounds like a real deliverable, not a team bucket.
             </p>
           </div>
-          <div className="flex justify-end">
-            <Button disabled={isSaving || isDeleting} onClick={onDelete} type="button" variant="ghost">
-              <Trash2 className="h-4 w-4" strokeWidth={2} />
-              {isDeleting ? "Deleting..." : "Delete feature"}
+          <div className="space-y-2">
+            <label className="text-sm font-medium" htmlFor={`feature-editor-name-${feature.id}`}>
+              Feature name
+            </label>
+            <Input
+              disabled={!canManageFeatures || isSaving || isDeleting}
+              id={`feature-editor-name-${feature.id}`}
+              placeholder="Client portal"
+              {...register("name")}
+            />
+            {errors.name ? <p className="text-sm text-[var(--danger)]">{errors.name.message}</p> : null}
+          </div>
+
+          {canManageFeatures ? (
+            <div className="flex flex-wrap justify-end gap-3">
+              <Button disabled={!isDirty || isSaving || isDeleting} type="submit">
+                {isSaving ? "Saving..." : "Save name"}
+              </Button>
+            </div>
+          ) : null}
+        </form>
+      ) : (
+        <div className="space-y-4 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--background)] p-5">
+          <div className="space-y-1.5">
+            <h4 className="text-sm font-semibold">Ordering controls</h4>
+            <p className="text-sm leading-6 text-[var(--foreground-muted)]">
+              Keep higher-level deliverables near the top so the client-facing narrative flows naturally.
+            </p>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Button
+              disabled={!canManageFeatures || feature.order === 0 || isSaving || isDeleting}
+              onClick={onMoveToTop}
+              type="button"
+              variant="secondary"
+            >
+              <ChevronsUp className="h-4 w-4" strokeWidth={2} />
+              Move to top
+            </Button>
+            <Button
+              disabled={!canManageFeatures || feature.order === 0 || isSaving || isDeleting}
+              onClick={onMoveUp}
+              type="button"
+              variant="secondary"
+            >
+              <ArrowUp className="h-4 w-4" strokeWidth={2} />
+              Move up
+            </Button>
+            <Button
+              disabled={!canManageFeatures || feature.order === totalFeatures - 1 || isSaving || isDeleting}
+              onClick={onMoveDown}
+              type="button"
+              variant="secondary"
+            >
+              <ArrowDown className="h-4 w-4" strokeWidth={2} />
+              Move down
+            </Button>
+            <Button
+              disabled={!canManageFeatures || feature.order === totalFeatures - 1 || isSaving || isDeleting}
+              onClick={onMoveToBottom}
+              type="button"
+              variant="secondary"
+            >
+              <ChevronsDown className="h-4 w-4" strokeWidth={2} />
+              Move to bottom
             </Button>
           </div>
+
+          <div className="space-y-2 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] p-4">
+            <label className="text-sm font-medium" htmlFor={`feature-order-position-${feature.id}`}>
+              Move directly to position
+            </label>
+            <Select
+              disabled={!canManageFeatures || isSaving || isDeleting}
+              id={`feature-order-position-${feature.id}`}
+              onChange={(event) => onMoveToPosition(Number(event.target.value))}
+              value={String(feature.order)}
+            >
+              {Array.from({ length: totalFeatures }).map((_, index) => (
+                <option key={index} value={index}>
+                  Position {index + 1}
+                </option>
+              ))}
+            </Select>
+            <p className="text-sm leading-6 text-[var(--foreground-muted)]">
+              Use this when the feature needs to jump further in the client narrative without repeated step moves.
+            </p>
+          </div>
         </div>
-      ) : null}
+      )}
     </div>
   );
 }
@@ -292,5 +310,29 @@ function FeatureStatusPill({ status }: { status: FeatureWorkspaceStatus }) {
     <span className={`rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] ${toneClasses}`}>
       {label}
     </span>
+  );
+}
+
+function EditorTabButton({
+  active,
+  label,
+  onClick,
+}: {
+  active: boolean;
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      className={`inline-flex items-center justify-center rounded-full border px-4 py-2 text-sm font-semibold transition duration-200 ${
+        active
+          ? "border-[color:color-mix(in_srgb,var(--primary)_35%,var(--border))] bg-[color:color-mix(in_srgb,var(--primary)_12%,transparent)] text-[var(--primary)] shadow-[var(--shadow-sm)]"
+          : "border-[var(--border)] bg-[var(--surface)] text-[var(--foreground-muted)] hover:-translate-y-0.5 hover:border-[color:color-mix(in_srgb,var(--primary)_24%,var(--border))] hover:text-[var(--foreground)] hover:shadow-[var(--shadow-sm)]"
+      }`}
+      onClick={onClick}
+      type="button"
+    >
+      {label}
+    </button>
   );
 }

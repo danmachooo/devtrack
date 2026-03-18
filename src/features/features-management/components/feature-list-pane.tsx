@@ -40,7 +40,7 @@ export function FeatureListPane({
   progressByFeatureId,
 }: FeatureListPaneProps) {
   return (
-    <div className="space-y-4 rounded-[var(--radius-xl)] border border-[var(--border)] bg-[linear-gradient(180deg,var(--surface)_0%,color-mix(in_srgb,var(--background)_92%,var(--surface))_100%)] p-5 shadow-[var(--shadow-sm)]">
+    <div className="h-fit self-start space-y-4 rounded-[var(--radius-xl)] border border-[var(--border)] bg-[linear-gradient(180deg,var(--surface)_0%,color-mix(in_srgb,var(--background)_92%,var(--surface))_100%)] p-5 shadow-[var(--shadow-sm)]">
       <div className="space-y-2">
         <p className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
           <Layers3 className="h-3.5 w-3.5" strokeWidth={2} />
@@ -53,7 +53,7 @@ export function FeatureListPane({
               Select a feature to edit its name, order, and destructive actions without cluttering every row.
             </p>
           </div>
-          <span className="rounded-full border border-[var(--border)] bg-[var(--background)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--foreground-muted)]">
+          <span className="shrink-0 whitespace-nowrap rounded-full border border-[var(--border)] bg-[var(--background)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--foreground-muted)]">
             {features.length} shown / {totalFeatureCount} total
           </span>
         </div>

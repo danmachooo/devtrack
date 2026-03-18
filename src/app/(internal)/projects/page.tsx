@@ -28,11 +28,13 @@ import { useProjectListProgress } from "@/features/projects/use-project-list-pro
 import { useSession } from "@/hooks/use-session";
 import { createProject, getProjects } from "@/lib/api/projects.api";
 import { canPerformAction } from "@/lib/auth/permissions";
+import { useUiStore } from "@/store/ui-store";
 import type { Project } from "@/types/api";
 
 export default function ProjectsPage() {
   const queryClient = useQueryClient();
   const { data: sessionResponse } = useSession();
+  const showToast = useUiStore((state) => state.showToast);
   const userRole = sessionResponse?.data.user?.role;
   const canCreateProject = canPerformAction(userRole, "manageProjects");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -58,10 +60,23 @@ export default function ProjectsPage() {
 
   const createProjectMutation = useMutation({
     mutationFn: createProject,
-    onSuccess: async () => {
+    onSuccess: async (response) => {
       reset();
       setIsCreateOpen(false);
       await queryClient.invalidateQueries({ queryKey: ["projects"] });
+      showToast({
+        tone: "success",
+        title: "Project created",
+        description: `"${response.data.name}" is ready for setup.`,
+      });
+    },
+    onError: (error) => {
+      showToast({
+        tone: "error",
+        title: "Project creation failed",
+        description:
+          error instanceof Error ? error.message : "DevTrack could not create that project.",
+      });
     },
   });
 

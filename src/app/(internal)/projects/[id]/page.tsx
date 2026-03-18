@@ -46,6 +46,7 @@ import { useSyncPanel } from "@/features/sync/use-sync-panel";
 import { useSession } from "@/hooks/use-session";
 import { canPerformAction } from "@/lib/auth/permissions";
 import { getProject, updateProject } from "@/lib/api/projects.api";
+import { useUiStore } from "@/store/ui-store";
 import type { Project } from "@/types/api";
 
 type WorkspaceTab = "organization" | "health";
@@ -62,6 +63,7 @@ export default function ProjectDetailPage() {
   const projectId = typeof params.id === "string" ? params.id : "";
   const queryClient = useQueryClient();
   const { data: sessionResponse } = useSession();
+  const showToast = useUiStore((state) => state.showToast);
   const userRole = sessionResponse?.data.user?.role;
   const canEditProject = canPerformAction(userRole, "manageProjects");
   const canManageNotion = canPerformAction(userRole, "manageNotion");
@@ -116,6 +118,19 @@ export default function ProjectDetailPage() {
         queryClient.invalidateQueries({ queryKey: ["project", projectId] }),
         queryClient.invalidateQueries({ queryKey: ["projects"] }),
       ]);
+      showToast({
+        tone: "success",
+        title: "Project updated",
+        description: `"${response.data.name}" now reflects the latest client and sync settings.`,
+      });
+    },
+    onError: (error) => {
+      showToast({
+        tone: "error",
+        title: "Project update failed",
+        description:
+          error instanceof Error ? error.message : "DevTrack could not save those project changes.",
+      });
     },
   });
 

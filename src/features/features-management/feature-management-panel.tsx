@@ -156,7 +156,7 @@ export function FeatureManagementPanel({ project }: FeatureManagementPanelProps)
           <FeatureEmptyEditor canManageFeatures={canManageFeatures} hasFeatures={false} />
         </div>
       ) : (
-        <div className="grid gap-5 xl:grid-cols-[0.92fr_1.08fr]">
+        <div className="grid items-start gap-5 xl:grid-cols-[0.92fr_1.08fr]">
           <FeatureListPane
             activeFilter={activeFilter}
             features={visibleFeatures}

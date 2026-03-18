@@ -3,6 +3,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { PropsWithChildren, useState } from "react";
 
+import { ToastViewport } from "@/components/feedback/toast-viewport";
 import { ThemeController } from "@/components/providers/theme-controller";
 
 export function AppProviders({ children }: PropsWithChildren) {
@@ -22,6 +23,7 @@ export function AppProviders({ children }: PropsWithChildren) {
     <QueryClientProvider client={queryClient}>
       <ThemeController />
       {children}
+      <ToastViewport />
     </QueryClientProvider>
   );
 }

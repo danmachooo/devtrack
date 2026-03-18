@@ -30,10 +30,10 @@ export function FeatureListRow({
   return (
     <button
       className={cn(
-        "w-full rounded-[var(--radius-lg)] border p-4 text-left transition duration-200",
+        "w-full rounded-[var(--radius-lg)] border p-4 text-left transition duration-200 hover:-translate-y-0.5 hover:scale-[1.01]",
         isSelected
           ? "border-[color:color-mix(in_srgb,var(--primary)_28%,var(--border))] bg-[linear-gradient(180deg,color-mix(in_srgb,var(--primary)_10%,var(--surface))_0%,var(--surface)_100%)] shadow-[var(--shadow-sm)]"
-          : "border-[var(--border)] bg-[var(--surface)] hover:border-[color:color-mix(in_srgb,var(--primary)_18%,var(--border))] hover:bg-[color:color-mix(in_srgb,var(--surface)_88%,var(--background))]",
+          : "border-[var(--border)] bg-[var(--surface)] hover:border-[color:color-mix(in_srgb,var(--primary)_24%,var(--border))] hover:bg-[color:color-mix(in_srgb,var(--surface)_88%,var(--background))] hover:shadow-[var(--shadow-sm)]",
       )}
       onClick={onSelect}
       type="button"
