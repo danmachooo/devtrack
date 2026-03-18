@@ -229,3 +229,15 @@ Assumption:
 - [x] Add direct position-based feature ordering in the detail pane for larger jumps
 - [x] Preserve explicit move controls as the stable ordering path for editable roles
 - [x] Verify the final ordering UX decision with typecheck and production build validation
+
+## Phase 24 - Interaction Feedback And Workflow Polish
+
+- [x] Replace the dashboard empty-state text badge with a proper icon and align the dashboard header with the stronger internal page-header pattern
+- [x] Add app-wide pointer cursor treatment for shared click targets so interactive affordances read more clearly
+- [x] Make project cards on `/projects` read as obvious click targets with full-card navigation and stronger hover states
+- [x] Smooth the internal sidebar expand and collapse animation by keeping labels mounted and animating width and opacity instead of snapping content in and out
+- [x] Normalize pasted Notion database IDs from plain 32-character or URL-derived values into the UUID format expected by the API contract
+- [x] Move manual sync access into the project header sync signal so freshness and sync actions stay in one place for authorized roles
+- [x] Add a shared toast system and wire it into project creation and editing, Notion setup, manual sync, and client-link copy feedback
+- [x] Lighten the feature-management workspace with stronger row hover cues, independent list sizing, a non-wrapping summary badge, and a simpler tabbed editor with compact delete affordance
+- [x] Verify the interaction-polish pass with typecheck validation
