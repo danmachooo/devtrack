@@ -207,7 +207,6 @@ export function buildDashboardPriorities(projects: Project[], role: UserRole | n
 
 export function buildDashboardProjectHealth(
   projects: Project[],
-  progressByProjectId: Map<string, number>,
 ) {
   return [...projects]
     .sort((left, right) => new Date(right.updatedAt).getTime() - new Date(left.updatedAt).getTime())
@@ -220,7 +219,7 @@ export function buildDashboardProjectHealth(
         name: project.name,
         clientName: project.clientName,
         clientEmail: project.clientEmail,
-        progress: progressByProjectId.get(project.id) ?? 0,
+        progress: project.progressSummary?.overallProgress ?? 0,
         nextStepTitle: nextStep.title,
         nextStepDescription: nextStep.description,
         freshnessLabel: freshness.label,

@@ -24,7 +24,6 @@ import {
   createProjectSchema,
   type CreateProjectFormValues,
 } from "@/features/projects/projects.schemas";
-import { useProjectListProgress } from "@/features/projects/use-project-list-progress";
 import { useInternalSession } from "@/features/auth/internal-session-context";
 import { createProject, getProjects } from "@/lib/api/projects.api";
 import { canPerformAction } from "@/lib/auth/permissions";
@@ -95,7 +94,6 @@ export default function ProjectsPage() {
   const handleCreateProject = handleSubmit((values) => {
     createProjectMutation.mutate(values);
   });
-  const { progressByProjectId } = useProjectListProgress(sortedProjects);
 
   return (
     <div className="space-y-8">
@@ -195,7 +193,7 @@ export default function ProjectsPage() {
           {sortedProjects.map((project) => (
             <ProjectCard
               key={project.id}
-              progress={progressByProjectId.get(project.id) ?? 0}
+              progress={project.progressSummary?.overallProgress ?? 0}
               project={project}
             />
           ))}

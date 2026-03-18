@@ -241,3 +241,18 @@ Assumption:
 - [x] Add a shared toast system and wire it into project creation and editing, Notion setup, manual sync, and client-link copy feedback
 - [x] Lighten the feature-management workspace with stronger row hover cues, independent list sizing, a non-wrapping summary badge, and a simpler tabbed editor with compact delete affordance
 - [x] Verify the interaction-polish pass with typecheck validation
+
+## Phase 25 - Project Overview Progress Summary
+
+- [x] Extend the shared project types to accept backend-provided `progressSummary`
+- [x] Update `/dashboard` and `/projects` to read overview progress directly from `GET /api/projects`
+- [x] Remove the frontend N+1 per-project ticket fan-out previously used only for overview progress
+- [x] Update `CONTEXT.md` and `ENDPOINTS.md` to record the new backend-owned overview-progress contract
+- [x] Verify the overview-progress cutover with typecheck and production build validation
+
+## Phase 26 - Ticket Assignment Cache Tightening
+
+- [x] Replace row-level ticket assignment refetch churn with targeted React Query cache updates
+- [x] Replace bulk assignment refetch churn with targeted ticket and feature-count cache updates
+- [x] Keep project-scoped ticket review results responsive without broad project-level invalidations
+- [x] Verify the assignment-cache pass with typecheck and production build validation

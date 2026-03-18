@@ -4,7 +4,6 @@ import { useQuery } from "@tanstack/react-query";
 
 import { useInternalSession } from "@/features/auth/internal-session-context";
 import { buildDashboardMetrics, buildDashboardPriorities, buildDashboardProjectHealth } from "@/features/dashboard/dashboard.utils";
-import { useProjectListProgress } from "@/features/projects/use-project-list-progress";
 import { getProjects } from "@/lib/api/projects.api";
 
 export function useDashboardOverview() {
@@ -20,7 +19,6 @@ export function useDashboardOverview() {
   });
 
   const projects = projectsQuery.data?.data ?? [];
-  const { progressByProjectId } = useProjectListProgress(projects);
 
   return {
     role,
@@ -29,6 +27,6 @@ export function useDashboardOverview() {
     projects,
     metrics: buildDashboardMetrics(projects),
     priorities: buildDashboardPriorities(projects, role),
-    projectHealth: buildDashboardProjectHealth(projects, progressByProjectId),
+    projectHealth: buildDashboardProjectHealth(projects),
   };
 }

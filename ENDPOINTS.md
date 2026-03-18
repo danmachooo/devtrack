@@ -599,6 +599,26 @@ Response body:
         "createdAt": "2026-03-13T10:00:00.000Z"
       },
       "features": [],
+      "progressSummary": {
+        "overallProgress": 50,
+        "assignedNonMissingTickets": 10,
+        "completedAssignedNonMissingTickets": 5,
+        "unassignedTickets": 2,
+        "missingTickets": 1,
+        "featuresWithProgress": 1,
+        "totalFeatures": 1,
+        "featureSummaries": [
+          {
+            "featureId": "feature-id",
+            "name": "Client Portal",
+            "order": 0,
+            "progress": 50,
+            "status": "IN_PROGRESS",
+            "totalTickets": 10,
+            "completedTickets": 5
+          }
+        ]
+      },
       "_count": {
         "tickets": 0
       }
@@ -606,6 +626,11 @@ Response body:
   ]
 }
 ```
+
+Notes:
+
+- `progressSummary` is additive and may be omitted by older environments during rollout.
+- overview routes such as `/dashboard` and `/projects` should prefer `progressSummary.overallProgress` instead of reconstructing project progress with extra per-project ticket requests.
 
 ### `GET /api/projects/:id`
 

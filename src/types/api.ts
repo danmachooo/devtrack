@@ -244,6 +244,27 @@ export type FeatureProgressSummary = {
   completedTickets: number;
 };
 
+export type ProjectProgressFeatureSummary = {
+  featureId: string;
+  name: string;
+  order: number;
+  progress: number;
+  status: FeatureProgressStatus;
+  totalTickets: number;
+  completedTickets: number;
+};
+
+export type ProjectProgressSummary = {
+  overallProgress: number;
+  assignedNonMissingTickets: number;
+  completedAssignedNonMissingTickets: number;
+  unassignedTickets: number;
+  missingTickets: number;
+  featuresWithProgress: number;
+  totalFeatures: number;
+  featureSummaries?: ProjectProgressFeatureSummary[];
+};
+
 export type SyncLogStatus = "SUCCESS" | "FAILED" | "RATE_LIMITED";
 
 export type SyncLog = {
@@ -303,6 +324,7 @@ export type Project = {
   _count: {
     tickets: number;
   };
+  progressSummary?: ProjectProgressSummary;
 };
 
 export type CreateProjectPayload = {

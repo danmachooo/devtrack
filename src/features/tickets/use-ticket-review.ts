@@ -2,6 +2,7 @@
 
 import {
   keepPreviousData,
+  type QueryKey,
   useMutation,
   useQuery,
   useQueryClient,
@@ -15,11 +16,16 @@ import {
   updateTicketFeature,
 } from "@/lib/api/tickets.api";
 import type {
+  ApiResponse,
   BulkUpdateTicketFeaturePayload,
   DevtrackStatus,
   GetProjectTicketsQuery,
+  ProjectFeatureSummary,
   SortOrder,
+  Ticket,
+  TicketFeatureReference,
   TicketSortBy,
+  TicketListData,
 } from "@/types/api";
 
 type UseTicketReviewOptions = {
@@ -123,22 +129,113 @@ export function useTicketReview(projectId: string, options: UseTicketReviewOptio
   const assignMutation = useMutation({
     mutationFn: ({ ticketId, nextFeatureId }: { ticketId: string; nextFeatureId: string | null }) =>
       updateTicketFeature(ticketId, { featureId: nextFeatureId }),
-    onSuccess: async () => {
+    onMutate: async ({ ticketId, nextFeatureId }) => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["project", projectId, "tickets"] }),
-        queryClient.invalidateQueries({ queryKey: ["project", projectId, "features"] }),
+        queryClient.cancelQueries({ queryKey: ["project", projectId, "tickets"] }),
+        queryClient.cancelQueries({ queryKey: ["project", projectId, "features"] }),
       ]);
+
+      const previousTicketQueries = queryClient.getQueriesData<ApiResponse<TicketListData>>({
+        queryKey: ["project", projectId, "tickets"],
+      });
+      const previousFeatures = queryClient.getQueryData<ApiResponse<ProjectFeatureSummary[]>>([
+        "project",
+        projectId,
+        "features",
+      ]);
+      const cachedTicket = findCachedTicketById(previousTicketQueries, ticketId);
+
+      if (!cachedTicket) {
+        return {
+          projectId,
+          previousFeatures,
+          previousTicketQueries,
+        };
+      }
+
+      const optimisticTicket = buildPatchedTicket(
+        cachedTicket,
+        nextFeatureId,
+        buildFeatureReference(previousFeatures?.data ?? [], nextFeatureId),
+      );
+
+      syncTicketQueries(queryClient, projectId, [optimisticTicket]);
+      syncFeatureCounts(queryClient, projectId, [
+        {
+          previousFeatureId: cachedTicket.featureId,
+          nextFeatureId,
+        },
+      ]);
+
+      return {
+        projectId,
+        previousFeatures,
+        previousTicketQueries,
+      };
+    },
+    onError: (_error, _variables, context) => {
+      restoreTicketReviewCaches(queryClient, context);
+    },
+    onSuccess: (response) => {
+      syncTicketQueries(queryClient, projectId, [response.data]);
     },
   });
 
   const bulkAssignMutation = useMutation({
     mutationFn: (payload: BulkUpdateTicketFeaturePayload) => bulkUpdateTicketFeature(payload),
-    onSuccess: async () => {
-      clearSelection();
+    onMutate: async (payload) => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["project", projectId, "tickets"] }),
-        queryClient.invalidateQueries({ queryKey: ["project", projectId, "features"] }),
+        queryClient.cancelQueries({ queryKey: ["project", projectId, "tickets"] }),
+        queryClient.cancelQueries({ queryKey: ["project", projectId, "features"] }),
       ]);
+
+      const previousTicketQueries = queryClient.getQueriesData<ApiResponse<TicketListData>>({
+        queryKey: ["project", projectId, "tickets"],
+      });
+      const previousFeatures = queryClient.getQueryData<ApiResponse<ProjectFeatureSummary[]>>([
+        "project",
+        projectId,
+        "features",
+      ]);
+      const cachedTickets = payload.ticketIds
+        .map((ticketId) => findCachedTicketById(previousTicketQueries, ticketId))
+        .filter((ticket): ticket is Ticket => Boolean(ticket));
+
+      if (!cachedTickets.length) {
+        return {
+          projectId,
+          previousFeatures,
+          previousTicketQueries,
+        };
+      }
+
+      const nextFeature = buildFeatureReference(previousFeatures?.data ?? [], payload.featureId);
+      const optimisticTickets = cachedTickets.map((ticket) =>
+        buildPatchedTicket(ticket, payload.featureId, nextFeature),
+      );
+
+      syncTicketQueries(queryClient, projectId, optimisticTickets);
+      syncFeatureCounts(
+        queryClient,
+        projectId,
+        cachedTickets.map((ticket) => ({
+          previousFeatureId: ticket.featureId,
+          nextFeatureId: payload.featureId,
+        })),
+      );
+
+      return {
+        projectId,
+        previousFeatures,
+        previousTicketQueries,
+      };
+    },
+    onError: (_error, _variables, context) => {
+      restoreTicketReviewCaches(queryClient, context);
+    },
+    onSuccess: (response) => {
+      clearSelection();
+      syncTicketQueries(queryClient, projectId, response.data.tickets);
     },
   });
 
@@ -253,4 +350,176 @@ export function useTicketReview(projectId: string, options: UseTicketReviewOptio
       },
     },
   };
+}
+
+type TicketReviewMutationContext = {
+  projectId: string;
+  previousFeatures: ApiResponse<ProjectFeatureSummary[]> | undefined;
+  previousTicketQueries: Array<[QueryKey, ApiResponse<TicketListData> | undefined]>;
+};
+
+type FeatureCountTransition = {
+  previousFeatureId: string | null;
+  nextFeatureId: string | null;
+};
+
+function restoreTicketReviewCaches(
+  queryClient: ReturnType<typeof useQueryClient>,
+  context: TicketReviewMutationContext | undefined,
+) {
+  if (!context) {
+    return;
+  }
+
+  queryClient.setQueryData(
+    ["project", context.projectId, "features"],
+    context.previousFeatures,
+  );
+
+  context.previousTicketQueries.forEach(([queryKey, data]) => {
+    queryClient.setQueryData(queryKey, data);
+  });
+}
+
+function findCachedTicketById(
+  queryEntries: Array<[QueryKey, ApiResponse<TicketListData> | undefined]>,
+  ticketId: string,
+) {
+  for (const [, queryData] of queryEntries) {
+    const cachedTicket = queryData?.data.items.find((ticket) => ticket.id === ticketId);
+
+    if (cachedTicket) {
+      return cachedTicket;
+    }
+  }
+
+  return null;
+}
+
+function buildFeatureReference(
+  features: ProjectFeatureSummary[],
+  featureId: string | null,
+): TicketFeatureReference | null {
+  if (!featureId) {
+    return null;
+  }
+
+  const feature = features.find((item) => item.id === featureId);
+
+  if (!feature) {
+    return null;
+  }
+
+  return {
+    id: feature.id,
+    name: feature.name,
+    order: feature.order,
+  };
+}
+
+function buildPatchedTicket(
+  ticket: Ticket,
+  nextFeatureId: string | null,
+  nextFeature: TicketFeatureReference | null,
+): Ticket {
+  return {
+    ...ticket,
+    featureId: nextFeatureId,
+    feature: nextFeature,
+  };
+}
+
+function syncTicketQueries(
+  queryClient: ReturnType<typeof useQueryClient>,
+  projectId: string,
+  tickets: Ticket[],
+) {
+  const updatedTicketsById = new Map(tickets.map((ticket) => [ticket.id, ticket]));
+
+  queryClient.setQueriesData<ApiResponse<TicketListData>>(
+    { queryKey: ["project", projectId, "tickets"] },
+    (current) => {
+      if (!current) {
+        return current;
+      }
+
+      let didChange = false;
+      const nextItems = current.data.items.map((ticket) => {
+        const updatedTicket = updatedTicketsById.get(ticket.id);
+
+        if (!updatedTicket) {
+          return ticket;
+        }
+
+        didChange = true;
+        return updatedTicket;
+      });
+
+      if (!didChange) {
+        return current;
+      }
+
+      return {
+        ...current,
+        data: {
+          ...current.data,
+          items: nextItems,
+        },
+      };
+    },
+  );
+}
+
+function syncFeatureCounts(
+  queryClient: ReturnType<typeof useQueryClient>,
+  projectId: string,
+  transitions: FeatureCountTransition[],
+) {
+  const countDeltas = new Map<string, number>();
+
+  transitions.forEach(({ previousFeatureId, nextFeatureId }) => {
+    if (previousFeatureId === nextFeatureId) {
+      return;
+    }
+
+    if (previousFeatureId) {
+      countDeltas.set(previousFeatureId, (countDeltas.get(previousFeatureId) ?? 0) - 1);
+    }
+
+    if (nextFeatureId) {
+      countDeltas.set(nextFeatureId, (countDeltas.get(nextFeatureId) ?? 0) + 1);
+    }
+  });
+
+  if (!countDeltas.size) {
+    return;
+  }
+
+  queryClient.setQueryData<ApiResponse<ProjectFeatureSummary[]>>(
+    ["project", projectId, "features"],
+    (current) => {
+      if (!current) {
+        return current;
+      }
+
+      return {
+        ...current,
+        data: current.data.map((feature) => {
+          const delta = countDeltas.get(feature.id);
+
+          if (!delta) {
+            return feature;
+          }
+
+          return {
+            ...feature,
+            _count: {
+              ...feature._count,
+              tickets: Math.max(0, feature._count.tickets + delta),
+            },
+          };
+        }),
+      };
+    },
+  );
 }
