@@ -217,61 +217,69 @@ function ProjectCard({
   const nextStep = getNextProjectStep(project);
 
   return (
-    <Card className="p-6">
-      <div className="flex flex-col gap-5">
-        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-          <div className="space-y-2">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="rounded-full border border-[var(--border)] bg-[var(--surface-muted)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--foreground-muted)]">
-                Client project
-              </span>
-              <FreshnessPill tone={freshness.tone} label={freshness.label} />
-            </div>
-            <div>
-              <h2 className="max-w-xl text-2xl font-semibold text-balance">
-                <Link className="transition hover:text-[var(--primary)]" href={`/projects/${project.id}`}>
+    <Link
+      aria-label={`Open project ${project.name}`}
+      className="group block rounded-[var(--radius-xl)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]"
+      href={`/projects/${project.id}`}
+    >
+      <Card className="p-6 transition duration-200 group-hover:-translate-y-0.5 group-hover:border-[color:color-mix(in_srgb,var(--primary)_26%,var(--border))] group-hover:shadow-[var(--shadow-md)]">
+        <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+            <div className="space-y-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="rounded-full border border-[var(--border)] bg-[var(--surface-muted)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--foreground-muted)]">
+                  Client project
+                </span>
+                <FreshnessPill tone={freshness.tone} label={freshness.label} />
+                <span className="inline-flex items-center gap-1 rounded-full border border-[color:color-mix(in_srgb,var(--primary)_20%,var(--border))] bg-[color:color-mix(in_srgb,var(--primary)_10%,var(--surface))] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--primary)] transition group-hover:border-[color:color-mix(in_srgb,var(--primary)_34%,var(--border))] group-hover:bg-[color:color-mix(in_srgb,var(--primary)_14%,var(--surface))]">
+                  Open project
+                  <ArrowRight className="h-3.5 w-3.5" strokeWidth={2} />
+                </span>
+              </div>
+              <div>
+                <h2 className="max-w-xl text-2xl font-semibold text-balance transition group-hover:text-[var(--primary)]">
                   {project.name}
-                </Link>
-              </h2>
-              <p className="text-sm leading-6 text-[var(--foreground-muted)]">
-                {project.clientName} | {project.clientEmail}
-              </p>
+                </h2>
+                <p className="text-sm leading-6 text-[var(--foreground-muted)]">
+                  {project.clientName} | {project.clientEmail}
+                </p>
+              </div>
+            </div>
+            <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--background)] px-4 py-3 text-right transition group-hover:border-[color:color-mix(in_srgb,var(--primary)_20%,var(--border))]">
+              <div className="flex items-center justify-end gap-2 text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
+                <Gauge className="h-3.5 w-3.5" strokeWidth={2} />
+                Progress
+              </div>
+              <div className="mt-1 text-3xl font-semibold">{progress}%</div>
+              <div className="text-sm text-[var(--foreground-muted)]">
+                {project.features.length
+                  ? `${project.features.length} feature groups ready`
+                  : "No features contributing yet"}
+              </div>
             </div>
           </div>
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--background)] px-4 py-3 text-right">
-            <div className="flex items-center justify-end gap-2 text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
-              <Gauge className="h-3.5 w-3.5" strokeWidth={2} />
-              Progress
-            </div>
-            <div className="mt-1 text-3xl font-semibold">{progress}%</div>
-            <div className="text-sm text-[var(--foreground-muted)]">
-              {project.features.length
-                ? `${project.features.length} feature groups ready`
-                : "No features contributing yet"}
-            </div>
+
+          <div className="h-3 overflow-hidden rounded-full bg-[var(--surface-muted)]">
+            <div
+              className="h-full rounded-full bg-[var(--primary)] transition-all"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+
+          <div className="grid gap-3 md:grid-cols-3">
+            <ProjectMetric
+              label="Last synced"
+              value={project.lastSyncedAt ? formatDateTime(project.lastSyncedAt) : "Not synced yet"}
+            />
+            <ProjectMetric
+              label="Ticket count"
+              value={`${project._count.tickets} synced ticket${project._count.tickets === 1 ? "" : "s"}`}
+            />
+            <ProjectMetric label="Next step" value={nextStep.title} />
           </div>
         </div>
-
-        <div className="h-3 overflow-hidden rounded-full bg-[var(--surface-muted)]">
-          <div
-            className="h-full rounded-full bg-[var(--primary)] transition-all"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-
-        <div className="grid gap-3 md:grid-cols-3">
-          <ProjectMetric
-            label="Last synced"
-            value={project.lastSyncedAt ? formatDateTime(project.lastSyncedAt) : "Not synced yet"}
-          />
-          <ProjectMetric
-            label="Ticket count"
-            value={`${project._count.tickets} synced ticket${project._count.tickets === 1 ? "" : "s"}`}
-          />
-          <ProjectMetric label="Next step" value={nextStep.title} />
-        </div>
-      </div>
-    </Card>
+      </Card>
+    </Link>
   );
 }
 

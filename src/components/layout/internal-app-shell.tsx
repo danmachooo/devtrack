@@ -37,6 +37,8 @@ const sidebarFooterTriggerBaseClasses =
   "flex items-center rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--background)] text-sm font-medium text-[var(--foreground)] transition hover:bg-[var(--surface-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]";
 const sidebarFooterIconClasses =
   "inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground-muted)]";
+const sidebarLabelTransitionClasses =
+  "overflow-hidden transition-[max-width,opacity,margin] duration-200 ease-out";
 
 export function InternalAppShell({ children }: PropsWithChildren) {
   const router = useRouter();
@@ -71,7 +73,7 @@ export function InternalAppShell({ children }: PropsWithChildren) {
     <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <div className="grid min-h-screen grid-cols-1 md:grid-cols-[auto_1fr]">
         <aside
-          className={`sticky top-0 flex h-screen self-start flex-col overflow-visible border-r border-[var(--border)] bg-[var(--surface)] px-4 py-6 transition-all ${
+          className={`sticky top-0 flex h-screen self-start flex-col overflow-visible border-r border-[var(--border)] bg-[var(--surface)] px-4 py-6 transition-[width] duration-200 ease-out ${
             isSidebarOpen ? "w-64" : "w-20"
           }`}
         >
@@ -92,7 +94,11 @@ export function InternalAppShell({ children }: PropsWithChildren) {
               <div className="flex h-11 w-11 items-center justify-center rounded-[var(--radius-md)] bg-[color:color-mix(in_srgb,var(--primary)_18%,var(--surface))] text-[var(--primary)] shadow-[var(--shadow-sm)]">
                 <LayoutDashboard className="h-5 w-5" strokeWidth={2.1} />
               </div>
-              <div className={isSidebarOpen ? "block" : "hidden"}>
+              <div
+                className={`${sidebarLabelTransitionClasses} ${
+                  isSidebarOpen ? "max-w-40 opacity-100" : "max-w-0 opacity-0"
+                }`}
+              >
                 <div className="text-lg font-semibold">DevTrack</div>
                 <div className="text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
                   Internal workspace
@@ -125,7 +131,7 @@ export function InternalAppShell({ children }: PropsWithChildren) {
               type="button"
               title={themeMode === "dark" ? "Switch to light mode" : "Switch to dark mode"}
             >
-              <span className={`flex items-center ${isSidebarOpen ? "gap-3" : ""}`}>
+              <span className="flex min-w-0 items-center gap-3">
                 <span className={sidebarFooterIconClasses}>
                   {themeMode === "dark" ? (
                     <SunMedium className="h-4 w-4" strokeWidth={2.1} />
@@ -133,13 +139,21 @@ export function InternalAppShell({ children }: PropsWithChildren) {
                     <MoonStar className="h-4 w-4" strokeWidth={2.1} />
                   )}
                 </span>
-                {isSidebarOpen ? <span>{themeMode === "dark" ? "Light mode" : "Dark mode"}</span> : null}
-              </span>
-              {isSidebarOpen ? (
-                <span className="text-xs uppercase tracking-[0.16em] text-[var(--foreground-muted)]">
-                  {themeMode}
+                <span
+                  className={`${sidebarLabelTransitionClasses} whitespace-nowrap ${
+                    isSidebarOpen ? "max-w-32 opacity-100" : "max-w-0 opacity-0"
+                  }`}
+                >
+                  {themeMode === "dark" ? "Light mode" : "Dark mode"}
                 </span>
-              ) : null}
+              </span>
+              <span
+                className={`${sidebarLabelTransitionClasses} whitespace-nowrap text-xs uppercase tracking-[0.16em] text-[var(--foreground-muted)] ${
+                  isSidebarOpen ? "max-w-20 opacity-100" : "max-w-0 opacity-0"
+                }`}
+              >
+                {themeMode}
+              </span>
             </button>
 
             <details className="group relative">
@@ -151,18 +165,25 @@ export function InternalAppShell({ children }: PropsWithChildren) {
                 }`}
                 title={isSidebarOpen ? undefined : "Account"}
               >
-                <span className={`flex min-w-0 items-center ${isSidebarOpen ? "gap-3" : ""}`}>
+                <span className="flex min-w-0 items-center gap-3">
                   <span className={sidebarFooterIconClasses}>
                     <UserCircle2 className="h-5 w-5" strokeWidth={2} />
                   </span>
-                  {isSidebarOpen ? (
-                    <span className="min-w-0">
-                      <span className="block truncate text-sm font-semibold">{userName}</span>
-                      <span className="block truncate text-xs text-[var(--foreground-muted)]">{userRole}</span>
-                    </span>
-                  ) : null}
+                  <span
+                    className={`${sidebarLabelTransitionClasses} min-w-0 ${
+                      isSidebarOpen ? "max-w-32 opacity-100" : "max-w-0 opacity-0"
+                    }`}
+                  >
+                    <span className="block truncate text-sm font-semibold">{userName}</span>
+                    <span className="block truncate text-xs text-[var(--foreground-muted)]">{userRole}</span>
+                  </span>
                 </span>
-                {isSidebarOpen ? <ChevronsUpDown className="h-4 w-4 text-[var(--foreground-muted)]" strokeWidth={2} /> : null}
+                <ChevronsUpDown
+                  className={`h-4 w-4 shrink-0 text-[var(--foreground-muted)] transition-opacity duration-200 ${
+                    isSidebarOpen ? "opacity-100" : "opacity-0"
+                  }`}
+                  strokeWidth={2}
+                />
               </summary>
               <div
                 className="absolute bottom-0 left-full z-40 ml-3 w-72 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] p-4 shadow-[var(--shadow-md)]"
@@ -247,7 +268,13 @@ function SidebarNavLink({
       } ${isSidebarOpen ? "gap-3" : "justify-center"}`}
     >
       <Icon className="h-4.5 w-4.5 shrink-0" strokeWidth={2} />
-      {isSidebarOpen ? <span>{label}</span> : null}
+      <span
+        className={`${sidebarLabelTransitionClasses} whitespace-nowrap ${
+          isSidebarOpen ? "max-w-28 opacity-100" : "max-w-0 opacity-0"
+        }`}
+      >
+        {label}
+      </span>
     </Link>
   );
 }

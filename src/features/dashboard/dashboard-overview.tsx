@@ -1,6 +1,6 @@
 "use client";
 
-import { LayoutDashboard } from "lucide-react";
+import { ArrowRight, Building2, FolderKanban, LayoutDashboard, Plus } from "lucide-react";
 import Link from "next/link";
 
 import { EmptyState } from "@/components/feedback/empty-state";
@@ -19,8 +19,10 @@ export function DashboardOverview() {
   return (
     <div className="space-y-8">
       <PageHeader
+        eyebrow="Workspace overview"
         title="Dashboard"
         description="Track project health, spot stale delivery signals quickly, and move the team into the next meaningful setup or sharing step."
+        icon={<LayoutDashboard className="h-5 w-5" strokeWidth={2.1} />}
         actions={
           <RoleAwarePageActions
             items={[
@@ -28,17 +30,24 @@ export function DashboardOverview() {
                 ? {
                     label: "Create project",
                     href: "/projects",
+                    icon: <Plus className="h-4 w-4" strokeWidth={2} />,
                   }
                 : {
                     label: "Open projects",
                     href: "/projects",
                     variant: "secondary",
+                    icon: <FolderKanban className="h-4 w-4" strokeWidth={2} />,
                   },
               {
                 label: "Manage organization",
                 href: "/organization",
                 action: "manageOrganization",
                 variant: "ghost",
+                icon: canCreateProject ? (
+                  <Building2 className="h-4 w-4" strokeWidth={2} />
+                ) : (
+                  <ArrowRight className="h-4 w-4" strokeWidth={2} />
+                ),
               },
             ]}
           />

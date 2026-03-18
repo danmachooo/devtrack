@@ -40,6 +40,16 @@ select {
   font: inherit;
 }
 
+button:not(:disabled),
+a[href],
+summary,
+select:not(:disabled),
+input[type="checkbox"]:not(:disabled),
+input[type="radio"]:not(:disabled),
+[role="button"]:not([aria-disabled="true"]) {
+  cursor: pointer;
+}
+
 ::selection {
   background: color-mix(in srgb, var(--primary) 30%, white);
 }
