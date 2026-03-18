@@ -13,7 +13,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
 import { Select } from "@/components/ui/select";
-import { useSession } from "@/hooks/use-session";
+import { useInternalSession } from "@/features/auth/internal-session-context";
 import { formatRoleLabel } from "@/lib/auth/permissions";
 import {
   acceptInvitation,
@@ -45,7 +45,7 @@ const memberRoles: UserRole[] = [
 
 export default function OrganizationPage() {
   const queryClient = useQueryClient();
-  const { data: sessionResponse } = useSession();
+  const { data: sessionResponse } = useInternalSession();
   const session = sessionResponse?.data.session;
   const user = sessionResponse?.data.user;
   const activeOrganizationId = session?.activeOrganizationId ?? null;

@@ -16,9 +16,10 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { PropsWithChildren } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useShallow } from "zustand/react/shallow";
 
 import { Button } from "@/components/ui/button";
-import { useSession } from "@/hooks/use-session";
+import { useInternalSession } from "@/features/auth/internal-session-context";
 import { signOut } from "@/lib/api/auth.api";
 import { formatRoleLabel } from "@/lib/auth/permissions";
 import { getOrganization } from "@/lib/api/organization.api";
@@ -43,8 +44,15 @@ export function InternalAppShell({ children }: PropsWithChildren) {
   const router = useRouter();
   const pathname = usePathname();
   const queryClient = useQueryClient();
-  const { isSidebarOpen, toggleSidebar, themeMode, toggleThemeMode } = useUiStore();
-  const { data } = useSession();
+  const { isSidebarOpen, toggleSidebar, themeMode, toggleThemeMode } = useUiStore(
+    useShallow((state) => ({
+      isSidebarOpen: state.isSidebarOpen,
+      toggleSidebar: state.toggleSidebar,
+      themeMode: state.themeMode,
+      toggleThemeMode: state.toggleThemeMode,
+    })),
+  );
+  const { data } = useInternalSession();
   const signOutMutation = useMutation({
     mutationFn: signOut,
     onSuccess: async () => {

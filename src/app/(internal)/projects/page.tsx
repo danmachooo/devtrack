@@ -25,7 +25,7 @@ import {
   type CreateProjectFormValues,
 } from "@/features/projects/projects.schemas";
 import { useProjectListProgress } from "@/features/projects/use-project-list-progress";
-import { useSession } from "@/hooks/use-session";
+import { useInternalSession } from "@/features/auth/internal-session-context";
 import { createProject, getProjects } from "@/lib/api/projects.api";
 import { canPerformAction } from "@/lib/auth/permissions";
 import { useUiStore } from "@/store/ui-store";
@@ -33,7 +33,7 @@ import type { Project } from "@/types/api";
 
 export default function ProjectsPage() {
   const queryClient = useQueryClient();
-  const { data: sessionResponse } = useSession();
+  const { data: sessionResponse } = useInternalSession();
   const showToast = useUiStore((state) => state.showToast);
   const userRole = sessionResponse?.data.user?.role;
   const canCreateProject = canPerformAction(userRole, "manageProjects");
@@ -42,6 +42,7 @@ export default function ProjectsPage() {
   const projectsQuery = useQuery({
     queryKey: ["projects"],
     queryFn: getProjects,
+    staleTime: 30_000,
   });
 
   const {

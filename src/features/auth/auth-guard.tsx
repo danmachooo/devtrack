@@ -8,12 +8,12 @@ import { EmptyState } from "@/components/feedback/empty-state";
 import { ErrorState } from "@/components/feedback/error-state";
 import { Loader } from "@/components/feedback/loader";
 import { Button } from "@/components/ui/button";
-import { useSession } from "@/hooks/use-session";
+import { useInternalSession } from "@/features/auth/internal-session-context";
 
 export function InternalRouteGuard({ children }: PropsWithChildren) {
   const router = useRouter();
   const pathname = usePathname();
-  const { data, error, isPending } = useSession();
+  const { data, error, isPending } = useInternalSession();
 
   const session = data?.data.session;
   const user = data?.data.user;

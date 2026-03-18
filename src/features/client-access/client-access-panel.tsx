@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { InfoPopover } from "@/components/ui/info-popover";
-import { useSession } from "@/hooks/use-session";
+import { useInternalSession } from "@/features/auth/internal-session-context";
 import { canPerformAction } from "@/lib/auth/permissions";
 import { formatDateTime } from "@/features/projects/project-utils";
 import { useClientAccess } from "@/features/client-access/use-client-access";
@@ -14,7 +14,7 @@ type ClientAccessPanelProps = {
 };
 
 export function ClientAccessPanel({ project }: ClientAccessPanelProps) {
-  const { data: sessionResponse } = useSession();
+  const { data: sessionResponse } = useInternalSession();
   const role = sessionResponse?.data.user?.role;
   const canViewClientAccess = canPerformAction(role, "viewClientAccess");
   const { clientAccessQuery, copyLink, copyState } = useClientAccess(project.id, canViewClientAccess);

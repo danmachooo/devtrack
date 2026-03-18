@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { useSession } from "@/hooks/use-session";
+import { useInternalSession } from "@/features/auth/internal-session-context";
 import { canPerformAction } from "@/lib/auth/permissions";
 import { formatDateTime, getSyncFreshness } from "@/features/projects/project-utils";
 import { useSyncPanel } from "@/features/sync/use-sync-panel";
@@ -14,7 +14,7 @@ type SyncPanelProps = {
 };
 
 export function SyncPanel({ project }: SyncPanelProps) {
-  const { data: sessionResponse } = useSession();
+  const { data: sessionResponse } = useInternalSession();
   const role = sessionResponse?.data.user?.role;
   const canTriggerSync = canPerformAction(role, "triggerManualSync");
   const { syncCopy, syncMutation, syncState, triggerSync } = useSyncPanel(

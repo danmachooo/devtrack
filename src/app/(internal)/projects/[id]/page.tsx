@@ -13,6 +13,7 @@ import {
   Settings2,
 } from "lucide-react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useParams } from "next/navigation";
 import { type FormEventHandler, useEffect, useMemo, useState } from "react";
 import { type FieldErrors, type UseFormRegister, useForm } from "react-hook-form";
@@ -26,10 +27,6 @@ import { Card } from "@/components/ui/card";
 import { InfoPopover } from "@/components/ui/info-popover";
 import { Input } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
-import { ClientAccessPanel } from "@/features/client-access/client-access-panel";
-import { FeatureManagementPanel } from "@/features/features-management/feature-management-panel";
-import { NotionIntegrationPanel } from "@/features/notion/notion-integration-panel";
-import { ProgressAndSyncLogsPanel } from "@/features/progress/progress-and-sync-logs-panel";
 import {
   formatDateTime,
   getNextProjectStep,
@@ -41,13 +38,67 @@ import {
   updateProjectSchema,
   type UpdateProjectFormValues,
 } from "@/features/projects/projects.schemas";
-import { SyncPanel } from "@/features/sync/sync-panel";
+import { useInternalSession } from "@/features/auth/internal-session-context";
 import { useSyncPanel } from "@/features/sync/use-sync-panel";
-import { useSession } from "@/hooks/use-session";
 import { canPerformAction } from "@/lib/auth/permissions";
 import { getProject, updateProject } from "@/lib/api/projects.api";
 import { useUiStore } from "@/store/ui-store";
 import type { Project } from "@/types/api";
+
+const NotionIntegrationPanel = dynamic(
+  () =>
+    import("@/features/notion/notion-integration-panel").then((module) => ({
+      default: module.NotionIntegrationPanel,
+    })),
+  {
+    ssr: false,
+    loading: () => <DeferredPanelFallback title="Loading Notion setup..." />,
+  },
+);
+
+const SyncPanel = dynamic(
+  () =>
+    import("@/features/sync/sync-panel").then((module) => ({
+      default: module.SyncPanel,
+    })),
+  {
+    ssr: false,
+    loading: () => <DeferredPanelFallback title="Loading sync controls..." />,
+  },
+);
+
+const FeatureManagementPanel = dynamic(
+  () =>
+    import("@/features/features-management/feature-management-panel").then((module) => ({
+      default: module.FeatureManagementPanel,
+    })),
+  {
+    ssr: false,
+    loading: () => <DeferredPanelFallback title="Loading feature workspace..." />,
+  },
+);
+
+const ProgressAndSyncLogsPanel = dynamic(
+  () =>
+    import("@/features/progress/progress-and-sync-logs-panel").then((module) => ({
+      default: module.ProgressAndSyncLogsPanel,
+    })),
+  {
+    ssr: false,
+    loading: () => <DeferredPanelFallback title="Loading progress and sync history..." />,
+  },
+);
+
+const ClientAccessPanel = dynamic(
+  () =>
+    import("@/features/client-access/client-access-panel").then((module) => ({
+      default: module.ClientAccessPanel,
+    })),
+  {
+    ssr: false,
+    loading: () => <DeferredPanelFallback title="Loading client access..." />,
+  },
+);
 
 type WorkspaceTab = "organization" | "health";
 type SetupStepId =
@@ -62,7 +113,7 @@ export default function ProjectDetailPage() {
   const params = useParams<{ id: string }>();
   const projectId = typeof params.id === "string" ? params.id : "";
   const queryClient = useQueryClient();
-  const { data: sessionResponse } = useSession();
+  const { data: sessionResponse } = useInternalSession();
   const showToast = useUiStore((state) => state.showToast);
   const userRole = sessionResponse?.data.user?.role;
   const canEditProject = canPerformAction(userRole, "manageProjects");
@@ -78,7 +129,8 @@ export default function ProjectDetailPage() {
     queryKey: ["project", projectId],
     queryFn: () => getProject(projectId),
     enabled: Boolean(projectId),
-    refetchOnWindowFocus: true,
+    staleTime: 30_000,
+    refetchOnWindowFocus: false,
   });
 
   const project = projectQuery.data?.data;
@@ -208,6 +260,8 @@ export default function ProjectDetailPage() {
   };
 
   const setupActionLabel = getSetupActionLabel(activeStepId, canLaunchSetup, canAssignTickets);
+  const isFeatureStepFocused = isSetupModalOpen && activeStepId === "create-features";
+  const isShareStepFocused = isSetupModalOpen && activeStepId === "share-client-link";
 
   return (
     <div className="space-y-8">
@@ -425,7 +479,7 @@ export default function ProjectDetailPage() {
 
         {workspaceTab === "organization" ? (
           <div className="space-y-6">
-            <FeatureManagementPanel project={project} />
+            {!isFeatureStepFocused ? <FeatureManagementPanel project={project} /> : null}
             <ProjectWorkspaceHandoff
               description="Ticket review and assignment now live in the dedicated tickets workspace so this page can stay focused on setup and readiness."
               href={`/tickets?projectId=${project.id}`}
@@ -435,7 +489,7 @@ export default function ProjectDetailPage() {
         ) : (
           <div className="space-y-6">
             <ProgressAndSyncLogsPanel project={project} />
-            <ClientAccessPanel project={project} />
+            {!isShareStepFocused ? <ClientAccessPanel project={project} /> : null}
           </div>
         )}
       </Card>
@@ -701,7 +755,7 @@ function HeaderSyncSignal({
   project: Project;
   freshness: ReturnType<typeof getSyncFreshness>;
 }) {
-  const { data: sessionResponse } = useSession();
+  const { data: sessionResponse } = useInternalSession();
   const role = sessionResponse?.data.user?.role;
   const canTriggerSync = canPerformAction(role, "triggerManualSync");
   const isBlocked = !project.notionDatabaseId || !project.statusMapping;
@@ -878,6 +932,15 @@ function ProjectWorkspaceHandoff({
           Browse all projects
         </Link>
       </div>
+    </Card>
+  );
+}
+
+function DeferredPanelFallback({ title }: { title: string }) {
+  return (
+    <Card className="space-y-3 p-6">
+      <div className="text-sm font-medium text-[var(--foreground)]">{title}</div>
+      <div className="h-24 animate-pulse rounded-[var(--radius-md)] bg-[var(--surface-muted)]" />
     </Card>
   );
 }

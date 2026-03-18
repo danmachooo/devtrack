@@ -17,6 +17,7 @@ export function useTicketsWorkspace() {
   const projectsQuery = useQuery({
     queryKey: ["projects"],
     queryFn: getProjects,
+    staleTime: 30_000,
   });
 
   const projects = projectsQuery.data?.data ?? [];

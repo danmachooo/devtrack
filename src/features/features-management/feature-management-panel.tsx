@@ -23,9 +23,9 @@ import {
   createFeatureSchema,
   type CreateFeatureFormValues,
 } from "@/features/features-management/feature.schemas";
+import { useInternalSession } from "@/features/auth/internal-session-context";
 import { useFeatureManagement } from "@/features/features-management/use-feature-management";
 import { buildFeatureProgressSummaries } from "@/features/progress/progress-utils";
-import { useSession } from "@/hooks/use-session";
 import { getProjectTickets } from "@/lib/api/tickets.api";
 import { canPerformAction } from "@/lib/auth/permissions";
 import type { Project } from "@/types/api";
@@ -35,7 +35,7 @@ type FeatureManagementPanelProps = {
 };
 
 export function FeatureManagementPanel({ project }: FeatureManagementPanelProps) {
-  const { data: sessionResponse } = useSession();
+  const { data: sessionResponse } = useInternalSession();
   const role = sessionResponse?.data.user?.role;
   const canManageFeatures = canPerformAction(role, "manageFeatures");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);

@@ -125,10 +125,8 @@ export function useTicketReview(projectId: string, options: UseTicketReviewOptio
       updateTicketFeature(ticketId, { featureId: nextFeatureId }),
     onSuccess: async () => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["project", projectId] }),
         queryClient.invalidateQueries({ queryKey: ["project", projectId, "tickets"] }),
         queryClient.invalidateQueries({ queryKey: ["project", projectId, "features"] }),
-        queryClient.invalidateQueries({ queryKey: ["projects"] }),
       ]);
     },
   });
@@ -138,10 +136,8 @@ export function useTicketReview(projectId: string, options: UseTicketReviewOptio
     onSuccess: async () => {
       clearSelection();
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["project", projectId] }),
         queryClient.invalidateQueries({ queryKey: ["project", projectId, "tickets"] }),
         queryClient.invalidateQueries({ queryKey: ["project", projectId, "features"] }),
-        queryClient.invalidateQueries({ queryKey: ["projects"] }),
       ]);
     },
   });

@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { type ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
-import { useSession } from "@/hooks/use-session";
+import { useInternalSession } from "@/features/auth/internal-session-context";
 import { canPerformAction, type PermissionAction } from "@/lib/auth/permissions";
 
 type PageActionItem = {
@@ -22,7 +22,7 @@ type RoleAwarePageActionsProps = {
 
 export function RoleAwarePageActions({ items }: RoleAwarePageActionsProps) {
   const router = useRouter();
-  const { data } = useSession();
+  const { data } = useInternalSession();
   const role = data?.data.user?.role;
 
   const visibleItems = items.filter((item) =>

@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { InfoPopover } from "@/components/ui/info-popover";
 import { Input } from "@/components/ui/input";
-import { useSession } from "@/hooks/use-session";
+import { useInternalSession } from "@/features/auth/internal-session-context";
 import { canPerformAction } from "@/lib/auth/permissions";
 import {
   notionConnectionSchema,
@@ -30,7 +30,7 @@ type NotionIntegrationPanelProps = {
 };
 
 export function NotionIntegrationPanel({ project }: NotionIntegrationPanelProps) {
-  const { data: sessionResponse } = useSession();
+  const { data: sessionResponse } = useInternalSession();
   const role = sessionResponse?.data.user?.role;
   const canManageNotion = canPerformAction(role, "manageNotion");
   const [activeStage, setActiveStage] = useState<"connection" | "mapping">(

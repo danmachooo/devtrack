@@ -30,8 +30,8 @@ import {
   ticketSortOrderOptions,
   ticketStatusOptions,
 } from "@/features/tickets/ticket-review.constants";
+import { useInternalSession } from "@/features/auth/internal-session-context";
 import { useTicketReview } from "@/features/tickets/use-ticket-review";
-import { useSession } from "@/hooks/use-session";
 import { canPerformAction } from "@/lib/auth/permissions";
 import type { DevtrackStatus, Project, SortOrder, TicketSortBy } from "@/types/api";
 
@@ -40,7 +40,7 @@ type TicketReviewPanelProps = {
 };
 
 export function TicketReviewPanel({ project }: TicketReviewPanelProps) {
-  const { data: sessionResponse } = useSession();
+  const { data: sessionResponse } = useInternalSession();
   const role = sessionResponse?.data.user?.role;
   const canAssignTickets = canPerformAction(role, "assignTickets");
   const {
