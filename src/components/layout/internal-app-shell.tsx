@@ -127,35 +127,33 @@ export function InternalAppShell({ children }: PropsWithChildren) {
               type="button"
               title={themeMode === "dark" ? "Switch to light mode" : "Switch to dark mode"}
             >
-              <span className="flex min-w-0 items-center gap-3">
-                <span
-                  className={
-                    isSidebarOpen
-                      ? sidebarFooterIconClasses
-                      : "inline-flex items-center justify-center text-[var(--foreground-muted)]"
-                  }
-                >
-                  {themeMode === "dark" ? (
-                    <SunMedium className="h-4 w-4" strokeWidth={2.1} />
-                  ) : (
-                    <MoonStar className="h-4 w-4" strokeWidth={2.1} />
-                  )}
-                </span>
-                <span
-                  className={`${sidebarLabelTransitionClasses} whitespace-nowrap ${
-                    isSidebarOpen ? "max-w-32 opacity-100" : "max-w-0 opacity-0"
-                  }`}
-                >
-                  {themeMode === "dark" ? "Light mode" : "Dark mode"}
-                </span>
-              </span>
-              <span
-                className={`${sidebarLabelTransitionClasses} whitespace-nowrap text-xs uppercase tracking-[0.16em] text-[var(--foreground-muted)] ${
-                  isSidebarOpen ? "max-w-20 opacity-100" : "max-w-0 opacity-0"
-                }`}
-              >
-                {themeMode}
-              </span>
+              {isSidebarOpen ? (
+                <>
+                  <span className="flex min-w-0 items-center gap-3">
+                    <span className={sidebarFooterIconClasses}>
+                      {themeMode === "dark" ? (
+                        <SunMedium className="h-4 w-4" strokeWidth={2.1} />
+                      ) : (
+                        <MoonStar className="h-4 w-4" strokeWidth={2.1} />
+                      )}
+                    </span>
+                    <span
+                      className={`${sidebarLabelTransitionClasses} max-w-32 whitespace-nowrap opacity-100`}
+                    >
+                      {themeMode === "dark" ? "Light mode" : "Dark mode"}
+                    </span>
+                  </span>
+                  <span
+                    className={`${sidebarLabelTransitionClasses} max-w-20 whitespace-nowrap text-xs uppercase tracking-[0.16em] text-[var(--foreground-muted)] opacity-100`}
+                  >
+                    {themeMode}
+                  </span>
+                </>
+              ) : themeMode === "dark" ? (
+                <SunMedium className="h-4 w-4 text-[var(--foreground-muted)]" strokeWidth={2.1} />
+              ) : (
+                <MoonStar className="h-4 w-4 text-[var(--foreground-muted)]" strokeWidth={2.1} />
+              )}
             </button>
 
             <details className={`group relative ${isSidebarOpen ? "block" : "flex w-full justify-center"}`}>
@@ -163,35 +161,29 @@ export function InternalAppShell({ children }: PropsWithChildren) {
                 className={`${sidebarFooterTriggerBaseClasses} cursor-pointer list-none ${
                   isSidebarOpen
                     ? "h-11 w-full justify-between gap-3 px-3"
-                    : collapsedSidebarUtilityClasses
+                  : collapsedSidebarUtilityClasses
                 }`}
                 title={isSidebarOpen ? undefined : "Account"}
               >
-                <span className="flex min-w-0 items-center gap-3">
-                  <span
-                    className={
-                      isSidebarOpen
-                        ? sidebarFooterIconClasses
-                        : "inline-flex items-center justify-center text-[var(--foreground-muted)]"
-                    }
-                  >
-                    <UserCircle2 className="h-5 w-5" strokeWidth={2} />
-                  </span>
-                  <span
-                    className={`${sidebarLabelTransitionClasses} min-w-0 ${
-                      isSidebarOpen ? "max-w-32 opacity-100" : "max-w-0 opacity-0"
-                    }`}
-                  >
-                    <span className="block truncate text-sm font-semibold">{userName}</span>
-                    <span className="block truncate text-xs text-[var(--foreground-muted)]">{userRole}</span>
-                  </span>
-                </span>
-                <ChevronsUpDown
-                  className={`h-4 w-4 shrink-0 text-[var(--foreground-muted)] transition-opacity duration-200 ${
-                    isSidebarOpen ? "opacity-100" : "hidden opacity-0"
-                  }`}
-                  strokeWidth={2}
-                />
+                {isSidebarOpen ? (
+                  <>
+                    <span className="flex min-w-0 items-center gap-3">
+                      <span className={sidebarFooterIconClasses}>
+                        <UserCircle2 className="h-5 w-5" strokeWidth={2} />
+                      </span>
+                      <span className={`${sidebarLabelTransitionClasses} min-w-0 max-w-32 opacity-100`}>
+                        <span className="block truncate text-sm font-semibold">{userName}</span>
+                        <span className="block truncate text-xs text-[var(--foreground-muted)]">{userRole}</span>
+                      </span>
+                    </span>
+                    <ChevronsUpDown
+                      className="h-4 w-4 shrink-0 text-[var(--foreground-muted)] transition-opacity duration-200 opacity-100"
+                      strokeWidth={2}
+                    />
+                  </>
+                ) : (
+                  <UserCircle2 className="h-5 w-5 text-[var(--foreground-muted)]" strokeWidth={2} />
+                )}
               </summary>
               <div
                 className="absolute bottom-0 left-full z-40 ml-3 w-72 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] p-4 shadow-[var(--shadow-md)]"
