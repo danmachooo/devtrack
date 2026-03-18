@@ -103,7 +103,7 @@ export function InternalAppShell({ children }: PropsWithChildren) {
                 className="flex items-center gap-2.5 min-w-0"
               >
                 {/* Logo constrained to a consistent square so it never overflows */}
-                <span className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-[var(--radius-md)]">
+                <span className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-sm">
                   <BrandMark
                     href=""          /* navigation handled by parent <Link> */
                     imageClassName="!h-8 !w-8 object-contain shadow-none"
@@ -128,7 +128,7 @@ export function InternalAppShell({ children }: PropsWithChildren) {
               <Link
                 href="/dashboard"
                 aria-label="DevTrack – go to dashboard"
-                className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-[var(--radius-md)]"
+                className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-sm"
               >
                 <BrandMark
                   href=""
