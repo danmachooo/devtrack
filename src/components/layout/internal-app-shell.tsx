@@ -89,7 +89,7 @@ export function InternalAppShell({ children }: PropsWithChildren) {
               <PanelLeftOpen className="h-4 w-4" strokeWidth={2} />
             )}
           </button>
-          <div className={`mb-6 flex ${isSidebarOpen ? "items-center" : "justify-center"}`}>
+          <div className={`mb-5 flex ${isSidebarOpen ? "items-center" : "justify-center"}`}>
             <div className="flex items-center overflow-hidden">
               <BrandMark
                 className={isSidebarOpen ? undefined : "justify-center"}
@@ -97,12 +97,12 @@ export function InternalAppShell({ children }: PropsWithChildren) {
                 imageClassName="shadow-[var(--shadow-sm)]"
                 priority
                 showLabel={isSidebarOpen}
-                size={isSidebarOpen ? "md" : "sm"}
-                subtitle={isSidebarOpen ? "Internal workspace" : undefined}
+                size="sm"
+                subtitle={undefined}
               />
             </div>
           </div>
-          <nav className="space-y-2">
+          <nav className={isSidebarOpen ? "space-y-2" : "flex flex-col items-center gap-4"}>
             {navigation.map((item) => (
               <SidebarNavLink
                 key={item.href}
@@ -257,11 +257,15 @@ function SidebarNavLink({
       aria-label={label}
       href={href}
       title={isSidebarOpen ? undefined : label}
-      className={`flex items-center rounded-[var(--radius-md)] px-3 py-3 text-sm font-medium transition ${
+      className={`flex items-center rounded-[var(--radius-md)] text-sm font-medium transition ${
         isActive
-          ? "bg-[color:color-mix(in_srgb,var(--primary)_16%,var(--surface))] text-[var(--foreground)] shadow-[var(--shadow-sm)]"
+          ? "bg-[color:color-mix(in_srgb,var(--primary)_14%,var(--surface))] text-[var(--foreground)] shadow-[var(--shadow-sm)]"
           : "text-[var(--foreground-muted)] hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)]"
-      } ${isSidebarOpen ? "gap-3" : "justify-center"}`}
+      } ${
+        isSidebarOpen
+          ? "gap-3 px-3 py-3"
+          : "h-10 w-10 justify-center self-center rounded-xl"
+      }`}
     >
       <Icon className="h-4.5 w-4.5 shrink-0" strokeWidth={2} />
       <span
