@@ -75,15 +75,17 @@ export function TicketsWorkspace() {
         <EmptyState
           title="No projects are ready for ticket review yet"
           description="Create the first client delivery track before the team can start syncing work, reviewing tickets, and mapping them into features."
-          icon={
-            <Ticket className="h-6 w-6" strokeWidth={2.1} />
-          }
+          icon={<Ticket className="h-6 w-6" strokeWidth={2.1} />}
         >
           <LinkButton href="/projects">Open projects</LinkButton>
         </EmptyState>
       ) : selectedProject ? (
         <>
           <Card className="overflow-hidden border-[color:color-mix(in_srgb,var(--primary)_16%,var(--border))] bg-[linear-gradient(180deg,color-mix(in_srgb,var(--primary)_7%,var(--surface))_0%,var(--surface)_38%,var(--background)_100%)] p-0">
+            {/*
+             * Two-pane layout: info left, project switcher right.
+             * lg:grid-cols-[1.12fr_0.88fr] is fine — lg (1024px) is a real desktop.
+             */}
             <div className="grid gap-0 lg:grid-cols-[1.12fr_0.88fr]">
               <div className="space-y-5 p-5 sm:p-6 lg:p-7">
                 <div className="inline-flex items-center gap-2 rounded-full border border-[color:color-mix(in_srgb,var(--primary)_18%,var(--border))] bg-[color:color-mix(in_srgb,var(--primary)_10%,var(--surface))] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--foreground-muted)]">
@@ -169,8 +171,14 @@ function SelectedProjectSummary({
 
   return (
     <div className="rounded-[calc(var(--radius-lg)+2px)] border border-[var(--border)] bg-[linear-gradient(180deg,var(--background)_0%,color-mix(in_srgb,var(--surface)_84%,var(--background))_100%)] p-5">
-      <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
-        <div className="space-y-2">
+      {/*
+       * Header row: project name + pills left, CTA button right.
+       * Was xl:flex-row — stacked all the way to 1280px.
+       * sm:flex-row goes inline as soon as there's basic horizontal room.
+       * items-start so button anchors to the top of the text block.
+       */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0 space-y-2">
           <div className="flex flex-wrap items-center gap-2">
             <FreshnessPill label={freshness.label} tone={freshness.tone} />
             <span className="rounded-full border border-[var(--border)] bg-[var(--surface)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--foreground-muted)]">
@@ -190,10 +198,18 @@ function SelectedProjectSummary({
           </div>
         </div>
 
-        <LinkButton href={`/projects/${project.id}`}>Open command center</LinkButton>
+        {/* shrink-0 so button never squishes when project name is long */}
+        <div className="shrink-0">
+          <LinkButton href={`/projects/${project.id}`}>Open command center</LinkButton>
+        </div>
       </div>
 
-      <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+      {/*
+       * Metrics row:
+       * - mobile: 1 col
+       * - sm:     3 cols (was xl:grid-cols-3 — never reached inside a sidebar-offset layout)
+       */}
+      <div className="mt-5 grid gap-3 sm:grid-cols-3">
         <ProjectMetric
           label="Last synced"
           value={project.lastSyncedAt ? formatDateTime(project.lastSyncedAt) : "Awaiting first sync"}
@@ -209,7 +225,7 @@ function ProjectMetric({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[color:color-mix(in_srgb,var(--surface)_92%,var(--background))] p-4">
       <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
-        <Sparkles className="h-3.5 w-3.5" strokeWidth={2} />
+        <Sparkles className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
         {label}
       </div>
       <div className="mt-2 text-sm font-medium leading-6">{value}</div>
@@ -247,7 +263,7 @@ function TicketsWorkspaceSkeleton() {
       <Card className="space-y-4 p-6">
         <div className="h-6 w-48 animate-pulse rounded bg-[var(--surface-muted)]" />
         <div className="h-11 animate-pulse rounded-[var(--radius-md)] bg-[var(--surface-muted)]" />
-        <div className="grid gap-3 md:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-3">
           <div className="h-20 animate-pulse rounded-[var(--radius-md)] bg-[var(--surface-muted)]" />
           <div className="h-20 animate-pulse rounded-[var(--radius-md)] bg-[var(--surface-muted)]" />
           <div className="h-20 animate-pulse rounded-[var(--radius-md)] bg-[var(--surface-muted)]" />
@@ -278,26 +294,17 @@ function DeferredTicketReviewFallback() {
       </div>
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
         {Array.from({ length: 5 }).map((_, index) => (
-          <div
-            key={index}
-            className="h-28 animate-pulse rounded-[var(--radius-lg)] bg-[var(--surface-muted)]"
-          />
+          <div key={index} className="h-28 animate-pulse rounded-[var(--radius-lg)] bg-[var(--surface-muted)]" />
         ))}
       </div>
-      <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {Array.from({ length: 4 }).map((_, index) => (
-          <div
-            key={index}
-            className="h-24 animate-pulse rounded-[var(--radius-lg)] bg-[var(--surface-muted)]"
-          />
+          <div key={index} className="h-24 animate-pulse rounded-[var(--radius-lg)] bg-[var(--surface-muted)]" />
         ))}
       </div>
       <div className="space-y-4">
         {Array.from({ length: 3 }).map((_, index) => (
-          <div
-            key={index}
-            className="h-36 animate-pulse rounded-[var(--radius-xl)] bg-[var(--surface-muted)]"
-          />
+          <div key={index} className="h-36 animate-pulse rounded-[var(--radius-xl)] bg-[var(--surface-muted)]" />
         ))}
       </div>
     </Card>
@@ -333,10 +340,10 @@ function FreshnessPill({
 function LinkButton({ children, href }: { children: string; href: string }) {
   return (
     <Link
-      className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 text-sm font-semibold text-[var(--foreground)] transition duration-200 hover:-translate-y-0.5 hover:border-[color:color-mix(in_srgb,var(--primary)_24%,var(--border))] hover:bg-[var(--surface-muted)] hover:shadow-[var(--shadow-sm)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] sm:w-auto"
+      className="inline-flex min-h-10 w-auto items-center justify-center gap-2 whitespace-nowrap rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-sm font-semibold text-[var(--foreground)] transition duration-200 hover:-translate-y-0.5 hover:border-[color:color-mix(in_srgb,var(--primary)_24%,var(--border))] hover:bg-[var(--surface-muted)] hover:shadow-[var(--shadow-sm)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]"
       href={href}
     >
-      <ArrowRight className="h-4 w-4" strokeWidth={2} />
+      <ArrowRight className="h-4 w-4 shrink-0" strokeWidth={2} />
       {children}
     </Link>
   );

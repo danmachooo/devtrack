@@ -189,7 +189,15 @@ export default function ProjectsPage() {
           description="DevTrack could not load the organization project list right now. Try again in a moment."
         />
       ) : sortedProjects.length ? (
-        <div className="grid gap-5 2xl:grid-cols-2">
+        /*
+         * Project grid:
+         * - mobile:  1 col (full width, readable)
+         * - lg:      2 cols (was 2xl-only — far too late for normal desktops)
+         *
+         * items-start so cards don't stretch to each other's height
+         * when one has more content than the other.
+         */
+        <div className="grid gap-5 lg:grid-cols-2 lg:items-start">
           {sortedProjects.map((project) => (
             <ProjectCard
               key={project.id}
@@ -238,8 +246,19 @@ function ProjectCard({
     >
       <Card className="p-5 transition duration-200 group-hover:-translate-y-0.5 group-hover:border-[color:color-mix(in_srgb,var(--primary)_26%,var(--border))] group-hover:shadow-[var(--shadow-md)] sm:p-6">
         <div className="flex flex-col gap-5">
-          <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
-            <div className="space-y-2">
+
+          {/*
+           * Card header: project meta (left) + progress widget (right).
+           *
+           * Was `xl:flex-row` — meaning it stacked all the way to 1280px,
+           * which inside a 2xl two-column grid meant it NEVER went side-by-side.
+           * Changed to `sm:flex-row` so it goes inline early.
+           *
+           * Progress widget gets a fixed min-width so it doesn't squish
+           * when the project name is long.
+           */}
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0 space-y-2">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="rounded-full border border-[var(--border)] bg-[var(--surface-muted)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--foreground-muted)]">
                   Client project
@@ -251,7 +270,7 @@ function ProjectCard({
                 </span>
               </div>
               <div>
-                <h2 className="max-w-xl text-xl font-semibold text-balance transition group-hover:text-[var(--primary)] sm:text-2xl">
+                <h2 className="text-xl font-semibold text-balance transition group-hover:text-[var(--primary)]">
                   {project.name}
                 </h2>
                 <p className="text-sm leading-6 text-[var(--foreground-muted)]">
@@ -261,28 +280,44 @@ function ProjectCard({
                 </p>
               </div>
             </div>
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--background)] px-4 py-3 transition group-hover:border-[color:color-mix(in_srgb,var(--primary)_20%,var(--border))] xl:min-w-52 xl:text-right">
-              <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)] xl:justify-end">
-                <Gauge className="h-3.5 w-3.5" strokeWidth={2} />
+
+            {/*
+             * Progress widget:
+             * shrink-0 stops it from squishing when the title is long.
+             * w-36 gives a consistent fixed width on sm+.
+             */}
+            <div className="w-full shrink-0 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--background)] px-4 py-3 transition group-hover:border-[color:color-mix(in_srgb,var(--primary)_20%,var(--border))] sm:w-36 sm:text-right">
+              <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)] sm:justify-end">
+                <Gauge className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
                 Progress
               </div>
               <div className="mt-1 text-3xl font-semibold">{progress}%</div>
-              <div className="text-sm text-[var(--foreground-muted)]">
+              <div className="text-xs text-[var(--foreground-muted)]">
                 {project.features.length
-                  ? `${project.features.length} feature groups ready`
-                  : "No features contributing yet"}
+                  ? `${project.features.length} feature${project.features.length === 1 ? "" : "s"} ready`
+                  : "No features yet"}
               </div>
             </div>
           </div>
 
-          <div className="h-3 overflow-hidden rounded-full bg-[var(--surface-muted)]">
+          {/* Progress bar — slimmer at h-2 */}
+          <div className="h-2 overflow-hidden rounded-full bg-[var(--surface-muted)]">
             <div
               className="h-full rounded-full bg-[var(--primary)] transition-all"
               style={{ width: `${progress}%` }}
             />
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          {/*
+           * Metrics row:
+           * - mobile:  1 col (each metric full width, readable)
+           * - sm:      3 cols (enough horizontal room)
+           *
+           * Was `sm:grid-cols-2 xl:grid-cols-3` — the xl breakpoint inside a
+           * card that already sits in a 2-col grid at lg meant it never hit 3
+           * columns. Simplified to sm:grid-cols-3 directly.
+           */}
+          <div className="grid gap-3 grid-cols-1 sm:grid-cols-3">
             <ProjectMetric
               label="Last synced"
               value={project.lastSyncedAt ? formatDateTime(project.lastSyncedAt) : "Not synced yet"}
@@ -303,7 +338,7 @@ function ProjectMetric({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--background)] p-4">
       <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
-        <Sparkles className="h-3.5 w-3.5" strokeWidth={2} />
+        <Sparkles className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
         {label}
       </div>
       <div className="mt-2 text-sm font-medium leading-6">{value}</div>
@@ -313,12 +348,12 @@ function ProjectMetric({ label, value }: { label: string; value: string }) {
 
 function ProjectListSkeleton() {
   return (
-    <div className="grid gap-5 2xl:grid-cols-2">
+    <div className="grid gap-5 lg:grid-cols-2 lg:items-start">
       {Array.from({ length: 4 }).map((_, index) => (
         <Card key={index} className="space-y-5 p-6">
           <div className="h-6 w-40 animate-pulse rounded bg-[var(--surface-muted)]" />
           <div className="h-12 animate-pulse rounded-[var(--radius-md)] bg-[var(--surface-muted)]" />
-          <div className="grid gap-3 md:grid-cols-3">
+          <div className="grid gap-3 sm:grid-cols-3">
             <div className="h-20 animate-pulse rounded-[var(--radius-md)] bg-[var(--surface-muted)]" />
             <div className="h-20 animate-pulse rounded-[var(--radius-md)] bg-[var(--surface-muted)]" />
             <div className="h-20 animate-pulse rounded-[var(--radius-md)] bg-[var(--surface-muted)]" />

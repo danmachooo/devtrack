@@ -55,9 +55,7 @@ export function TicketReviewPanel({ project }: TicketReviewPanelProps) {
     allVisibleSelected,
     tickets,
     ticketsQuery,
-  } = useTicketReview(project.id, {
-    canAssignTickets,
-  });
+  } = useTicketReview(project.id, { canAssignTickets });
 
   const hasSelection = selectedTicketIds.length > 0;
   const isBusy = assignMutation.isPending || bulkAssignMutation.isPending;
@@ -109,7 +107,13 @@ export function TicketReviewPanel({ project }: TicketReviewPanelProps) {
           </span>
         </div>
 
-        <div className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-4">
+        {/*
+         * Search / filter inputs:
+         * - mobile: 1 col
+         * - md:     2 cols  (was lg — stacked too long)
+         * - xl:     4 cols  (was 2xl — never hit on normal desktops)
+         */}
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <div className="space-y-2 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] p-4">
             <label className="flex items-center gap-2 text-sm font-medium" htmlFor="ticket-search-filter">
               <Search className="h-4 w-4 text-[var(--primary)]" strokeWidth={2} />
@@ -175,7 +179,13 @@ export function TicketReviewPanel({ project }: TicketReviewPanelProps) {
           </div>
         </div>
 
-        <div className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-[1fr_1fr_0.8fr_0.8fr]">
+        {/*
+         * Toggle + sort row:
+         * - mobile: 1 col
+         * - md:     2 cols
+         * - xl:     4 cols equal  (was 2xl with fractional cols — overcomplicated)
+         */}
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <TicketFilterToggle
             checked={filterState.showUnassigned}
             description="Great for inbox-style mapping, and keeps feature-specific filtering off."

@@ -24,9 +24,24 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
   transition:
     background-color 180ms ease,
     color 180ms ease;
+}
+
+body::-webkit-scrollbar {
+  display: none;
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
 a {

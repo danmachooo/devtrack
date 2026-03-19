@@ -75,7 +75,8 @@ export function DashboardOverview() {
         </EmptyState>
       ) : (
         <>
-          <section className="grid gap-4 sm:grid-cols-2 2xl:grid-cols-4">
+          {/* Metrics row: 2-col mobile → 4-col at lg */}
+          <section className="grid grid-cols-2 gap-4 lg:grid-cols-4">
             {metrics.map((metric) => (
               <MetricCard
                 key={metric.label}
@@ -87,15 +88,30 @@ export function DashboardOverview() {
             ))}
           </section>
 
-          <section className="grid gap-5 2xl:grid-cols-[1.05fr_1.45fr]">
+          {/*
+           * Two-column section.
+           *
+           * KEY FIX: `items-start` on the grid so each column is only as tall
+           * as its own content. Without this, CSS grid stretches both cells to
+           * the height of the tallest one — so "Next Steps" grew a huge empty
+           * gap whenever "Project Health" had many projects.
+           *
+           * "Next Steps" → hugs its content (self-start is redundant but explicit)
+           * "Project Health" → grows with its list naturally
+           */}
+          <section className="grid gap-5 lg:grid-cols-[1fr_1.4fr] lg:items-start">
+
+            {/* ── Next Steps ───────────────────────────────────────────── */}
             <Card className="space-y-5 p-5 sm:p-6">
               <div className="space-y-2">
                 <p className="text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
                   Next steps
                 </p>
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div className="flex items-start justify-between gap-3">
                   <div className="space-y-1">
-                    <h2 className="text-2xl font-semibold">Keep the delivery loop moving</h2>
+                    <h2 className="text-xl font-semibold leading-snug">
+                      Keep the delivery loop moving
+                    </h2>
                     <p className="text-sm text-[var(--foreground-muted)]">
                       Priorities are ordered by the product workflow.
                     </p>
@@ -115,33 +131,34 @@ export function DashboardOverview() {
                     key={priority.id}
                     className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--background)] p-4"
                   >
-                    <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                      <div className="space-y-2">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="min-w-0 space-y-1">
                         <div className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
                           Priority {index + 1}
                         </div>
-                        <div>
-                          <h3 className="text-lg font-semibold">{priority.title}</h3>
-                          <p className="mt-1 text-sm text-[var(--foreground-muted)]">
-                            {priority.description}
-                          </p>
-                        </div>
+                        <h3 className="text-base font-semibold leading-snug">{priority.title}</h3>
+                        <p className="text-sm text-[var(--foreground-muted)]">{priority.description}</p>
                       </div>
-                      <LinkButton href={priority.href}>{priority.ctaLabel}</LinkButton>
+                      <div className="shrink-0">
+                        <LinkButton href={priority.href}>{priority.ctaLabel}</LinkButton>
+                      </div>
                     </div>
                   </div>
                 ))}
               </div>
             </Card>
 
+            {/* ── Project Health ───────────────────────────────────────── */}
             <Card className="space-y-5 p-5 sm:p-6">
               <div className="space-y-2">
                 <p className="text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
                   Project health
                 </p>
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div className="flex items-start justify-between gap-3">
                   <div className="space-y-1">
-                    <h2 className="text-2xl font-semibold">See what needs attention right now</h2>
+                    <h2 className="text-xl font-semibold leading-snug">
+                      See what needs attention right now
+                    </h2>
                     <p className="text-sm text-[var(--foreground-muted)]">
                       A quick view of freshness, progress, and the next project step.
                     </p>
@@ -155,59 +172,74 @@ export function DashboardOverview() {
                 </div>
               </div>
 
-              <div className="space-y-4">
-                {projectHealth.map((project) => (
-                  <div
-                    key={project.id}
-                    className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--background)] p-5"
-                  >
-                    <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                      <div className="space-y-2">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <FreshnessPill label={project.freshnessLabel} tone={project.freshnessTone} />
-                          <span className="rounded-full border border-[var(--border)] bg-[var(--surface)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--foreground-muted)]">
-                            {project.progress}% progress
-                          </span>
+              {/*
+               * Project list:
+               * When there are many projects the list can grow very long.
+               * Cap it at a comfortable reading height and let it scroll
+               * internally — keeps the card from becoming an endless page stretch.
+               *
+               * max-h is set in rem so it's viewport-independent:
+               *   ~3 projects visible before scroll kicks in.
+               * The fade-out mask gives a visual "more below" affordance.
+               */}
+              <div className="relative">
+                <div className="max-h-[42rem] space-y-4 overflow-y-auto pr-1 [scrollbar-width:thin]">
+                  {projectHealth.map((project) => (
+                    <div
+                      key={project.id}
+                      className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--background)] p-4 sm:p-5"
+                    >
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                        <div className="min-w-0 space-y-2">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <FreshnessPill label={project.freshnessLabel} tone={project.freshnessTone} />
+                            <span className="rounded-full border border-[var(--border)] bg-[var(--surface)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--foreground-muted)]">
+                              {project.progress}% progress
+                            </span>
+                          </div>
+                          <div>
+                            <h3 className="text-lg font-semibold leading-snug">
+                              <Link
+                                className="transition hover:text-[var(--primary)]"
+                                href={`/projects/${project.id}`}
+                              >
+                                {project.name}
+                              </Link>
+                            </h3>
+                            <p className="text-sm text-[var(--foreground-muted)]">
+                              {project.clientName} · {project.clientEmail}
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <h3 className="text-xl font-semibold">
-                            <Link
-                              className="transition hover:text-[var(--primary)]"
-                              href={`/projects/${project.id}`}
-                            >
-                              {project.name}
-                            </Link>
-                          </h3>
-                          <p className="text-sm text-[var(--foreground-muted)]">
-                            {project.clientName} · {project.clientEmail}
-                          </p>
+                        <div className="shrink-0">
+                          <LinkButton href={`/projects/${project.id}`}>Open project</LinkButton>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-3">
-                        <LinkButton href={`/projects/${project.id}`}>Open project</LinkButton>
+                      {/* Progress bar */}
+                      <div className="mt-4 h-2 overflow-hidden rounded-full bg-[var(--surface-muted)]">
+                        <div
+                          className="h-full rounded-full bg-[var(--primary)] transition-all"
+                          style={{ width: `${project.progress}%` }}
+                        />
                       </div>
-                    </div>
 
-                    <div className="mt-4 h-3 overflow-hidden rounded-full bg-[var(--surface-muted)]">
-                      <div
-                        className="h-full rounded-full bg-[var(--primary)] transition-all"
-                        style={{ width: `${project.progress}%` }}
-                      />
-                    </div>
+                      {/* Project metrics: 2-col mobile, 4-col when there's room */}
+                      <div className="mt-4 grid grid-cols-2 gap-3 xl:grid-cols-4">
+                        <ProjectMetric label="Last synced" value={project.lastSyncedLabel} />
+                        <ProjectMetric label="Tickets" value={project.ticketsLabel} />
+                        <ProjectMetric label="Features" value={project.featuresLabel} />
+                        <ProjectMetric label="Next step" value={project.nextStepTitle} />
+                      </div>
 
-                    <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                      <ProjectMetric label="Last synced" value={project.lastSyncedLabel} />
-                      <ProjectMetric label="Tickets" value={project.ticketsLabel} />
-                      <ProjectMetric label="Features" value={project.featuresLabel} />
-                      <ProjectMetric label="Next step" value={project.nextStepTitle} />
+                      <p className="mt-3 text-sm text-[var(--foreground-muted)]">
+                        {project.nextStepDescription}
+                      </p>
                     </div>
+                  ))}
+                </div>
 
-                    <p className="mt-4 text-sm text-[var(--foreground-muted)]">
-                      {project.nextStepDescription}
-                    </p>
-                  </div>
-                ))}
+
               </div>
             </Card>
           </section>
@@ -236,10 +268,10 @@ function MetricCard({
   };
 
   return (
-    <Card className="p-5">
-      <div className="space-y-3">
+    <Card className="p-4 sm:p-5">
+      <div className="space-y-2">
         <p className="text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">{label}</p>
-        <div className={`text-4xl font-semibold ${accentClasses[tone]}`}>{value}</div>
+        <div className={`text-3xl font-semibold sm:text-4xl ${accentClasses[tone]}`}>{value}</div>
         <p className="text-sm text-[var(--foreground-muted)]">{detail}</p>
       </div>
     </Card>
@@ -248,9 +280,9 @@ function MetricCard({
 
 function ProjectMetric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] p-4">
+    <div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] p-3 sm:p-4">
       <div className="text-xs uppercase tracking-[0.18em] text-[var(--foreground-muted)]">{label}</div>
-      <div className="mt-2 text-sm font-medium">{value}</div>
+      <div className="mt-1.5 text-sm font-medium">{value}</div>
     </div>
   );
 }
@@ -258,7 +290,7 @@ function ProjectMetric({ label, value }: { label: string; value: string }) {
 function DashboardSkeleton() {
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 sm:grid-cols-2 2xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {Array.from({ length: 4 }).map((_, index) => (
           <Card key={index} className="space-y-3 p-5">
             <div className="h-4 w-24 animate-pulse rounded bg-[var(--surface-muted)]" />
@@ -267,7 +299,7 @@ function DashboardSkeleton() {
           </Card>
         ))}
       </div>
-      <div className="grid gap-5 2xl:grid-cols-[1.05fr_1.45fr]">
+      <div className="grid gap-5 lg:grid-cols-[1fr_1.4fr] lg:items-start">
         {Array.from({ length: 2 }).map((_, index) => (
           <Card key={index} className="space-y-4 p-6">
             <div className="h-6 w-40 animate-pulse rounded bg-[var(--surface-muted)]" />
@@ -309,7 +341,7 @@ function FreshnessPill({
 function LinkButton({ children, href }: { children: string; href: string }) {
   return (
     <Link
-      className="inline-flex min-h-11 w-full items-center justify-center rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 text-sm font-semibold text-[var(--foreground)] transition hover:bg-[var(--surface-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] sm:w-auto"
+      className="inline-flex min-h-10 w-auto items-center justify-center whitespace-nowrap rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-sm font-semibold text-[var(--foreground)] transition hover:bg-[var(--surface-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]"
       href={href}
     >
       {children}
